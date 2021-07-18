@@ -26,11 +26,5 @@ namespace Web.Controllers
             else
                 return $"Recieved authorization code {code} with scope {scope}.";
         }
-
-        [HttpPost]
-        public string Post()
-        {
-            return $"Post was called.";
-        }
     }
 }
