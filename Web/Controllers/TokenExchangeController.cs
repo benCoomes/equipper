@@ -1,7 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using Coomes.Equipper.Operations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -12,27 +10,31 @@ namespace Coomes.Equipper.Web.Controllers
     public class TokenExchangeController : ControllerBase
     {
         private readonly ILogger<TokenExchangeController> _logger;
+        private readonly ExchangeAuthCodeForToken _exchangeOperation;
 
-        public TokenExchangeController(ILogger<TokenExchangeController> logger)
+        public TokenExchangeController(ExchangeAuthCodeForToken exchangeOperation, ILogger<TokenExchangeController> logger)
         {
             _logger = logger;
+            _exchangeOperation = exchangeOperation;
         }
 
         [HttpGet]
-        public string Get(string code, string scope, string error)
+        public async Task<IActionResult> Get(string code, string scope, string error)
         {
-            // Todo: redeem access code for token
-//             curl -X POST https://www.strava.com/api/v3/oauth/token \
-//   -d client_id=ReplaceWithClientID \
-//   -d client_secret=ReplaceWithClientSecret \
-//   -d code=ReplaceWithCode \
-//   -d grant_type=authorization_code
+
+
+            _logger.LogInformation($"Recieved code {code}, scope {scope}, and error {error}.", code, scope, error);
 
 
             if(!string.IsNullOrWhiteSpace(error))
-                return $"Recieved error {error}.";
-            else
-                return $"Recieved authorization code {code} with scope {scope}.";
+            {
+                _logger.LogError("Recieved error {error}.", error);
+                return new BadRequestObjectResult($"Recieved error {error}.");
+            }
+
+            
+            var token = await _exchangeOperation.Execute(code);
+            return Ok(token);
         }
     }
 }

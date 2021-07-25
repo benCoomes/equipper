@@ -10,6 +10,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Coomes.Equipper.Contracts;
+using Coomes.Equipper.Operations;
+using Coomes.Equipper.StravaApi;
 
 namespace Web
 {
@@ -26,6 +29,10 @@ namespace Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.AddTransient<ExchangeAuthCodeForToken>();
+
+            services.AddSingleton<ITokenProvider, TokenClient>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
