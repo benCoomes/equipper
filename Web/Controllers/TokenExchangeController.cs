@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace Web.Controllers
+namespace Coomes.Equipper.Web.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -21,6 +21,14 @@ namespace Web.Controllers
         [HttpGet]
         public string Get(string code, string scope, string error)
         {
+            // Todo: redeem access code for token
+//             curl -X POST https://www.strava.com/api/v3/oauth/token \
+//   -d client_id=ReplaceWithClientID \
+//   -d client_secret=ReplaceWithClientSecret \
+//   -d code=ReplaceWithCode \
+//   -d grant_type=authorization_code
+
+
             if(!string.IsNullOrWhiteSpace(error))
                 return $"Recieved error {error}.";
             else
