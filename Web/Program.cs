@@ -18,6 +18,12 @@ namespace Web
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    // use only one _ in prefix
+                    // otherwise microsoft.extensions.configuration interprets the prefix as part of the json path!
+                    config.AddEnvironmentVariables(prefix: "CoomesEquipper_");
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

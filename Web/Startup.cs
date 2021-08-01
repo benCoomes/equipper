@@ -30,6 +30,8 @@ namespace Web
         {
             services.AddControllers();
 
+            services.Configure<StravaApiOptions>(Configuration.GetSection("StravaApi"));
+
             services.AddTransient<ExchangeAuthCodeForToken>();
 
             services.AddSingleton<ITokenProvider, TokenClient>();
