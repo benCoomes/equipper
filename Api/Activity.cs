@@ -4,11 +4,11 @@ namespace Coomes.Equipper
 {
     public class Activity 
     {
-        public string Name { get; set; }
-        public int Distance { get; set; }
-        public int MovingTime { get; set; }
-        public int ElapsedTime { get; set; }
-        public string GearID { get; set; }
-        public double AverageSpeed { get; set; }
+        public string name { get; set; }
+        public double distance { get; set; }
+        public int moving_time { get; set; }
+        public int elapsed_time { get; set; }
+        public string gear_id { get; set; }
+        public double average_speed { get; set; }
     }
 }
