@@ -1,3 +1,11 @@
+* Training data
+  * Build a training data set. Need to go through activities and make sure bikes are set correctly.
+* Prediction logic v1
+  * Implement naive prediction algorithm using avgerage speed. 
+  * Get average speed and bike for previous rides.
+  * Need a multi-class classification model. See: https://en.wikipedia.org/wiki/Multiclass_classification
+    * K-nearest neighbor? 
+    * Log Odds? See: https://towardsdatascience.com/what-makes-logistic-regression-a-classification-algorithm-35018497b63f
 * Deauthorize Webhook: Application must implement a webhook to know when an athelete deauthorizes it.
   * Should remove all athlete data and tokens when deauthorized
   * See: https://developers.strava.com/docs/webhooks/
@@ -9,12 +17,6 @@
   * If app has 'read' scope, then it will recieve notifications when activity is changed to private and when it is changed to public/followers. App must respect privacy.
   * App can only have single subscription.
   * See: https://developers.strava.com/docs/webhooks/
-* Prediction logic v1
-  * Implement naive prediction algorithm using avgerage speed. 
-  * Get average speed and bike for previous rides.
-  * Need a multi-class classification model. See: https://en.wikipedia.org/wiki/Multiclass_classification
-    * K-nearest neighbor? 
-    * Log Odds? See: https://towardsdatascience.com/what-makes-logistic-regression-a-classification-algorithm-35018497b63f
 * Prediction logic v2
   * Create model for predicting the bike used on an activity.
   * Use my data as a sample
