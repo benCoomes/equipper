@@ -1,10 +1,10 @@
 using System;
-using System.Text.Json;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Coomes.Equipper.Contracts;
 using System.Web;
 using Microsoft.Extensions.Options;
+using Coomes.Equipper.StravaApi.Models;
 
 namespace Coomes.Equipper.StravaApi
 {
@@ -38,23 +38,9 @@ namespace Coomes.Equipper.StravaApi
             
             response.EnsureSuccessStatusCode();
             var bytes = await response.Content.ReadAsByteArrayAsync();
-            var tokenResponse = TokenResponse.FromJsonBytes(bytes);
+            var tokenResponse = TokenInfo.FromJsonBytes(bytes);
 
             return tokenResponse.access_token;     
-        }
-
-        private class TokenResponse 
-        {
-            public static TokenResponse FromJsonBytes(byte[] jsonBytes) {
-                var readOnlySpan = new ReadOnlySpan<byte>(jsonBytes);
-                return JsonSerializer.Deserialize<TokenResponse>(readOnlySpan);
-            }
-
-            // todo: change to PascalCase
-            public string access_token { get; set; }
-            public int expires_at { get; set; }
-            public int expires_in { get; set; }
-            public string refresh_token { get; set; }
         }
     }
 }

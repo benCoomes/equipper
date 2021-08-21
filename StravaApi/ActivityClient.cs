@@ -5,7 +5,9 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Coomes.Equipper.Contracts;
-
+using StravaModel = Coomes.Equipper.StravaApi.Models;
+using System.Linq;
+using System.Web;
 
 namespace Coomes.Equipper.StravaApi
 {
@@ -13,9 +15,15 @@ namespace Coomes.Equipper.StravaApi
     {
         private static HttpClient httpClient = new HttpClient(); 
 
-        public async Task<IEnumerable<Activity>> GetActivities(string accessToken, int page = 0, int limit = 0)
+        public async Task<IEnumerable<Activity>> GetActivities(string accessToken, int page = 1, int limit = 50)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, "https://www.strava.com/api/v3/athlete/activities");
+            var uriBuilder = new UriBuilder("https://www.strava.com/api/v3/athlete/activities");
+            var query = HttpUtility.ParseQueryString(uriBuilder.Query);
+            query["page"] = page.ToString();
+            query["per_page"] = limit.ToString();
+            uriBuilder.Query = query.ToString();
+
+            using var request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.ToString());
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             using var response = await httpClient.SendAsync(request);
@@ -24,13 +32,15 @@ namespace Coomes.Equipper.StravaApi
             
             var jsonBytes = await response.Content.ReadAsByteArrayAsync();
             return ToActivityList(jsonBytes);
-            
         }
 
         private List<Activity> ToActivityList(byte[] jsonBytes) 
         {
             var readOnlySpan = new ReadOnlySpan<byte>(jsonBytes);
-            return JsonSerializer.Deserialize<List<Activity>>(readOnlySpan);
+            var stravaActivities = JsonSerializer.Deserialize<List<StravaModel.Activity>>(readOnlySpan);
+            return stravaActivities
+                .Select(sa => sa.ToDomainModel())
+                .ToList();
         }
     }
 }
