@@ -1,59 +1,49 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Text.Json;
 using Coomes.Equipper.Contracts;
 using Coomes.Equipper.StravaApi;
 using System.Collections.Generic;
-using Coomes.Equipper;
-using System.IO;
 
 namespace ActivityDownloader
 {
     class Program
     {
+        static List<IActivityWriter> _operations = new List<IActivityWriter>()
+        {
+            new WriteActivitesWithMissingGear(),
+            new WriteAllRides(),
+            new WriteAllRidesCSV(),
+            new WriteOutliers()
+        };
+
         static async Task Main(string[] args)
         {
-            var accessToken = args.Length > 0 ? args[0] : null;
-            var outfile = args.Length > 1 ? args[1] : null;
-            if(string.IsNullOrWhiteSpace(accessToken)
-                || string.IsNullOrWhiteSpace(outfile))
+            var command = args.Length > 0 ? args[0] : null;
+            var accessToken = args.Length > 1 ? args[1] : null;
+            var outfile = args.Length > 2 ? args[2] : null;
+
+            var supportedOps = _operations.Select(o => o.Name.ToLower()).Distinct();
+            if(!supportedOps.Contains(command?.ToLower())
+                || string.IsNullOrWhiteSpace(outfile)
+                || string.IsNullOrWhiteSpace(accessToken))
             {
-                Console.WriteLine("Usage: dotnet run <access token> <outfile>");
+                Console.WriteLine("Usage: dotnet run <command> <access token> <outfile>");
+                Console.WriteLine($"Valid commands are: {string.Join(", ", supportedOps)}");
                 return;
             }
 
             Console.WriteLine("Starting activity download...");
-
+            
             IActivityData activityData = new ActivityClient();
             var activities = await activityData.GetActivities(accessToken, limit: 200);
-            var serializedActivities = JsonSerializer.Serialize(activities);
-
+            
             Console.WriteLine($"Retrieved {activities.Count()} activities.");
 
-            await WriteActivitiesWithMissingGear(activities, outfile);
-        }
+            var op = _operations.First(o => string.Equals(o.Name, command, StringComparison.InvariantCultureIgnoreCase));
+            await op.Execute(activities, outfile);
 
-        private static async Task WriteToConsole(IEnumerable<Activity> activities, string outfile) 
-        {
-            var serializedActivities = JsonSerializer.Serialize(activities);
-            await File.WriteAllTextAsync(outfile, serializedActivities);
-        }
-
-        private static async Task WriteActivitiesWithMissingGear(IEnumerable<Activity> activities, string outfile) 
-        {
-            var missingGear = activities
-                .Where(a => string.IsNullOrWhiteSpace(a.GearId))
-                .OrderByDescending(a => a.StartDate)
-                .Select(a => new {
-                    GearId = a.GearId,
-                    ActivityId = a.Id,
-                    Date = a.StartDate
-                });
-
-            var serializedActivities = JsonSerializer.Serialize(missingGear);
-
-            await File.WriteAllTextAsync(outfile, serializedActivities);
+            Console.WriteLine("Done.");
         }
     }
 }
