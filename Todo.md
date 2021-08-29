@@ -1,15 +1,7 @@
-* Training data
-  * Build a training data set. Need to go through activities and make sure bikes are set correctly.
-* Prediction logic v1
-  * Implement naive prediction algorithm using avgerage speed. 
-  * Get average speed and bike for previous rides.
-  * Need a multi-class classification model. See: https://en.wikipedia.org/wiki/Multiclass_classification
-    * K-nearest neighbor? 
-    * Log Odds? See: https://towardsdatascience.com/what-makes-logistic-regression-a-classification-algorithm-35018497b63f
-* Deauthorize Webhook: Application must implement a webhook to know when an athelete deauthorizes it.
-  * Should remove all athlete data and tokens when deauthorized
-  * See: https://developers.strava.com/docs/webhooks/
-* Activity Webhook:
+* Host web app
+* Set up deployment pipeline for app (github?).
+* Logging activity webhook
+  * Implement subscription endpoint that sets up a subscription successfully and then logs activity ID for completed activities.
   * Subscribe to new activities for registered athletes. 
   * POST is made to registered callback. Application must respond within 2 seconds (need to be always up, no sleep).
   * Will need to make an API call to get details of activity.
@@ -17,6 +9,11 @@
   * If app has 'read' scope, then it will recieve notifications when activity is changed to private and when it is changed to public/followers. App must respect privacy.
   * App can only have single subscription.
   * See: https://developers.strava.com/docs/webhooks/
+* Deauthorize Webhook: Application must implement a webhook to know when an athelete deauthorizes it.
+  * Should remove all athlete data and tokens when deauthorized
+  * See: https://developers.strava.com/docs/webhooks/
+* Useful activity webhook:
+  * Use simple classificiation to set gearID on all new activities
 * Prediction logic v2
   * Create model for predicting the bike used on an activity.
   * Use my data as a sample
@@ -30,8 +27,6 @@
     * HR data.
   * What data needs to be stored for the model?
   * Can we do better than the v1 model?
-* Set up deployment pipeline for app (github?).
-* Implement subscription endpoint that sets up a subscription successfully and then logs activity ID for completed activities.
 * Model initialization
   * Will need to gather data to build model for new subscribers. 
   * Maybe expensive? May want to protect against unsubscribe/resubscribe cycles.
