@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{0F1DD2DA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActivityDownloader", "Tools\ActivityDownloader\ActivityDownloader.csproj", "{61930BD8-1D59-43BF-B265-7C48EEE963CE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest", "UnitTest\UnitTest.csproj", "{1D538601-7509-44A5-A6E6-72A4E3CFBA43}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,6 +76,18 @@ Global
 		{61930BD8-1D59-43BF-B265-7C48EEE963CE}.Release|x64.Build.0 = Release|Any CPU
 		{61930BD8-1D59-43BF-B265-7C48EEE963CE}.Release|x86.ActiveCfg = Release|Any CPU
 		{61930BD8-1D59-43BF-B265-7C48EEE963CE}.Release|x86.Build.0 = Release|Any CPU
+		{1D538601-7509-44A5-A6E6-72A4E3CFBA43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D538601-7509-44A5-A6E6-72A4E3CFBA43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D538601-7509-44A5-A6E6-72A4E3CFBA43}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1D538601-7509-44A5-A6E6-72A4E3CFBA43}.Debug|x64.Build.0 = Debug|Any CPU
+		{1D538601-7509-44A5-A6E6-72A4E3CFBA43}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1D538601-7509-44A5-A6E6-72A4E3CFBA43}.Debug|x86.Build.0 = Debug|Any CPU
+		{1D538601-7509-44A5-A6E6-72A4E3CFBA43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D538601-7509-44A5-A6E6-72A4E3CFBA43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D538601-7509-44A5-A6E6-72A4E3CFBA43}.Release|x64.ActiveCfg = Release|Any CPU
+		{1D538601-7509-44A5-A6E6-72A4E3CFBA43}.Release|x64.Build.0 = Release|Any CPU
+		{1D538601-7509-44A5-A6E6-72A4E3CFBA43}.Release|x86.ActiveCfg = Release|Any CPU
+		{1D538601-7509-44A5-A6E6-72A4E3CFBA43}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{61930BD8-1D59-43BF-B265-7C48EEE963CE} = {0F1DD2DA-5B02-47B6-BC2F-278B72FAC08B}
