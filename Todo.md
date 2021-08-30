@@ -1,4 +1,6 @@
 * Host web app
+  * Try out function app. Need to check on cold start times. If too slow, check on cost of using timer func to keep always warm.
+  * Set func to 15,000 GB-s daily limit. Cost per month if met every day is ~$1.
 * Set up deployment pipeline for app (github?).
 * Logging activity webhook
   * Implement subscription endpoint that sets up a subscription successfully and then logs activity ID for completed activities.
