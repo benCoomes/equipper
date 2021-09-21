@@ -1,11 +1,7 @@
-* Host web app
-  * Try out function app. Need to check on cold start times. If too slow, check on cost of using timer func to keep always warm.
-  * Set func to 15,000 GB-s daily limit. Cost per month if met every day is ~$1.
-* Set up deployment pipeline for app (github?).
 * Logging activity webhook
   * Implement subscription endpoint that sets up a subscription successfully and then logs activity ID for completed activities.
   * Subscribe to new activities for registered athletes. 
-  * POST is made to registered callback. Application must respond within 2 seconds (need to be always up, no sleep).
+  * POST is made to registered callback. Application must respond within 2 seconds (this might be for the registration handshake only, not the callback method.).
   * Will need to make an API call to get details of activity.
   * One 'Save' action by the athlete can cause multiple webhook events.
   * If app has 'read' scope, then it will recieve notifications when activity is changed to private and when it is changed to public/followers. App must respect privacy.
@@ -16,6 +12,7 @@
   * See: https://developers.strava.com/docs/webhooks/
 * Useful activity webhook:
   * Use simple classificiation to set gearID on all new activities
+* Set up deployment pipeline for app (github?).
 * Prediction logic v2
   * Create model for predicting the bike used on an activity.
   * Use my data as a sample
