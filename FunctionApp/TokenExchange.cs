@@ -14,7 +14,7 @@ namespace Equipper.FunctionApp
     {
         [FunctionName("TokenExchange")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
             var correlationID = Guid.NewGuid();
