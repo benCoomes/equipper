@@ -6,6 +6,10 @@
             "samplingSettings": {
                 "isEnabled": false
             }
-        }
+        },
+        "logLevel": {
+            "default": "Information",
+            "Equipper.FunctionApp": "Trace"
+          }
     }
 }

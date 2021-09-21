@@ -15,4 +15,8 @@
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Api\Api.csproj" />
+    <ProjectReference Include="..\StravaApi\StravaApi.csproj" />
+  </ItemGroup>
 </Project>
