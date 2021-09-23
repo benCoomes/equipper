@@ -1,12 +1,15 @@
+* Store crendentials for user on token exchange
+  * find cheap option - maybe use azure blob storage as simple document db?
 * Logging activity webhook
   * Implement subscription endpoint that sets up a subscription successfully and then logs activity ID for completed activities.
   * Subscribe to new activities for registered athletes. 
-  * POST is made to registered callback. Application must respond within 2 seconds (this might be for the registration handshake only, not the callback method.).
+  * POST is made to registered callback. Application must respond within 2 seconds.
   * Will need to make an API call to get details of activity.
   * One 'Save' action by the athlete can cause multiple webhook events.
   * If app has 'read' scope, then it will recieve notifications when activity is changed to private and when it is changed to public/followers. App must respect privacy.
   * App can only have single subscription.
   * See: https://developers.strava.com/docs/webhooks/
+  * use ngrok for local testing
 * Deauthorize Webhook: Application must implement a webhook to know when an athelete deauthorizes it.
   * Should remove all athlete data and tokens when deauthorized
   * See: https://developers.strava.com/docs/webhooks/
