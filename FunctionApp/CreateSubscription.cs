@@ -29,14 +29,15 @@ namespace Equipper.FunctionApp
             // todo: better way to build dependencies?
             var options = new StravaApiOptions()
             {
-                 ClientId = Environment.GetEnvironmentVariable("StravaApi__ClientId"),
-                 ClientSecret = Environment.GetEnvironmentVariable("StravaApi__ClientSecret")
+                 ClientId = Settings.ClientId,
+                 ClientSecret = Settings.ClientSecret
             };
-            var callback = Environment.GetEnvironmentVariable("FunctionApp__SubscriptionCallback");
+            var callback = Settings.EventCallbackUri;
+            var verifyToken = Settings.SubscriptionVerificationToken;
             var subscriptionClient = new SubscriptionClient(options, logger);
             var createOperation = new Operations.CreateSubscription(subscriptionClient);
 
-            await createOperation.Execute(callback);
+            await createOperation.Execute(callback, verifyToken);
         }
     }
 }

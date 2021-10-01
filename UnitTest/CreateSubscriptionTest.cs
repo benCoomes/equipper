@@ -21,7 +21,19 @@ namespace Coomes.Equipper.UnitTest
             var sut = new CreateSubscription(null);
 
             // when
-            Func<Task> tryCreate = async () => await sut.Execute(badUrl);
+            Func<Task> tryCreate = async () => await sut.Execute(badUrl, "sometoken");
+
+            // then
+            await tryCreate.Should().ThrowAsync<ArgumentException>();
+        }
+
+        public async Task CreateSubscription_ThrowsOnEmptyVerificationToken() 
+        {
+            // given
+            var sut = new CreateSubscription(null);
+
+            // when
+            Func<Task> tryCreate = async () => await sut.Execute("https://localhost:8000/endpoint", string.Empty);
 
             // then
             await tryCreate.Should().ThrowAsync<ArgumentException>();

@@ -4,8 +4,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Coomes.Equipper.StravaApi;
-using Operations = Coomes.Equipper.Operations;
 using Coomes.Equipper.Operations;
 using Microsoft.AspNetCore.Mvc;
 
@@ -55,15 +53,10 @@ namespace Equipper.FunctionApp
             }
 
             // todo: better way to build dependencies?
-            var options = new StravaApiOptions()
-            {
-                 ClientId = Environment.GetEnvironmentVariable("StravaApi__ClientId"),
-                 ClientSecret = Environment.GetEnvironmentVariable("StravaApi__ClientSecret")
-            };
-            var subscriptionClient = new SubscriptionClient(options, logger);
-            var getConfirmation = new GetSubscriptionConfirmation(subscriptionClient, logger);
+            var expectedToken = Settings.SubscriptionVerificationToken;
+            var getConfirmation = new GetSubscriptionConfirmation(logger);
 
-            var confirmation = getConfirmation.Execute(challenge, verifyToken);
+            var confirmation = getConfirmation.Execute(challenge, verifyToken, expectedToken);
 
             logger.LogInformation("{function} {status} {cid}", "SubscriptionWebhook  - ConfirmationSubscription", "Success", correlationID.ToString());
             return Task.FromResult<IActionResult>(new OkObjectResult(confirmation));

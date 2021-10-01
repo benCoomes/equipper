@@ -12,9 +12,10 @@ namespace Coomes.Equipper.Operations
             _subscriptionClient = subscriptionClient;
         }
 
-        public Task Execute(string callbackUrl) 
+        public Task Execute(string callbackUrl, string verificationToken) 
         {
             ValidateUrl(callbackUrl);
+            ValidateVerifyToken(callbackUrl);
 
             // todo: check if exists already
                 // if yes, and url matches, return
@@ -25,7 +26,7 @@ namespace Coomes.Equipper.Operations
                 CallbackUrl = callbackUrl
             };
             
-            return _subscriptionClient.CreateSubscription(subscription);
+            return _subscriptionClient.CreateSubscription(subscription, verificationToken);
         }
 
         private void ValidateUrl(string callbackUrl) 
@@ -39,6 +40,14 @@ namespace Coomes.Equipper.Operations
             if(!isValid || string.IsNullOrEmpty(uri.AbsolutePath) || uri.AbsolutePath == "/")
             {
                 throw new ArgumentException($"{nameof(callbackUrl)} must be a valid URI with a path", nameof(callbackUrl));
+            }
+        }
+
+        private void ValidateVerifyToken(string verificationToken) 
+        {
+            if(string.IsNullOrWhiteSpace(verificationToken))
+            {
+                throw new ArgumentException($"{nameof(verificationToken)} cannot be null or empty.", nameof(verificationToken));
             }
         }
     }

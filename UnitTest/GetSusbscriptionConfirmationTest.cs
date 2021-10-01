@@ -16,19 +16,30 @@ namespace Coomes.Equipper.UnitTest
         public void GetSubscriptonConfirmation_ThrowsBadRequestOnMismatchedToken() 
         {
             // given
-            var mockSubClient = new Mock<ISubscriptionClient>();
-            mockSubClient
-                .SetupGet(sc => sc.VerificationToken)
-                .Returns("actualVerificationToken");
             var mockLogger = new Mock<ILogger>();
             
-            var sut = new GetSubscriptionConfirmation(mockSubClient.Object, mockLogger.Object);
+            var sut = new GetSubscriptionConfirmation(mockLogger.Object);
 
             // when
-            Action tryGet = () => sut.Execute("challenge", "mismatchedToken");
+            Action tryGet = () => sut.Execute("challenge", "actualToken", "expectedToken");
 
             // then
             tryGet.Should().Throw<BadRequestException>();
+        }
+
+        [TestMethod]
+        public void GetSubscriptonConfirmation_ReturnsExpectedResponseWhenTokensMatch() 
+        {
+            // given
+            var mockLogger = new Mock<ILogger>();
+            
+            var sut = new GetSubscriptionConfirmation(mockLogger.Object);
+
+            // when
+            var result = sut.Execute("challenge", "verifyToken", "verifyToken");
+
+            // then
+            result.Should().Be("{ \"hub.challenge\": \"challenge\" }");
         }
     }
 }

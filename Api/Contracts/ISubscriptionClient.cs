@@ -4,14 +4,10 @@ namespace Coomes.Equipper.Contracts
 {
     public interface ISubscriptionClient
     {
-        string VerificationToken { get; }
-
-        Task CreateSubscription(Subscription subscription);
+        Task CreateSubscription(Subscription subscription, string verificationToken);
 
         Task<Subscription> GetSubscription();
 
         Task DeleteSubscription(Subscription subscription);
-
-        string GetSubscriptionConfirmation(string challenge, string verificationCode);
     }
 }

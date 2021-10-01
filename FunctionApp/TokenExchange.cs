@@ -43,8 +43,8 @@ namespace Equipper.FunctionApp
             // todo: better way to build dependencies?
             var options = new StravaApiOptions()
             {
-                 ClientId = Environment.GetEnvironmentVariable("StravaApi__ClientId"),
-                 ClientSecret = Environment.GetEnvironmentVariable("StravaApi__ClientSecret")
+                 ClientId = Settings.ClientId,
+                 ClientSecret = Settings.ClientSecret
             };
             var tokenProvider = new TokenClient(options, logger);
             var exchangeOperation = new ExchangeAuthCodeForToken(tokenProvider);

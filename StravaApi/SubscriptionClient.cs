@@ -4,10 +4,8 @@ using System.Threading.Tasks;
 using Coomes.Equipper.Contracts;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
-using Coomes.Equipper.StravaApi.Models;
 using System.Text;
 using System.Web;
-using System.Security.Cryptography;
 
 namespace Coomes.Equipper.StravaApi
 {
@@ -18,24 +16,6 @@ namespace Coomes.Equipper.StravaApi
         private static string subscriptionEndpoint = "https://www.strava.com/api/v3/push_subscriptions";
         private  StravaApiOptions _options;
         private ILogger _logger;
-        
-        private static string _verificationToken;
-        public string VerificationToken => _verificationToken;
-
-        static SubscriptionClient()
-        {
-            _verificationToken = GenerateVerificationToken();
-
-            string GenerateVerificationToken()
-            {
-                using(var rng = new RNGCryptoServiceProvider())
-                {
-                    var data = new byte[64]; 
-                    rng.GetBytes(data);
-                    return Convert.ToBase64String(data);
-                }
-            }
-        }
 
         public SubscriptionClient(IOptions<StravaApiOptions> options, ILogger logger = null) : this(options.Value, logger) 
         {   
@@ -47,14 +27,14 @@ namespace Coomes.Equipper.StravaApi
             _logger = logger;
         }
 
-        public async Task CreateSubscription(Subscription subscription)
+        public async Task CreateSubscription(Subscription subscription, string verificationToken)
         {
             var requestObj = new Models.SubscriptionCreateRequest() 
             {
                 client_id = _options.ClientId,
                 client_secret = _options.ClientSecret,
                 callback_url = subscription.CallbackUrl,
-                verify_token = VerificationToken
+                verify_token = verificationToken
             };
 
             using var request = new HttpRequestMessage(HttpMethod.Post, subscriptionEndpoint);
@@ -64,12 +44,6 @@ namespace Coomes.Equipper.StravaApi
             // a response will only be returned after confirmation succeeds or fails
             var response = await _httpClient.SendAsync(request);
             await response.LogAndThrowIfNotSuccess(_logger, $"{nameof(SubscriptionClient)}.{nameof(CreateSubscription)}");
-        }
-
-        public string GetSubscriptionConfirmation(string challenge, string verificationToken)
-        {
-            var confirmation = new SubscriptionConfirmation(challenge);
-            return confirmation.ToJson();
         }
 
         public async Task<Subscription> GetSubscription()
