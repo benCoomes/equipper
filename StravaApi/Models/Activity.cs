@@ -3,7 +3,7 @@ using Domain = Coomes.Equipper;
 
 namespace Coomes.Equipper.StravaApi.Models
 {
-    public class Activity : StravaModel<Domain.Activity>
+    internal class Activity : StravaModel<Domain.Activity>
     {
         public double distance { get; set; }
         public int moving_time { get; set; }

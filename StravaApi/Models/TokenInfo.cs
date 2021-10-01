@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace Coomes.Equipper.StravaApi.Models
 {
-    public class TokenInfo
+    internal class TokenInfo
     {
         public static TokenInfo FromJsonBytes(byte[] jsonBytes) {
             var readOnlySpan = new ReadOnlySpan<byte>(jsonBytes);

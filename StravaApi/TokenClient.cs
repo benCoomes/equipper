@@ -33,7 +33,7 @@ namespace Coomes.Equipper.StravaApi
             using var request = new HttpRequestMessage(HttpMethod.Post, tokenRequest);
             using var response = await _httpClient.SendAsync(request);
             
-            await LogAndThrowIfNotSuccess(response);
+            await response.LogAndThrowIfNotSuccess(_logger, $"{nameof(TokenClient)}.{nameof(GetToken)}");
 
             var bytes = await response.Content.ReadAsByteArrayAsync();
             var tokenResponse = TokenInfo.FromJsonBytes(bytes);
@@ -51,20 +51,6 @@ namespace Coomes.Equipper.StravaApi
             query["grant_type"] = "authorization_code";
             uriBuilder.Query = query.ToString();
             return uriBuilder.ToString();
-        }
-
-        private async Task LogAndThrowIfNotSuccess(HttpResponseMessage response) 
-        {
-            try 
-            {
-                response.EnsureSuccessStatusCode();
-            }
-            catch(Exception)
-            {
-                var reason = await response.Content.ReadAsStringAsync(); 
-                _logger?.LogError("Nonsuccess response from Strava. Status {status}, Response {response}.", response.StatusCode, reason);
-                throw;
-            }
         }
     }
 }
