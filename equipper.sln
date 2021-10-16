@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StravaApiTest", "StravaApiT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosStorage", "CosmosStorage\CosmosStorage.csproj", "{F8C6BD3B-DA27-4DCA-9C35-B4C65CC81E11}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosStorageTest", "CosmosStorageTest\CosmosStorageTest.csproj", "{E0535CE7-9E1B-4BE8-841F-8FFE425615ED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -116,6 +118,18 @@ Global
 		{F8C6BD3B-DA27-4DCA-9C35-B4C65CC81E11}.Release|x64.Build.0 = Release|Any CPU
 		{F8C6BD3B-DA27-4DCA-9C35-B4C65CC81E11}.Release|x86.ActiveCfg = Release|Any CPU
 		{F8C6BD3B-DA27-4DCA-9C35-B4C65CC81E11}.Release|x86.Build.0 = Release|Any CPU
+		{E0535CE7-9E1B-4BE8-841F-8FFE425615ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0535CE7-9E1B-4BE8-841F-8FFE425615ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0535CE7-9E1B-4BE8-841F-8FFE425615ED}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E0535CE7-9E1B-4BE8-841F-8FFE425615ED}.Debug|x64.Build.0 = Debug|Any CPU
+		{E0535CE7-9E1B-4BE8-841F-8FFE425615ED}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E0535CE7-9E1B-4BE8-841F-8FFE425615ED}.Debug|x86.Build.0 = Debug|Any CPU
+		{E0535CE7-9E1B-4BE8-841F-8FFE425615ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0535CE7-9E1B-4BE8-841F-8FFE425615ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0535CE7-9E1B-4BE8-841F-8FFE425615ED}.Release|x64.ActiveCfg = Release|Any CPU
+		{E0535CE7-9E1B-4BE8-841F-8FFE425615ED}.Release|x64.Build.0 = Release|Any CPU
+		{E0535CE7-9E1B-4BE8-841F-8FFE425615ED}.Release|x86.ActiveCfg = Release|Any CPU
+		{E0535CE7-9E1B-4BE8-841F-8FFE425615ED}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{61930BD8-1D59-43BF-B265-7C48EEE963CE} = {0F1DD2DA-5B02-47B6-BC2F-278B72FAC08B}

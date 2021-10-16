@@ -14,5 +14,8 @@ namespace Equipper.FunctionApp
     
         public static string EventCallbackUri => 
             Environment.GetEnvironmentVariable("FunctionApp__SubscriptionCallback");
+        
+        public static string CosmosConnectionString => 
+            Environment.GetEnvironmentVariable("CosmosStorage__ConnectionString");
     }
 }

@@ -48,7 +48,7 @@ namespace Equipper.FunctionApp
                  ClientSecret = Settings.ClientSecret
             };
             var tokenProvider = new TokenClient(options, logger);
-            var tokenStorage = new TokenStorage();
+            var tokenStorage = new TokenStorage(Settings.CosmosConnectionString);
             var exchangeOperation = new RegisterNewAthlete(tokenProvider, tokenStorage);
 
             var token = await exchangeOperation.Execute(code);

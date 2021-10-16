@@ -33,6 +33,8 @@ namespace Coomes.Equipper.UnitTest
             var tokenStorageMock = new Mock<ITokenStorage>();
             tokenStorageMock
                 .Setup(ts => ts.AddOrUpdateTokens(expectedTokens));
+            tokenStorageMock
+                .Setup(ts => ts.Initialize());
 
             var sut = new RegisterNewAthlete(tokenProviderMock.Object, tokenStorageMock.Object);
 
@@ -42,6 +44,9 @@ namespace Coomes.Equipper.UnitTest
             // then
             tokenProviderMock.Verify(
                 tp => tp.GetToken(expectedCode), 
+                Times.Once);
+            tokenStorageMock.Verify(
+                ts => ts.Initialize(), 
                 Times.Once);
             tokenStorageMock.Verify(
                 ts => ts.AddOrUpdateTokens(expectedTokens),

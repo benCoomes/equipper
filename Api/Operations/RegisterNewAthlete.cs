@@ -15,6 +15,7 @@ namespace Coomes.Equipper.Operations
 
         public async Task<string> Execute(string authCode) 
         {
+            await _tokenStorage.Initialize();
             var athleteTokens = await _tokenProvider.GetToken(authCode);
             await _tokenStorage.AddOrUpdateTokens(athleteTokens);
             return athleteTokens.AccessToken;
