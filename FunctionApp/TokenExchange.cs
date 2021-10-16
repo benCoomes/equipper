@@ -47,7 +47,7 @@ namespace Equipper.FunctionApp
                  ClientSecret = Settings.ClientSecret
             };
             var tokenProvider = new TokenClient(options, logger);
-            var exchangeOperation = new ExchangeAuthCodeForToken(tokenProvider);
+            var exchangeOperation = new RegisterNewAthlete(tokenProvider);
 
             var token = await exchangeOperation.Execute(code);
             return token;

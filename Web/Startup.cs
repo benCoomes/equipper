@@ -32,7 +32,7 @@ namespace Web
 
             services.Configure<StravaApiOptions>(Configuration.GetSection("StravaApi"));
 
-            services.AddTransient<ExchangeAuthCodeForToken>();
+            services.AddTransient<RegisterNewAthlete>();
 
             services.AddSingleton<ITokenProvider, TokenClient>();
         }
