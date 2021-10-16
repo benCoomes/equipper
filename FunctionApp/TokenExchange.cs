@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Coomes.Equipper.StravaApi;
 using Coomes.Equipper.Operations;
+using Coomes.Equipper.CosmosStorage;
 
 namespace Equipper.FunctionApp
 {
@@ -47,7 +48,8 @@ namespace Equipper.FunctionApp
                  ClientSecret = Settings.ClientSecret
             };
             var tokenProvider = new TokenClient(options, logger);
-            var exchangeOperation = new RegisterNewAthlete(tokenProvider);
+            var tokenStorage = new TokenStorage();
+            var exchangeOperation = new RegisterNewAthlete(tokenProvider, tokenStorage);
 
             var token = await exchangeOperation.Execute(code);
             return token;

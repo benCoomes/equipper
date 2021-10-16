@@ -13,7 +13,7 @@ namespace Coomes.Equipper.UnitTest
     public class RegisterNewAthleteTest
     {
         [TestMethod]
-        public async Task RegisterNewAthlete_ExchangesAuthCodeForTokens() 
+        public async Task RegisterNewAthlete_ExchangesAuthCodeAndStoresTokens() 
         {
             // given
             var expectedCode = "expectedCode";
@@ -30,7 +30,11 @@ namespace Coomes.Equipper.UnitTest
                 .Setup(tp => tp.GetToken(expectedCode))
                 .ReturnsAsync(expectedTokens);
 
-            var sut = new RegisterNewAthlete(tokenProviderMock.Object);
+            var tokenStorageMock = new Mock<ITokenStorage>();
+            tokenStorageMock
+                .Setup(ts => ts.AddOrUpdateTokens(expectedTokens));
+
+            var sut = new RegisterNewAthlete(tokenProviderMock.Object, tokenStorageMock.Object);
 
             // when
             await sut.Execute(expectedCode);
@@ -39,6 +43,10 @@ namespace Coomes.Equipper.UnitTest
             tokenProviderMock.Verify(
                 tp => tp.GetToken(expectedCode), 
                 Times.Once);
+            tokenStorageMock.Verify(
+                ts => ts.AddOrUpdateTokens(expectedTokens),
+                Times.Once
+            );
         }
     }
 }

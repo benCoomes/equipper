@@ -18,5 +18,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Api\Api.csproj" />
     <ProjectReference Include="..\StravaApi\StravaApi.csproj" />
+    <ProjectReference Include="..\CosmosStorage\CosmosStorage.csproj" />
   </ItemGroup>
 </Project>
