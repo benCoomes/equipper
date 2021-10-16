@@ -26,7 +26,7 @@ namespace Coomes.Equipper.StravaApi
             _logger = logger;
         }
 
-        public async Task<string> GetToken(string authCode)
+        public async Task<AthleteTokens> GetToken(string authCode)
         {            
             var tokenRequest = GetTokenRequestUrl(authCode);
             
@@ -36,9 +36,9 @@ namespace Coomes.Equipper.StravaApi
             await response.LogAndThrowIfNotSuccess(_logger, $"{nameof(TokenClient)}.{nameof(GetToken)}");
 
             var bytes = await response.Content.ReadAsByteArrayAsync();
-            var tokenResponse = TokenInfo.FromJsonBytes(bytes);
+            var tokenResponse = Models.AthleteTokens.FromJsonBytes(bytes);
 
-            return tokenResponse.access_token;     
+            return tokenResponse.ToDomainModel();
         }
 
         private string GetTokenRequestUrl(string authCode) 

@@ -11,9 +11,10 @@ namespace Coomes.Equipper.Operations
             _tokenProvider = tokenProvider;
         }
 
-        public Task<string> Execute(string authCode) 
+        public async Task<string> Execute(string authCode) 
         {
-            return _tokenProvider.GetToken(authCode);
+            var athleteTokens = await _tokenProvider.GetToken(authCode);
+            return athleteTokens.AccessToken;
         }
     }
 }
