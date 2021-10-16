@@ -3,11 +3,11 @@ using Coomes.Equipper.Contracts;
 
 namespace Coomes.Equipper.Operations
 {
-    public class ExchangeAuthCodeForToken
+    public class RegisterNewAthlete
     {
         private ITokenProvider _tokenProvider;
         
-        public ExchangeAuthCodeForToken(ITokenProvider tokenProvider) {
+        public RegisterNewAthlete(ITokenProvider tokenProvider) {
             _tokenProvider = tokenProvider;
         }
 

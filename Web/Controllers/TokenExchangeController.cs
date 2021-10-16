@@ -10,19 +10,17 @@ namespace Coomes.Equipper.Web.Controllers
     public class TokenExchangeController : ControllerBase
     {
         private readonly ILogger<TokenExchangeController> _logger;
-        private readonly ExchangeAuthCodeForToken _exchangeOperation;
+        private readonly RegisterNewAthlete _registerNewAthlete;
 
-        public TokenExchangeController(ExchangeAuthCodeForToken exchangeOperation, ILogger<TokenExchangeController> logger)
+        public TokenExchangeController(RegisterNewAthlete registerNewAthlete, ILogger<TokenExchangeController> logger)
         {
             _logger = logger;
-            _exchangeOperation = exchangeOperation;
+            _registerNewAthlete = registerNewAthlete;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get(string code, string scope, string error)
         {
-
-
             _logger.LogInformation($"Recieved code {code}, scope {scope}, and error {error}.", code, scope, error);
 
 
@@ -33,7 +31,7 @@ namespace Coomes.Equipper.Web.Controllers
             }
 
             
-            var token = await _exchangeOperation.Execute(code);
+            var token = await _registerNewAthlete.Execute(code);
             return Ok(token);
         }
     }
