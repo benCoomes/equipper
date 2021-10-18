@@ -1,7 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FluentAssertions;
 using Moq;
-using System.Collections.Generic;
 using Coomes.Equipper.Contracts;
 using Coomes.Equipper.Operations;
 using System.Threading.Tasks;
