@@ -5,18 +5,84 @@ using Coomes.Equipper.Operations;
 using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
+using FluentAssertions;
 
 namespace Coomes.Equipper.UnitTest
 {
     [TestClass]
     public class SetGearTest
     {
-        [TestMethod]
-        public async Task SetGearGetsReccentActivitiesAndSetsBestMatchGear() 
+        private int _triggerActivityId;
+        private int _athleteId;
+        private AthleteTokens _athleteTokens;
+        private List<Activity> _mostReccentActivities;
+
+        private Mock<ITokenProvider> _tokenProviderMock;
+        private Mock<ITokenStorage> _tokenStorageMock;
+        private Mock<IActivityData> _activityDataMock;
+
+        public void InitMocks()
         {
-            var activityId = 4;
-            var athleteId = 1000;
-            var _existingActivities = new List<Activity>()
+            _tokenStorageMock = new Mock<ITokenStorage>();
+            _tokenStorageMock
+                .Setup(ts => ts.GetTokens(_athleteId))
+                .ReturnsAsync(_athleteTokens);
+
+            _tokenProviderMock = new Mock<ITokenProvider>();
+            
+            _activityDataMock = new Mock<IActivityData>();
+            _activityDataMock
+                .Setup(ad => ad.GetActivities(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+                .ThrowsAsync(new Exception("ACCESS DENIED")); // todo: what is actually thrown?
+            _activityDataMock
+                .Setup(ad => ad.GetActivities(_athleteTokens.AccessToken, It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(_mostReccentActivities);
+        }
+
+        [TestMethod]
+        public async Task SetGear_ThrowsSetGearException_IfTriggeringActivityIsNotFound()
+        {
+            // given
+            _triggerActivityId = 4;
+            _athleteId = 1000;
+            _athleteTokens = new AthleteTokens()
+            {
+                AccessToken = "validAccessToken",
+                AthleteID = _athleteId,
+                ExpiresAtUtc = DateTime.UtcNow.AddHours(1)
+            };
+            _mostReccentActivities = new List<Activity>()
+            {
+                new Activity()
+                {
+                    Id = 1,
+                    AverageSpeed = 10,
+                    GearId = "gear_1"
+                }
+            };
+
+            InitMocks();
+            var sut = new SetGear(_activityDataMock.Object, _tokenStorageMock.Object, _tokenProviderMock.Object);
+            
+            // when
+            Func<Task> tryExecute = () => sut.Execute(_athleteId, _triggerActivityId);
+
+            // then
+            await tryExecute.Should().ThrowAsync<SetGearException>();
+        }
+
+        [TestMethod]
+        public async Task SetGear_GetsReccentActivitiesAndSetsBestMatchGear() 
+        {
+            _triggerActivityId = 3;
+            _athleteId = 1000;
+            _athleteTokens = new AthleteTokens()
+            {
+                AccessToken = "validAccessToken",
+                AthleteID = _athleteId,
+                ExpiresAtUtc = DateTime.UtcNow.AddHours(1)
+            };
+            _mostReccentActivities = new List<Activity>()
             {
                 new Activity()
                 {
@@ -38,42 +104,38 @@ namespace Coomes.Equipper.UnitTest
                 }
             };
 
-            var activityDataMock = new Mock<IActivityData>();
-            activityDataMock
-                .Setup(ad => ad.GetActivities(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(_existingActivities);
-
-            var sut = new SetGear(activityDataMock.Object);
+            InitMocks();
+            var sut = new SetGear(_activityDataMock.Object, _tokenStorageMock.Object, _tokenProviderMock.Object);
 
             // when
-            await sut.Execute(athleteId, activityId);
+            await sut.Execute(_athleteId, _triggerActivityId);
 
             // then
-            activityDataMock.Verify(
+            _activityDataMock.Verify(
                 ad => ad.GetActivities(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()),
                 Times.Once
             );
         }
 
         [TestMethod]
-        public void SetGearIgnoresRetiredGear() 
+        public void SetGear_IgnoresRetiredGear() 
         {
-            Assert.Inconclusive("Not implmented");
+            Assert.Inconclusive("Not implemented");
         }
 
         [TestMethod]
-        public void SetGearIgnoresAlreadyProcessedActivities() 
+        public void SetGear_IgnoresActivity_WhenAlreadyProcessed() 
         {
             // Either need to keep track of processed activities
             // or ignore activies with non-default gear. 
-            // Althetes could then set 'null' gear as default.
-            Assert.Inconclusive("Not implmented");
+            // Athletes could then set 'null' gear as default.
+            Assert.Inconclusive("Not implemented");
         }
 
         [TestMethod]
-        public void SetGearThrowsWhenUserNotRegistered() 
+        public void SetGear_Throws_WhenUserNotRegistered() 
         {
-            Assert.Inconclusive("Not implmented");
+            Assert.Inconclusive("Not implemented");
         }
 
     }

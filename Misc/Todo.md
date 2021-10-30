@@ -1,7 +1,7 @@
-* Activity Echo webhook:
+* Set Gear - log activity and refresh tokens:
   * Get and log the activity details for an event
   * If token is expired, refresh and store new tokens
-* Useful activity webhook:
+* Set Gear - set best gear choice:
   * Use simple classification to set gearID on all new activities
   * Cannot store Strava data per agreement. 
   * Start out making a request on every activity event for historical data. 
