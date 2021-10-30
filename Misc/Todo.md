@@ -1,15 +1,16 @@
-* Store crendentials for user on token exchange
-  * find cheap option - try cosmos serverless
-* Deauthorize Webhook: Application must implement a webhook to know when an athelete deauthorizes it.
+* Activity Echo webhook:
+  * Get and log the activity details for an event
+  * If token is expired, refresh and store new tokens
+* Useful activity webhook:
+  * Use simple classification to set gearID on all new activities
+  * Cannot store Strava data per agreement. 
+  * Start out making a request on every activity event for historical data. 
+  * Can use caching up to 7 days to reduce request rates
+* Deauthorize Webhook: Application must implement a webhook to know when an athlete deauthorizes it.
   * Should remove all athlete data and tokens when deauthorized
   * See: https://developers.strava.com/docs/webhooks/
   * Comes as event to existing webhook
   * Example: {"aspect_type":"update","event_time":unixseconds,"object_id":athleteid,"object_type":"athlete","owner_id":athleteid,"subscription_id":subid,"updates":{"authorized":"false"}​}
-* Useful activity webhook:
-  * Use simple classificiation to set gearID on all new activities
-  * Cannot store Strava data per agreement. 
-  * Start out making a request on every activity event for historical data. 
-  * Can use caching up to 7 days to reduce request rates
 * Prediction logic v2
   * Create model for predicting the bike used on an activity.
   * Use my data as a sample
@@ -28,7 +29,7 @@
   * Maybe expensive? May want to protect against unsubscribe/resubscribe cycles.
 * Store predictions & revisions
   * Store activity IDs and predicted bike IDs. 
-  * Equipper can subscribe to activity updates and check if an athelete has set the bike to a non-predicted value
+  * Equipper can subscribe to activity updates and check if an athlete has set the bike to a non-predicted value
   * This data can be used to evaluate accuracy.
 * Prediction logic vX
   * Would be interesting to develop different algorithms and assign users an algorithm at random upon signing up
