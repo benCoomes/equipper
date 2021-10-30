@@ -13,7 +13,7 @@ namespace Coomes.Equipper.CosmosStorage
     /// An subclass of TokenStorage intended for testing. 
     /// It allows setting the database and container names and 
     /// exposes a method to ensure the database and container are deleted.
-    /// All other behavior is identitcal.
+    /// All other behavior is identical.
     /// </summary>
     ///
     public class TokenStorageForTesting : TokenStorage

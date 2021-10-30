@@ -33,7 +33,7 @@ namespace Coomes.Equipper.UnitTest
             _activityDataMock = new Mock<IActivityData>();
             _activityDataMock
                 .Setup(ad => ad.GetActivities(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-                .ThrowsAsync(new Exception("ACCESS DENIED")); // todo: what is actually thrown?
+                .ThrowsAsync(new UnauthorizedException());
             _activityDataMock
                 .Setup(ad => ad.GetActivities(_athleteTokens.AccessToken, It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(_mostReccentActivities);

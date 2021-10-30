@@ -8,12 +8,19 @@ using Coomes.Equipper.Contracts;
 using StravaModel = Coomes.Equipper.StravaApi.Models;
 using System.Linq;
 using System.Web;
+using Microsoft.Extensions.Logging;
 
 namespace Coomes.Equipper.StravaApi
 {
     public class ActivityClient : IActivityData
     {
-        private static HttpClient httpClient = new HttpClient(); 
+        private static HttpClient httpClient = new HttpClient();
+        private ILogger _logger;
+
+        public ActivityClient(ILogger logger)
+        {
+            _logger = logger;
+        }
 
         public async Task<IEnumerable<Activity>> GetActivities(string accessToken, int page = 1, int limit = 50)
         {
@@ -28,7 +35,7 @@ namespace Coomes.Equipper.StravaApi
 
             using var response = await httpClient.SendAsync(request);
             
-            response.EnsureSuccessStatusCode();
+            await response.LogAndThrowIfNotSuccess(_logger, $"{nameof(ActivityClient)}.{nameof(GetActivities)}");
             
             var jsonBytes = await response.Content.ReadAsByteArrayAsync();
             return ToActivityList(jsonBytes);
