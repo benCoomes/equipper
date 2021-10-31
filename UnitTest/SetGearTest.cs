@@ -206,9 +206,39 @@ namespace Coomes.Equipper.UnitTest
         }
 
         [TestMethod]
-        public void SetGear_Throws_WhenUserNotRegistered() 
+        public async Task SetGear_Throws_WhenUserNotRegistered() 
         {
-            Assert.Inconclusive("Not implemented");
+             _triggerActivityId = 1;
+            _athleteId = 404;
+            _athleteTokens = null; // ITokenStorage returns null if no athlete
+            _mostReccentActivities = new List<Activity>()
+            {
+                new Activity()
+                {
+                    Id = 1,
+                    AverageSpeed = 10,
+                    GearId = "gear_1"
+                }
+            };
+
+            var tokenProviderMock = new Mock<ITokenProvider>();
+            var activityDataMock = new Mock<IActivityData>();
+            var tokenStorageMock = new Mock<ITokenStorage>();
+            tokenStorageMock
+                .Setup(ts => ts.GetTokens(_athleteId))
+                .ReturnsAsync(_athleteTokens);
+            var sut = new SetGear(activityDataMock.Object, tokenStorageMock.Object, tokenProviderMock.Object);
+
+            // when
+            Func<Task> tryExecute = () => sut.Execute(_athleteId, _triggerActivityId);
+
+            // then
+            await tryExecute.Should().ThrowAsync<SetGearException>();
+
+            activityDataMock.Verify(
+                ad => ad.GetActivities(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()),
+                Times.Never
+            );
         }
 
     }

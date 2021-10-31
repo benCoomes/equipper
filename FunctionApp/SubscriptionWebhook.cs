@@ -17,6 +17,8 @@ namespace Equipper.FunctionApp
             ILogger log)
         {
             // todo: anonymous endpoint - rate limiting? don't trust anything
+            // make sure no activity or athlete information is returned in response.
+            // do not make any changes to athlete data that would allow for abuse by malicious callers
             switch(req.Method)
             {
                 case "GET":

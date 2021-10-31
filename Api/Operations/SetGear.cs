@@ -21,27 +21,12 @@ namespace Coomes.Equipper.Operations
 
         public async Task Execute(long athleteID, long activityID)
         {
-            // get athlete from storage
-            var athleteTokens = await _tokenStorage.GetTokens(athleteID);
+            var athleteTokens = await GetTokensAndRefreshIfNeeded(athleteID);
 
-            // if DNE, log and throw
-
-            // if expired
-            var refreshAt = athleteTokens.ExpiresAtUtc.Subtract(TimeSpan.FromMinutes(5));
-            var now = DateTime.UtcNow;
-            if(refreshAt < now)
-            {
-                var newTokens = await _tokenProvider.RefreshToken(athleteTokens.RefreshToken);
-                await _tokenStorage.AddOrUpdateTokens(newTokens); // todo: concurrent updates?? take latest expire time?
-                athleteTokens = newTokens;
-            }
-            
-            // request most reccent activities
             var activities = await _activityData.GetActivities(athleteTokens.AccessToken);
 
-            // get new activity details
             var newActivity = activities.SingleOrDefault(a => a.Id == activityID);
-            if(newActivity == null)
+            if (newActivity == null)
             {
                 // todo: log
                 throw new SetGearException("The triggering activity was not in the most reccent activities");
@@ -50,6 +35,27 @@ namespace Coomes.Equipper.Operations
             // find best gear match
 
             // update activity
+        }
+
+        private async Task<AthleteTokens> GetTokensAndRefreshIfNeeded(long athleteID)
+        {
+            var athleteTokens = await _tokenStorage.GetTokens(athleteID);
+
+            if (athleteTokens == null)
+            {
+                throw new SetGearException($"No athlete with ID {athleteID} is registered.");
+            }
+
+            var refreshAt = athleteTokens.ExpiresAtUtc.Subtract(TimeSpan.FromMinutes(5));
+            var now = DateTime.UtcNow;
+            if (refreshAt < now)
+            {
+                var newTokens = await _tokenProvider.RefreshToken(athleteTokens.RefreshToken);
+                await _tokenStorage.AddOrUpdateTokens(newTokens); // todo: concurrent updates?? take latest expire time?
+                athleteTokens = newTokens;
+            }
+
+            return athleteTokens;
         }
     }
 }
