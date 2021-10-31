@@ -27,9 +27,14 @@ namespace Coomes.Equipper.Operations
             // if DNE, log and throw
 
             // if expired
-                // refresh token
-                // update data
-                // concurrent updates?? take latest expire time?
+            var refreshAt = athleteTokens.ExpiresAtUtc.Subtract(TimeSpan.FromMinutes(5));
+            var now = DateTime.UtcNow;
+            if(refreshAt < now)
+            {
+                var newTokens = await _tokenProvider.RefreshToken(athleteTokens.RefreshToken);
+                await _tokenStorage.AddOrUpdateTokens(newTokens); // todo: concurrent updates?? take latest expire time?
+                athleteTokens = newTokens;
+            }
             
             // request most reccent activities
             var activities = await _activityData.GetActivities(athleteTokens.AccessToken);
@@ -41,7 +46,6 @@ namespace Coomes.Equipper.Operations
                 // todo: log
                 throw new SetGearException("The triggering activity was not in the most reccent activities");
             }
-            
 
             // find best gear match
 

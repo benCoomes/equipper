@@ -21,7 +21,7 @@ namespace Coomes.Equipper.UnitTest
         private Mock<ITokenStorage> _tokenStorageMock;
         private Mock<IActivityData> _activityDataMock;
 
-        public void InitMocks()
+        private void InitMocks()
         {
             _tokenStorageMock = new Mock<ITokenStorage>();
             _tokenStorageMock
@@ -36,6 +36,29 @@ namespace Coomes.Equipper.UnitTest
                 .ThrowsAsync(new UnauthorizedException());
             _activityDataMock
                 .Setup(ad => ad.GetActivities(_athleteTokens.AccessToken, It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(_mostReccentActivities);
+        }
+
+        private void InitMocksForRefresh(AthleteTokens refreshedTokens)
+        {
+            _tokenStorageMock = new Mock<ITokenStorage>();
+            _tokenStorageMock
+                .Setup(ts => ts.GetTokens(_athleteId))
+                .ReturnsAsync(_athleteTokens);
+            _tokenStorageMock
+                .Setup(ts => ts.AddOrUpdateTokens(It.IsAny<AthleteTokens>()));
+
+            _tokenProviderMock = new Mock<ITokenProvider>();
+            _tokenProviderMock
+                .Setup(tp => tp.RefreshToken(_athleteTokens.RefreshToken))
+                .ReturnsAsync(refreshedTokens);
+            
+            _activityDataMock = new Mock<IActivityData>();
+            _activityDataMock
+                .Setup(ad => ad.GetActivities(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+                .ThrowsAsync(new UnauthorizedException());
+            _activityDataMock
+                .Setup(ad => ad.GetActivities(refreshedTokens.AccessToken, It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(_mostReccentActivities);
         }
 
@@ -117,6 +140,56 @@ namespace Coomes.Equipper.UnitTest
             );
         }
 
+        [TestMethod]
+        public async Task SetGear_RefreshesTokenIfExpired()
+        {
+            // given
+            _triggerActivityId = 3;
+            _athleteId = 1000;
+            _athleteTokens = new AthleteTokens()
+            {
+                AccessToken = "oldAccessToken",
+                RefreshToken = "oldRefreshToken",
+                AthleteID = _athleteId,
+                ExpiresAtUtc = DateTime.UtcNow.Subtract(TimeSpan.FromSeconds(1))
+            };
+            var refreshedTokens = new AthleteTokens()
+            {
+                AccessToken = "newAccessToken",
+                RefreshToken = "newRefreshToken",
+                AthleteID = _athleteId,
+                ExpiresAtUtc = DateTime.UtcNow.AddHours(1)
+            };
+            _mostReccentActivities = new List<Activity>()
+            {
+                new Activity()
+                {
+                    Id = 3,
+                    AverageSpeed = 20,
+                    GearId = "gear_2"
+                }
+            };
+
+            InitMocksForRefresh(refreshedTokens);
+            var sut = new SetGear(_activityDataMock.Object, _tokenStorageMock.Object, _tokenProviderMock.Object);
+
+            // when
+            await sut.Execute(_athleteId, _triggerActivityId);
+
+            // then
+            _tokenProviderMock.Verify(
+                tp => tp.RefreshToken(_athleteTokens.RefreshToken), 
+                Times.Once);
+
+            _activityDataMock.Verify(
+                ad => ad.GetActivities(refreshedTokens.AccessToken, It.IsAny<int>(), It.IsAny<int>()),
+                Times.Once);
+
+            _tokenStorageMock.Verify(
+                ts => ts.AddOrUpdateTokens(refreshedTokens),
+                Times.Once);
+        }
+        
         [TestMethod]
         public void SetGear_IgnoresRetiredGear() 
         {

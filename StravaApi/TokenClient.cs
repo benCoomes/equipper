@@ -41,6 +41,11 @@ namespace Coomes.Equipper.StravaApi
             return tokenResponse.ToDomainModel();
         }
 
+        public Task<AthleteTokens> RefreshToken(string refreshToken)
+        {
+            throw new NotImplementedException();
+        }
+
         private string GetTokenRequestUrl(string authCode) 
         {
             var uriBuilder = new UriBuilder("https://www.strava.com/api/v3/oauth/token");
