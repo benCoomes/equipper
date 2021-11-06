@@ -27,11 +27,11 @@ namespace Equipper.FunctionApp
 
             if(!string.IsNullOrWhiteSpace(error)) 
             {
-                log.LogError("Recieved error at authorization callback: {authError}", error);
+                log.LogError("Received error at authorization callback: {authError}", error);
                 return new BadRequestObjectResult($"Failed to authorize due to error: {error}");
             }
 
-            log.LogInformation("Recieved auth code with scope '{scope}'", scope);
+            log.LogInformation("Received auth code with scope '{scope}'", scope);
 
             var token = await ExecuteTokenExchange(code, log);
             

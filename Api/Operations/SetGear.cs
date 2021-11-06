@@ -11,12 +11,14 @@ namespace Coomes.Equipper.Operations
         private IActivityData _activityData;
         private ITokenStorage _tokenStorage;
         private ITokenProvider _tokenProvider;
+        private NearestCentroidClassifier _matcher;
 
         public SetGear(IActivityData activityData, ITokenStorage tokenStorage, ITokenProvider tokenProvider)
         {
             _activityData = activityData;
             _tokenStorage = tokenStorage;
             _tokenProvider = tokenProvider;
+            _matcher = new NearestCentroidClassifier();
         }
 
         public async Task Execute(long athleteID, long activityID)
@@ -26,15 +28,18 @@ namespace Coomes.Equipper.Operations
             var activities = await _activityData.GetActivities(athleteTokens.AccessToken);
 
             var newActivity = activities.SingleOrDefault(a => a.Id == activityID);
+            var otherActivities = activities.Where(a => a.Id != activityID);
             if (newActivity == null)
             {
                 // todo: log
                 throw new SetGearException("The triggering activity was not in the most reccent activities");
             }
 
-            // find best gear match
+            // todo: don't use activities where the gear has been set by Equipper?
+            var bestMatchGearId = _matcher.Classify(newActivity, otherActivities); 
+            newActivity.GearId = bestMatchGearId;
 
-            // update activity
+            await _activityData.UpdateGear(athleteTokens.AccessToken, newActivity);
         }
 
         private async Task<AthleteTokens> GetTokensAndRefreshIfNeeded(long athleteID)
