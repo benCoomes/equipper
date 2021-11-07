@@ -95,6 +95,82 @@ namespace Coomes.Equipper.UnitTest
         }
 
         [TestMethod]
+        public async Task SetGear_ThrowsSetGearException_IfNoHistoricalActivities()
+        {
+            // given
+            _triggerActivityId = 4;
+            _athleteId = 1000;
+            _athleteTokens = new AthleteTokens()
+            {
+                AccessToken = "validAccessToken",
+                AthleteID = _athleteId,
+                ExpiresAtUtc = DateTime.UtcNow.AddHours(1)
+            };
+            _mostReccentActivities = new List<Activity>()
+            { 
+                new Activity()
+                {
+                    Id =  _triggerActivityId,
+                    AverageSpeed = 10,
+                    GearId = "gear_1"
+                }
+            };
+
+            InitMocks();
+            var sut = new SetGear(_activityDataMock.Object, _tokenStorageMock.Object, _tokenProviderMock.Object);
+            
+            // when
+            Func<Task> tryExecute = () => sut.Execute(_athleteId, _triggerActivityId);
+
+            // then
+            await tryExecute.Should().ThrowAsync<SetGearException>();
+        }
+
+        [TestMethod]
+        public async Task SetGear_ThrowsSetGearException_IfNoHistoricalActivitiesWithGear()
+        {
+            // given
+            _triggerActivityId = 4;
+            _athleteId = 1000;
+            _athleteTokens = new AthleteTokens()
+            {
+                AccessToken = "validAccessToken",
+                AthleteID = _athleteId,
+                ExpiresAtUtc = DateTime.UtcNow.AddHours(1)
+            };
+            _mostReccentActivities = new List<Activity>()
+            {
+                new Activity()
+                {
+                    Id =  1,
+                    AverageSpeed = 10,
+                    GearId = null
+                },
+                new Activity()
+                {
+                    Id =  2,
+                    AverageSpeed = 10,
+                    GearId = ""
+                },
+                new Activity()
+                {
+                    Id =  _triggerActivityId,
+                    AverageSpeed = 10,
+                    GearId = "gear_1"
+                }
+            };
+
+            InitMocks();
+            var sut = new SetGear(_activityDataMock.Object, _tokenStorageMock.Object, _tokenProviderMock.Object);
+            
+            // when
+            Func<Task> tryExecute = () => sut.Execute(_athleteId, _triggerActivityId);
+
+            // then
+            await tryExecute.Should().ThrowAsync<SetGearException>();
+        }
+
+        [TestMethod]
         public async Task SetGear_GetsReccentActivitiesAndSetsBestMatchGear() 
         {
             _triggerActivityId = 3;
@@ -164,7 +240,13 @@ namespace Coomes.Equipper.UnitTest
             {
                 new Activity()
                 {
-                    Id = 3,
+                    Id = 1,
+                    AverageSpeed = 21,
+                    GearId = "gear_2"
+                },
+                new Activity()
+                {
+                    Id = _triggerActivityId,
                     AverageSpeed = 20,
                     GearId = "gear_2"
                 }

@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Coomes.Equipper.Contracts;
 
@@ -28,14 +27,18 @@ namespace Coomes.Equipper.Operations
             var activities = await _activityData.GetActivities(athleteTokens.AccessToken);
 
             var newActivity = activities.SingleOrDefault(a => a.Id == activityID);
-            var otherActivities = activities.Where(a => a.Id != activityID);
             if (newActivity == null)
             {
-                // todo: log
                 throw new SetGearException("The triggering activity was not in the most reccent activities");
             }
-
+            
             // todo: don't use activities where the gear has been set by Equipper?
+            var otherActivities = activities.Where(a => a.Id != activityID && !string.IsNullOrWhiteSpace(a.GearId)).ToList();
+            if(otherActivities.Count == 0) 
+            {
+                throw new SetGearException("There are no historical activities on which to base a gear selection.");
+            }
+
             var bestMatchGearId = _matcher.Classify(newActivity, otherActivities); 
             newActivity.GearId = bestMatchGearId;
 
