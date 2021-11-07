@@ -5,6 +5,6 @@ namespace Coomes.Equipper.Contracts
     public interface ITokenProvider
     {
         Task<AthleteTokens> GetToken(string accessCode);
-        Task<AthleteTokens> RefreshToken(string refreshToken);
+        Task<AthleteTokens> RefreshToken(AthleteTokens athleteTokens);
     }
 }

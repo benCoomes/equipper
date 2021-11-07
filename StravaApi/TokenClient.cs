@@ -29,7 +29,7 @@ namespace Coomes.Equipper.StravaApi
         public async Task<AthleteTokens> GetToken(string authCode)
         {            
             var tokenRequest = GetTokenRequestUrl(authCode);
-            
+
             using var request = new HttpRequestMessage(HttpMethod.Post, tokenRequest);
             using var response = await _httpClient.SendAsync(request);
             
@@ -41,9 +41,19 @@ namespace Coomes.Equipper.StravaApi
             return tokenResponse.ToDomainModel();
         }
 
-        public Task<AthleteTokens> RefreshToken(string refreshToken)
+        public async Task<AthleteTokens> RefreshToken(AthleteTokens athleteTokens)
         {
-            throw new NotImplementedException();
+            var refreshRequest = GetTokenRefreshUrl(athleteTokens.RefreshToken);
+            
+            using var request = new HttpRequestMessage(HttpMethod.Post, refreshRequest);
+            using var response = await _httpClient.SendAsync(request);
+            
+            await response.LogAndThrowIfNotSuccess(_logger, $"{nameof(TokenClient)}.{nameof(GetToken)}");
+
+            var bytes = await response.Content.ReadAsByteArrayAsync();
+            var tokenResponse = Models.RefreshTokens.FromJsonBytes(bytes);
+
+            return tokenResponse.ToAthleteTokens(athleteTokens.AthleteID);
         }
 
         private string GetTokenRequestUrl(string authCode) 
@@ -54,6 +64,18 @@ namespace Coomes.Equipper.StravaApi
             query["client_secret"] = _options.ClientSecret;
             query["code"] = authCode;
             query["grant_type"] = "authorization_code";
+            uriBuilder.Query = query.ToString();
+            return uriBuilder.ToString();
+        }
+
+        private string GetTokenRefreshUrl(string refreshToken) 
+        {
+            var uriBuilder = new UriBuilder("https://www.strava.com/api/v3/oauth/token");
+            var query = HttpUtility.ParseQueryString(uriBuilder.Query);
+            query["client_id"] = _options.ClientId;
+            query["client_secret"] = _options.ClientSecret;
+            query["refresh_token"] = refreshToken;
+            query["grant_type"] = "refresh_token";
             uriBuilder.Query = query.ToString();
             return uriBuilder.ToString();
         }

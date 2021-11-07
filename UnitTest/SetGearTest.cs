@@ -50,7 +50,7 @@ namespace Coomes.Equipper.UnitTest
 
             _tokenProviderMock = new Mock<ITokenProvider>();
             _tokenProviderMock
-                .Setup(tp => tp.RefreshToken(_athleteTokens.RefreshToken))
+                .Setup(tp => tp.RefreshToken(_athleteTokens))
                 .ReturnsAsync(refreshedTokens);
             
             _activityDataMock = new Mock<IActivityData>();
@@ -178,7 +178,7 @@ namespace Coomes.Equipper.UnitTest
 
             // then
             _tokenProviderMock.Verify(
-                tp => tp.RefreshToken(_athleteTokens.RefreshToken), 
+                tp => tp.RefreshToken(_athleteTokens), 
                 Times.Once);
 
             _activityDataMock.Verify(

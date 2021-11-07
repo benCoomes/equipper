@@ -55,7 +55,7 @@ namespace Coomes.Equipper.Operations
             var now = DateTime.UtcNow;
             if (refreshAt < now)
             {
-                var newTokens = await _tokenProvider.RefreshToken(athleteTokens.RefreshToken);
+                var newTokens = await _tokenProvider.RefreshToken(athleteTokens);
                 await _tokenStorage.AddOrUpdateTokens(newTokens); // todo: concurrent updates?? take latest expire time?
                 athleteTokens = newTokens;
             }
