@@ -29,7 +29,6 @@ namespace Coomes.Equipper.CosmosStorage.Test
             var containerName = nameof(TokenStorage_AddOrUpdate_AddsNewTokens);
             var sut = new TokenStorageForTesting(EmulatorConnectionString, DatabaseName, containerName);
             await sut.EnsureDeleted();
-            await sut.Initialize();
 
             // when
             var beforeAdd = await sut.GetTokens(athleteID);
@@ -69,7 +68,6 @@ namespace Coomes.Equipper.CosmosStorage.Test
             var containerName = nameof(TokenStorage_AddOrUpdate_UpdatesExistingTokens);
             var sut = new TokenStorageForTesting(EmulatorConnectionString, DatabaseName, containerName);
             await sut.EnsureDeleted();
-            await sut.Initialize();
 
             // when
             var beforeOriginal = await sut.GetTokens(athleteID);
@@ -84,22 +82,6 @@ namespace Coomes.Equipper.CosmosStorage.Test
             afterOriginal.RefreshToken.Should().Be(originalTokens.RefreshToken);
             afterUpdate.AccessToken.Should().Be(udpatedTokens.AccessToken);
             afterUpdate.RefreshToken.Should().Be(udpatedTokens.RefreshToken);
-        }
-    
-        [TestMethod]
-        public async Task TokenStorage_ThrowsIfNotInitialized() 
-        {
-            // given
-            var containerName = nameof(TokenStorage_ThrowsIfNotInitialized);
-            var sut = new TokenStorageForTesting(EmulatorConnectionString, DatabaseName, containerName);
-            
-            // when
-            Func<Task> tryCreate = async () => await sut.AddOrUpdateTokens(new Domain.AthleteTokens() { AthleteID = 6413 });
-            Func<Task> tryGet = async () => await sut.GetTokens(54164);
-            
-            // then
-            await tryCreate.Should().ThrowAsync<InvalidOperationException>();
-            await tryGet.Should().ThrowAsync<InvalidOperationException>();
         }
     }
 }

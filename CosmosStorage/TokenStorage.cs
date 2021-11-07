@@ -24,7 +24,34 @@ namespace Coomes.Equipper.CosmosStorage
             _cosmosClient = new CosmosClient(connectionString);
         }
 
-        public async Task Initialize()
+        public async Task AddOrUpdateTokens(Domain.AthleteTokens athleteTokens)
+        {
+            await EnsureInitialized();
+            
+            var dataModel = new AthleteTokens(athleteTokens);
+            var partitionKey = new PartitionKey(dataModel.id);
+            await _tokenContainer.UpsertItemAsync<AthleteTokens>(dataModel, partitionKey);
+        }
+
+        public async Task<Domain.AthleteTokens> GetTokens(long athleteID)
+        {
+            await EnsureInitialized();
+
+            var id = athleteID.ToString();
+            var partitionKey = new PartitionKey(id);
+            try 
+            {
+                var result = await  _tokenContainer.ReadItemAsync<AthleteTokens>(id, partitionKey);
+                var dataModel = result.Resource;
+                return dataModel.ToDomainModel();
+            }
+            catch (CosmosException cex) when (cex.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+        }
+
+        private async Task EnsureInitialized()
         {
             if(_isInitialized) return;
             
@@ -41,33 +68,6 @@ namespace Coomes.Equipper.CosmosStorage
             finally
             {
                 _initLock.Release();
-            }
-        }
-
-        public async Task AddOrUpdateTokens(Domain.AthleteTokens athleteTokens)
-        {
-            if(!_isInitialized) throw new InvalidOperationException("The token storage is not initialized");
-            
-            var dataModel = new AthleteTokens(athleteTokens);
-            var partitionKey = new PartitionKey(dataModel.id);
-            await _tokenContainer.UpsertItemAsync<AthleteTokens>(dataModel, partitionKey);
-        }
-
-        public async Task<Domain.AthleteTokens> GetTokens(long athleteID)
-        {
-            if(!_isInitialized) throw new InvalidOperationException("The token storage is not initialized");
-
-            var id = athleteID.ToString();
-            var partitionKey = new PartitionKey(id);
-            try 
-            {
-                var result = await  _tokenContainer.ReadItemAsync<AthleteTokens>(id, partitionKey);
-                var dataModel = result.Resource;
-                return dataModel.ToDomainModel();
-            }
-            catch (CosmosException cex) when (cex.StatusCode == HttpStatusCode.NotFound)
-            {
-                return null;
             }
         }
     }
