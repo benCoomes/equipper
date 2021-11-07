@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Coomes.Equipper.Operations;
 using Microsoft.AspNetCore.Mvc;
+using Coomes.Equipper.StravaApi.Models;
+using Coomes.Equipper.StravaApi;
+using Coomes.Equipper.CosmosStorage;
 
 namespace Equipper.FunctionApp
 {
@@ -71,10 +74,36 @@ namespace Equipper.FunctionApp
 
             var body = await req.ReadAsStringAsync();
             log.LogInformation("{callbackEvent}", body);
+            
+            var stravaEvent = StravaEvent.FromJsonString(body);
+            if(stravaEvent.object_type == "activity" && (stravaEvent.aspect_type == "create" || stravaEvent.aspect_type == "update"))
+            {
+                log.LogDebug("Running set gear operation.");
+                await ExecuteSetGear(stravaEvent, log);
+            }
+            else 
+            {
+                log.LogDebug("Ignoring event.");
+            }
 
             log.LogInformation("{function} {status} {cid}", "SubscriptionWebhook  - ProcessEvent", "Success", correlationID.ToString());
             return new OkResult();
         }
 
+        private static async Task ExecuteSetGear(StravaEvent stravaEvent, ILogger log)
+        {
+            // todo: better way to build dependencies?
+            var options = new StravaApiOptions()
+            {
+                ClientId = Settings.ClientId,
+                ClientSecret = Settings.ClientSecret
+            };
+            var tokenProvider = new TokenClient(options, log);
+            var tokenStorage = new TokenStorage(Settings.CosmosConnectionString);
+            var activityData = new ActivityClient(log);
+            var setGearOperation = new SetGear(activityData, tokenStorage, tokenProvider);
+
+            await setGearOperation.Execute(stravaEvent.owner_id, stravaEvent.object_id);
+        }
     }
 }
