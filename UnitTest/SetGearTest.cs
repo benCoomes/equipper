@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 
 namespace Coomes.Equipper.UnitTest
 {
@@ -20,6 +21,7 @@ namespace Coomes.Equipper.UnitTest
         private Mock<ITokenProvider> _tokenProviderMock;
         private Mock<ITokenStorage> _tokenStorageMock;
         private Mock<IActivityData> _activityDataMock;
+        private Mock<ILogger> _loggerMock;
 
         private void InitMocks()
         {
@@ -37,6 +39,8 @@ namespace Coomes.Equipper.UnitTest
             _activityDataMock
                 .Setup(ad => ad.GetActivities(_athleteTokens.AccessToken, It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(_mostReccentActivities);
+
+            _loggerMock = new Mock<ILogger>();
         }
 
         private void InitMocksForRefresh(AthleteTokens refreshedTokens)
@@ -60,6 +64,8 @@ namespace Coomes.Equipper.UnitTest
             _activityDataMock
                 .Setup(ad => ad.GetActivities(refreshedTokens.AccessToken, It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(_mostReccentActivities);
+
+            _loggerMock = new Mock<ILogger>();
         }
 
         [TestMethod]
@@ -85,7 +91,7 @@ namespace Coomes.Equipper.UnitTest
             };
 
             InitMocks();
-            var sut = new SetGear(_activityDataMock.Object, _tokenStorageMock.Object, _tokenProviderMock.Object);
+            var sut = new SetGear(_activityDataMock.Object, _tokenStorageMock.Object, _tokenProviderMock.Object, _loggerMock.Object);
             
             // when
             Func<Task> tryExecute = () => sut.Execute(_athleteId, _triggerActivityId);
@@ -117,7 +123,7 @@ namespace Coomes.Equipper.UnitTest
             };
 
             InitMocks();
-            var sut = new SetGear(_activityDataMock.Object, _tokenStorageMock.Object, _tokenProviderMock.Object);
+            var sut = new SetGear(_activityDataMock.Object, _tokenStorageMock.Object, _tokenProviderMock.Object, _loggerMock.Object);
             
             // when
             Func<Task> tryExecute = () => sut.Execute(_athleteId, _triggerActivityId);
@@ -161,7 +167,7 @@ namespace Coomes.Equipper.UnitTest
             };
 
             InitMocks();
-            var sut = new SetGear(_activityDataMock.Object, _tokenStorageMock.Object, _tokenProviderMock.Object);
+            var sut = new SetGear(_activityDataMock.Object, _tokenStorageMock.Object, _tokenProviderMock.Object, _loggerMock.Object);
             
             // when
             Func<Task> tryExecute = () => sut.Execute(_athleteId, _triggerActivityId);
@@ -204,7 +210,7 @@ namespace Coomes.Equipper.UnitTest
             };
 
             InitMocks();
-            var sut = new SetGear(_activityDataMock.Object, _tokenStorageMock.Object, _tokenProviderMock.Object);
+            var sut = new SetGear(_activityDataMock.Object, _tokenStorageMock.Object, _tokenProviderMock.Object, _loggerMock.Object);
 
             // when
             await sut.Execute(_athleteId, _triggerActivityId);
@@ -253,7 +259,7 @@ namespace Coomes.Equipper.UnitTest
             };
 
             InitMocksForRefresh(refreshedTokens);
-            var sut = new SetGear(_activityDataMock.Object, _tokenStorageMock.Object, _tokenProviderMock.Object);
+            var sut = new SetGear(_activityDataMock.Object, _tokenStorageMock.Object, _tokenProviderMock.Object, _loggerMock.Object);
 
             // when
             await sut.Execute(_athleteId, _triggerActivityId);
@@ -290,26 +296,16 @@ namespace Coomes.Equipper.UnitTest
         [TestMethod]
         public async Task SetGear_Throws_WhenUserNotRegistered() 
         {
-             _triggerActivityId = 1;
-            _athleteId = 404;
-            _athleteTokens = null; // ITokenStorage returns null if no athlete
-            _mostReccentActivities = new List<Activity>()
-            {
-                new Activity()
-                {
-                    Id = 1,
-                    AverageSpeed = 10,
-                    GearId = "gear_1"
-                }
-            };
-
+            //given
+            // todo: standard mock setup doesn't work when _athleteTokens is null.
             var tokenProviderMock = new Mock<ITokenProvider>();
             var activityDataMock = new Mock<IActivityData>();
             var tokenStorageMock = new Mock<ITokenStorage>();
+            var loggerMock = new Mock<ILogger>();
             tokenStorageMock
                 .Setup(ts => ts.GetTokens(_athleteId))
-                .ReturnsAsync(_athleteTokens);
-            var sut = new SetGear(activityDataMock.Object, tokenStorageMock.Object, tokenProviderMock.Object);
+                .ReturnsAsync(default(AthleteTokens)); // ITokenStorage returns null if no athlete
+            var sut = new SetGear(activityDataMock.Object, tokenStorageMock.Object, tokenProviderMock.Object, loggerMock.Object);
 
             // when
             Func<Task> tryExecute = () => sut.Execute(_athleteId, _triggerActivityId);

@@ -1,15 +1,31 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace Coomes.Equipper
 {
     public class NearestCentroidClassifier
     {
+        private ILogger _logger;
+
+        public NearestCentroidClassifier(ILogger logger)
+        {
+            _logger = logger;
+        }
+
         public string Classify(Activity activity, IEnumerable<Activity> classifiedActivities)
         {
+            _logger.LogInformation("Running {algorithm} classification.", nameof(NearestCentroidClassifier));
+            
             var classes = GetClasses(classifiedActivities);
+            _logger.LogInformation("Generated classes: {classes}", classes);
+            
             var closestMatch = GetClosestMatch(activity, classes);
+            _logger.LogInformation("Matched {matchedGearId} based for activity {activityID} with average speed of {activityAverageSpeed}", 
+                closestMatch.GearId, 
+                activity.Id, 
+                activity.AverageSpeed);
 
             return closestMatch.GearId;
         }

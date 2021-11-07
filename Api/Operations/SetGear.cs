@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Coomes.Equipper.Contracts;
+using Microsoft.Extensions.Logging;
 
 namespace Coomes.Equipper.Operations
 {
@@ -10,14 +11,16 @@ namespace Coomes.Equipper.Operations
         private IActivityData _activityData;
         private ITokenStorage _tokenStorage;
         private ITokenProvider _tokenProvider;
+        private ILogger _logger;
         private NearestCentroidClassifier _matcher;
 
-        public SetGear(IActivityData activityData, ITokenStorage tokenStorage, ITokenProvider tokenProvider)
+        public SetGear(IActivityData activityData, ITokenStorage tokenStorage, ITokenProvider tokenProvider, ILogger logger)
         {
             _activityData = activityData;
             _tokenStorage = tokenStorage;
             _tokenProvider = tokenProvider;
-            _matcher = new NearestCentroidClassifier();
+            _logger = logger;
+            _matcher = new NearestCentroidClassifier(logger);
         }
 
         public async Task Execute(long athleteID, long activityID)

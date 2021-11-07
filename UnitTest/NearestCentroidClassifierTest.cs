@@ -1,6 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
 using System.Collections.Generic;
+using Moq;
+using Microsoft.Extensions.Logging;
 
 namespace Coomes.Equipper.UnitTest
 {
@@ -33,7 +35,7 @@ namespace Coomes.Equipper.UnitTest
                 AverageSpeed = 10    
             };
 
-            var sut = new NearestCentroidClassifier();
+            var sut = new NearestCentroidClassifier(Mock.Of<ILogger>());
             
             // act
             var actualGearID = sut.Classify(unclassifiedActivity, manuallyClassifiedActivities);
@@ -69,7 +71,7 @@ namespace Coomes.Equipper.UnitTest
                 AverageSpeed = 12
             };
 
-            var sut = new NearestCentroidClassifier();
+            var sut = new NearestCentroidClassifier(Mock.Of<ILogger>());
             
             // act
             var actualGearID = sut.Classify(unclassifiedActivity, manuallyClassifiedActivities);

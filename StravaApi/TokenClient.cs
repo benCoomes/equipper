@@ -43,6 +43,7 @@ namespace Coomes.Equipper.StravaApi
 
         public async Task<AthleteTokens> RefreshToken(AthleteTokens athleteTokens)
         {
+            _logger.LogInformation("Refreshing tokens for {athleteID}.", athleteTokens.AthleteID);
             var refreshRequest = GetTokenRefreshUrl(athleteTokens.RefreshToken);
             
             using var request = new HttpRequestMessage(HttpMethod.Post, refreshRequest);
