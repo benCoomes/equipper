@@ -1,11 +1,13 @@
-* Set Gear - log activity and refresh tokens:
-  * Get and log the activity details for an event
-  * If token is expired, refresh and store new tokens
-* Set Gear - set best gear choice:
-  * Use simple classification to set gearID on all new activities
+* Set Gear - different activity types:
+  * run classification only on activities of the same type (run, ride, etc). 
+  * This ensures chosen gear matches activity type
+* Set Gear - store classifications:
   * Cannot store Strava data per agreement. 
-  * Start out making a request on every activity event for historical data. 
+  * Currently making a request on every activity event for historical data. 
+  * Could this cause issues when all  historical data is affected by equipper?
   * Can use caching up to 7 days to reduce request rates
+* Set Gear - don't change already-processed activities
+  * Does it count as storing strava data to store activity IDs alone?
 * Deauthorize Webhook: Application must implement a webhook to know when an athlete deauthorizes it.
   * Should remove all athlete data and tokens when deauthorized
   * See: https://developers.strava.com/docs/webhooks/
@@ -27,6 +29,7 @@
 * Model initialization
   * Will need to gather data to build model for new subscribers. 
   * Maybe expensive? May want to protect against unsubscribe/resubscribe cycles.
+  * Consider strava api use terms.
 * Store predictions & revisions
   * Store activity IDs and predicted bike IDs. 
   * Equipper can subscribe to activity updates and check if an athlete has set the bike to a non-predicted value
