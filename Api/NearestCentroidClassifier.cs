@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 
 namespace Coomes.Equipper
@@ -19,7 +20,7 @@ namespace Coomes.Equipper
             _logger.LogInformation("Running {algorithm} classification.", nameof(NearestCentroidClassifier));
             
             var classes = GetClasses(classifiedActivities);
-            _logger.LogInformation("Generated classes: {classes}", classes);
+            _logger.LogInformation("Generated classes: {classes}", classes.ToJson());
             
             var closestMatch = GetClosestMatch(activity, classes);
             _logger.LogInformation("Matched {matchedGearId} based for activity {activityID} with average speed of {activityAverageSpeed}", 
@@ -57,11 +58,19 @@ namespace Coomes.Equipper
                 })
                 .ToList();
         }
+    }
 
-        private struct GearClass
+    internal struct GearClass
+    {
+        public string GearId { get; set; }
+        public double AvgAvgSpeed { get; set; }
+    }
+
+    internal static class GearClassExtensions
+    {
+        public static string ToJson(this IEnumerable<GearClass> gearClasses)
         {
-            public string GearId { get; set; }
-            public double AvgAvgSpeed { get; set; }
+            return JsonSerializer.Serialize(gearClasses);
         }
     }
 
