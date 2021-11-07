@@ -24,7 +24,7 @@ namespace Coomes.Equipper.StravaApi.Models
         }
 
         public string access_token { get; set; }
-        public int expires_at { get; set; }
+        public long expires_at { get; set; }
         public int expires_in { get; set; }
         public string refresh_token { get; set; }
         public SummaryAthlete athlete { get; set; }
