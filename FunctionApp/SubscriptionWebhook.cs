@@ -19,6 +19,9 @@ namespace Equipper.FunctionApp
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
+            log.LogInformation("Subscription request headers: " + string.Join(", ", req.Headers.Values));
+            log.LogInformation("Subscription request query params: " +  req.QueryString);
+
             // todo: anonymous endpoint - rate limiting? don't trust anything
             // make sure no activity or athlete information is returned in response.
             // do not make any changes to athlete data that would allow for abuse by malicious callers
