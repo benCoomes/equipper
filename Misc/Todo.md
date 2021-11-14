@@ -1,8 +1,23 @@
-* All functions - ensure exception details are not returned when unhandled exceptions
+# MVP
+* deploy production environment
+  * problems with cosmos in Central US. Try again later.
+* front end
+  * Display support contact info
+  * Links to navigate to strava accounts
+  * follow strava brand guidelines: https://developers.strava.com/guidelines/
+  * Try Static Web App: https://docs.microsoft.com/en-us/azure/static-web-apps/overview
+* Privacy policy 
+  * app must have lawful privacy policy including GDPR compliance
+  * must be reasonably prominent
+  * explain how data is collected, stored, and used
+  * See API Agreement section 5
+
+# Future
 * evaluate usefulness of c# records
 * Set Gear - different activity types:
   * run classification only on activities of the same type (run, ride, etc). 
   * This ensures chosen gear matches activity type
+  * Interestingly, I see no exceptions when the app processes a run and attempts to set a bike as the gear. The bike does not end up set on the run in Strava though.
 * Set Gear - store classifications:
   * Cannot store Strava data per agreement. 
   * Currently making a request on every activity event for historical data. 
