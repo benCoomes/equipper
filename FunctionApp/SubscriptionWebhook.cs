@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Coomes.Equipper.StravaApi.Models;
 using Coomes.Equipper.StravaApi;
 using Coomes.Equipper.CosmosStorage;
+using System.Net;
 
 namespace Equipper.FunctionApp
 {
@@ -19,9 +20,6 @@ namespace Equipper.FunctionApp
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("Subscription request headers: " + string.Join(", ", req.Headers.Values));
-            log.LogInformation("Subscription request query params: " +  req.QueryString);
-
             // todo: anonymous endpoint - rate limiting? don't trust anything
             // make sure no activity or athlete information is returned in response.
             // do not make any changes to athlete data that would allow for abuse by malicious callers
@@ -38,7 +36,7 @@ namespace Equipper.FunctionApp
                 default:
                 {
                     log.LogWarning($"The SubscriptionWebhook function was called with the unsupported HTTP method {req.Method}");
-                    return new BadRequestObjectResult("Unsupported HTTP method.");
+                    return new StatusCodeResult((int)HttpStatusCode.MethodNotAllowed);
                 }
             }
         }
