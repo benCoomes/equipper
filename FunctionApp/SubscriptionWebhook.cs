@@ -75,20 +75,26 @@ namespace Equipper.FunctionApp
 
             var body = await req.ReadAsStringAsync();
             log.LogInformation("{callbackEvent}", body);
-            
+
             var stravaEvent = StravaEvent.FromJsonString(body);
-            if(stravaEvent.object_type == "activity" && (stravaEvent.aspect_type == "create" || stravaEvent.aspect_type == "update"))
+            await ExecuteEventAction(stravaEvent, log);
+
+            log.LogInformation("{function} {status} {cid}", "SubscriptionWebhook  - ProcessEvent", "Success", correlationID.ToString());
+            return new OkResult();
+        }
+
+        private static async Task ExecuteEventAction(StravaEvent stravaEvent, ILogger log)
+        {
+            // todo: move this logic to testable class in Api. Will require DI to build operation.
+            if (stravaEvent.object_type == StravaEvent.ObjectTypes.Activity && stravaEvent.aspect_type == StravaEvent.AspectTypes.Create)
             {
                 log.LogDebug("Running set gear operation.");
                 await ExecuteSetGear(stravaEvent, log);
             }
-            else 
+            else
             {
                 log.LogDebug("Ignoring event.");
             }
-
-            log.LogInformation("{function} {status} {cid}", "SubscriptionWebhook  - ProcessEvent", "Success", correlationID.ToString());
-            return new OkResult();
         }
 
         private static async Task ExecuteSetGear(StravaEvent stravaEvent, ILogger log)

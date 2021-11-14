@@ -1,3 +1,5 @@
+* All functions - ensure exception details are not returned when unhandled exceptions
+* evaluate usefulness of c# records
 * Set Gear - different activity types:
   * run classification only on activities of the same type (run, ride, etc). 
   * This ensures chosen gear matches activity type

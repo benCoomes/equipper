@@ -7,6 +7,19 @@ namespace Coomes.Equipper.StravaApi.Models
     // https://developers.strava.com/docs/webhooks/#event-data
     public class StravaEvent
     {
+        public static class ObjectTypes
+        {
+            public const string Activity = "activity";
+            public const string Athlete = "athlete";
+        }
+
+        public static class AspectTypes
+        {
+            public const string Create = "create";
+            public const string Update = "update";
+            public const string Delete = "delete";
+        }
+
         public static StravaEvent FromJsonBytes(byte[] jsonBytes) {
             var readOnlySpan = new ReadOnlySpan<byte>(jsonBytes);
             return JsonSerializer.Deserialize<StravaEvent>(readOnlySpan);
