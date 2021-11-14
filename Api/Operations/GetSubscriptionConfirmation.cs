@@ -16,7 +16,7 @@ namespace Coomes.Equipper.Operations
             if(actualVerificationToken != expectedVerificationToken) 
             {
                 _logger.LogWarning(
-                    "Recieved verification token '{actualVerificationToken}' that does not match the expected token '{expectedVerificationToken}'", 
+                    "Received verification token '{actualVerificationToken}' that does not match the expected token '{expectedVerificationToken}'", 
                     actualVerificationToken, 
                     expectedVerificationToken);
                 throw new BadRequestException("Verification token does not match expected value.");
