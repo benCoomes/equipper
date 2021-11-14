@@ -83,5 +83,52 @@ namespace Coomes.Equipper.CosmosStorage.Test
             afterUpdate.AccessToken.Should().Be(udpatedTokens.AccessToken);
             afterUpdate.RefreshToken.Should().Be(udpatedTokens.RefreshToken);
         }
+    
+        [TestMethod]
+        public async Task TokenStorage_Delete_RemovesTokens()
+        {
+            // given 
+            var athleteID = 1234;
+            var existingTokens = new Domain.AthleteTokens()
+            {
+                AccessToken = "accessToken",
+                RefreshToken = "refreshToken",
+                AthleteID = athleteID,
+                ExpiresAtUtc = DateTime.UtcNow.AddHours(4)
+            };
+
+            var containerName = nameof(TokenStorage_Delete_RemovesTokens);
+            var sut = new TokenStorageForTesting(EmulatorConnectionString, DatabaseName, containerName);
+            await sut.EnsureDeleted();
+
+            // when
+            await sut.AddOrUpdateTokens(existingTokens);
+            var beforeDelete = await sut.GetTokens(athleteID);
+            await sut.DeleteTokens(athleteID);
+            var afterDelete = await sut.GetTokens(athleteID);
+
+            // then
+            beforeDelete.Should().NotBeNull();
+            afterDelete.Should().BeNull();
+        }
+
+        [TestMethod]
+        public async Task TokenStorage_Delete_ThrowsWhenTokensDoNotExist()
+        {
+            // given 
+            var athleteID = 1234;
+
+            var containerName = nameof(TokenStorage_Delete_ThrowsWhenTokensDoNotExist);
+            var sut = new TokenStorageForTesting(EmulatorConnectionString, DatabaseName, containerName);
+            await sut.EnsureDeleted();
+
+            // when
+            var beforeDelete = await sut.GetTokens(athleteID);
+            Func<Task> tryDelete = () =>  sut.DeleteTokens(athleteID);
+
+            // then
+            beforeDelete.Should().BeNull();
+            await tryDelete.Should().ThrowAsync<Exception>();
+        }
     }
 }

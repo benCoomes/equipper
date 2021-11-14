@@ -6,5 +6,6 @@ namespace Coomes.Equipper.Contracts
     {
         Task AddOrUpdateTokens(AthleteTokens tokens);
         Task<AthleteTokens> GetTokens(long athleteID);
+        Task DeleteTokens(long athleteID);
     }
 }

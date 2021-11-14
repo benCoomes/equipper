@@ -85,11 +85,22 @@ namespace Equipper.FunctionApp
 
         private static async Task ExecuteEventAction(StravaEvent stravaEvent, ILogger log)
         {
-            // todo: move this logic to testable class in Api. Will require DI to build operation.
-            if (stravaEvent.object_type == StravaEvent.ObjectTypes.Activity && stravaEvent.aspect_type == StravaEvent.AspectTypes.Create)
+            // todo: move this logic to testable class in Api. Will require DI to build resulting operation.
+            if (
+                stravaEvent.object_type == StravaEvent.ObjectTypes.Activity 
+                && stravaEvent.aspect_type == StravaEvent.AspectTypes.Create)
             {
                 log.LogDebug("Running set gear operation.");
                 await ExecuteSetGear(stravaEvent, log);
+            }
+            else if (
+                stravaEvent.object_type == StravaEvent.ObjectTypes.Athlete 
+                && stravaEvent.aspect_type == StravaEvent.AspectTypes.Update
+                && stravaEvent.updates.ContainsKey("authorized")
+                && stravaEvent.updates["authorized"] == "false")
+            {
+                log.LogDebug("Unsubscribing athlete.");
+                await ExecuteAthleteUnsubscribe(stravaEvent, log);
             }
             else
             {
@@ -111,6 +122,14 @@ namespace Equipper.FunctionApp
             var setGearOperation = new SetGear(activityData, tokenStorage, tokenProvider, log);
 
             await setGearOperation.Execute(stravaEvent.owner_id, stravaEvent.object_id);
+        }
+
+        private static async Task ExecuteAthleteUnsubscribe(StravaEvent stravaEvent, ILogger log)
+        {
+            // todo: better way to build dependencies?
+            var tokenStorage = new TokenStorage(Settings.CosmosConnectionString);
+            var unsubscribeAthleteOperation = new UnsubscribeAthleteOperation(tokenStorage, log);
+            await unsubscribeAthleteOperation.Execute(stravaEvent.object_id);
         }
     }
 }

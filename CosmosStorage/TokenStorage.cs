@@ -29,7 +29,7 @@ namespace Coomes.Equipper.CosmosStorage
             await EnsureInitialized();
             
             var dataModel = new AthleteTokens(athleteTokens);
-            var partitionKey = new PartitionKey(dataModel.id);
+            var partitionKey = new PartitionKey(dataModel.AthleteID);
             await _tokenContainer.UpsertItemAsync<AthleteTokens>(dataModel, partitionKey);
         }
 
@@ -49,6 +49,18 @@ namespace Coomes.Equipper.CosmosStorage
             {
                 return null;
             }
+        }
+
+        public async Task DeleteTokens(long athleteID)
+        {
+            await EnsureInitialized();
+
+            var id = athleteID.ToString();
+            var partitionKey = new PartitionKey(id);
+            
+            // todo: does this call return a status code or throw an exception on failure?
+            // if status code, verify success
+            await _tokenContainer.DeleteItemAsync<AthleteTokens>(id, partitionKey);
         }
 
         private async Task EnsureInitialized()
