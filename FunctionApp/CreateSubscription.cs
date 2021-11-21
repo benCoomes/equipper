@@ -13,7 +13,7 @@ namespace Equipper.FunctionApp
     {
         [FunctionName("CreateSubscription")]
         public static async Task Run(
-            [HttpTrigger(AuthorizationLevel.Admin, "post", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
             var correlationID = Guid.NewGuid();
