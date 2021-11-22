@@ -1,9 +1,6 @@
 name: Equipper
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
@@ -63,7 +60,7 @@ jobs:
           output_location: ".github/workflows" # Built app content directory - optional
 
   deploy_prod_job:
-    if: github.event_name == 'push'
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
     name: Deploy To Prod Job
     steps:
