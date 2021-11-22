@@ -10,6 +10,24 @@ on:
       - main
 
 jobs:
+  test_cosmos_job:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: windows-latest
+    name: Test Cosmos Job
+    steps:
+      - uses: actions/checkout@v2
+        with: submodules: true
+      - uses: southpolesteve/cosmos-emulator-github-action@v1
+      - name: Setup .NET 3.1.x
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+      - name: Install Dependencies
+        run: dotnet restore CosmosStorageTest/CosmosStorageTest.csproj
+      - name: Build
+        run: dotnet build CosmosStorageTest/CosmosStorageTest.csproj --configuration Release --no-restore
+      - name: Cosmos Test
+        run: dotnet test CosmosStorageTest/CosmosStorageTest.csproj --no-restore --verbosity normal
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
@@ -18,7 +36,6 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - uses: galvesribeiro/AzureCosmosAction@master
       - name: Setup .NET 3.1.x
         uses: actions/setup-dotnet@v1
         with:
@@ -31,8 +48,6 @@ jobs:
         run: dotnet test UnitTest/UnitTest.csproj --no-restore --verbosity normal
       - name: Strava API Test
         run: dotnet test StravaApiTest/StravaApiTest.csproj --no-restore --verbosity normal
-      - name: Cosmos Test WILL FAIL
-        run: dotnet test CosmosStorageTest/CosmosStorageTest.csproj --no-restore --verbosity normal
       - name: Build And Stage
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
