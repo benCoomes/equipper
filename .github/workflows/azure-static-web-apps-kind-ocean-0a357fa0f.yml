@@ -10,7 +10,9 @@ on:
       - main
 
 jobs:
-  test_cosmos_job:
+  # Test Cosmos separately because Cosmos DB Emulator is installed on Windows hosts but not Linux hosts. 
+  # However, Linux is required by Azure/static-web-apps-deploy.
+  test_cosmos_job: 
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: windows-latest
     name: Test Cosmos Job
