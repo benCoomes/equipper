@@ -1,6 +1,4 @@
 # MVP
-* deploy production environment
-  * problems with cosmos in Central US. Try again later.
 * front end
   * Display support contact info
   * Links to navigate to strava accounts
