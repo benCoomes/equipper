@@ -1,71 +1,44 @@
-name: Equipper
+name: Azure Static Web Apps CI/CD
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
       - main
 
 jobs:
-  # Test Cosmos separately because Cosmos DB Emulator is installed on Windows hosts but not Linux hosts. 
-  # However, Linux is required by Azure/static-web-apps-deploy.
-  test_cosmos_job: 
-    if: github.event_name == 'pull_request' && github.event.action != 'closed'
-    runs-on: windows-latest
-    name: Test Cosmos Job
-    steps:
-      - uses: actions/checkout@v2
-        with: 
-          submodules: true
-      - uses: southpolesteve/cosmos-emulator-github-action@v1
-      - name: Setup .NET 3.1.x
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '3.1.x'
-      - name: Install Dependencies
-        run: dotnet restore CosmosStorageTest/CosmosStorageTest.csproj
-      - name: Build
-        run: dotnet build CosmosStorageTest/CosmosStorageTest.csproj --configuration Release --no-restore
-      - name: Cosmos Test
-        run: dotnet test CosmosStorageTest/CosmosStorageTest.csproj --no-restore --verbosity normal
-  build_and_stage_job:
-    if: github.event_name == 'pull_request' && github.event.action != 'closed'
+  build_and_deploy_job:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
-    name: Build and Stage Job
+    name: Build and Deploy Job
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - name: Setup .NET 3.1.x
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '3.1.x'
-      - name: Install Dependencies
-        run: dotnet restore
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
-      - name: Unit Test
-        run: dotnet test UnitTest/UnitTest.csproj --no-restore --verbosity normal
-      - name: Strava API Test
-        run: dotnet test StravaApiTest/StravaApiTest.csproj --no-restore --verbosity normal
-      - name: Build And Stage
-        id: buildandstage
+      - name: Build And Deploy
+        id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KIND_OCEAN_0A357FA0F }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
           action: "upload"
-          app_location: "/Website" # App source code path
-          api_location: "/FunctionApp" # Api source code path - optional
+          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+          app_location: "." # App source code path
+          api_location: "." # Api source code path - optional
           output_location: ".github/workflows" # Built app content directory - optional
+          ###### End of Repository/Build Configurations ######
 
-  deploy_prod_job:
+  close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
-    name: Deploy To Prod Job
+    name: Close Pull Request Job
     steps:
-      - name: Deploy To Prod
-        id: deploytoprod
+      - name: Close Pull Request
+        id: closepullrequest
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KIND_OCEAN_0A357FA0F }}
