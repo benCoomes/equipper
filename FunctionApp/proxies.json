@@ -6,7 +6,7 @@
                 "methods": [ "GET" ],
                 "route": "/api/TokenExchange"
             },
-            "backendUri": "http://localhost/api/TokenExchangeWorkaround",
+            "backendUri": "https://localhost/api/TokenExchangeWorkaround",
             "requestOverrides": {
               "backend.request.querystring.code": "",
               "backend.request.querystring._code": "{request.querystring.code}"
