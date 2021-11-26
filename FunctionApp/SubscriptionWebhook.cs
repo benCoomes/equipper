@@ -128,7 +128,7 @@ namespace Equipper.FunctionApp
         {
             // todo: better way to build dependencies?
             var tokenStorage = new TokenStorage(Settings.CosmosConnectionString);
-            var unsubscribeAthleteOperation = new UnsubscribeAthleteOperation(tokenStorage, log);
+            var unsubscribeAthleteOperation = new UnsubscribeAthlete(tokenStorage, log);
             await unsubscribeAthleteOperation.Execute(stravaEvent.object_id);
         }
     }
