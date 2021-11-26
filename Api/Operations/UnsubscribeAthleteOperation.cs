@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Coomes.Equipper.Operations
 {
-    // todo: rename
     public class UnsubscribeAthlete
     {
         ITokenStorage _tokenStorage;
