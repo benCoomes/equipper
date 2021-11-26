@@ -5,12 +5,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Coomes.Equipper.Operations
 {
-    public class UnsubscribeAthleteOperation
+    public class UnsubscribeAthlete
     {
         ITokenStorage _tokenStorage;
         ILogger _logger;
 
-        public UnsubscribeAthleteOperation(ITokenStorage tokenStorage, ILogger logger)
+        public UnsubscribeAthlete(ITokenStorage tokenStorage, ILogger logger)
         {
             _tokenStorage = tokenStorage;
             _logger = logger;

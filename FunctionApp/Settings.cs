@@ -1,6 +1,6 @@
 using System;
 
-namespace Equipper.FunctionApp
+namespace Coomes.Equipper.FunctionApp
 {
     internal static class Settings
     {

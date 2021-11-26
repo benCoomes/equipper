@@ -21,7 +21,7 @@ namespace Coomes.Equipper.UnitTest
             var mockLogger = new Mock<ILogger>();
             var mockTokenStorage = new Mock<ITokenStorage>();
 
-            var sut = new UnsubscribeAthleteOperation(mockTokenStorage.Object, mockLogger.Object);
+            var sut = new UnsubscribeAthlete(mockTokenStorage.Object, mockLogger.Object);
 
             // when
             await sut.Execute(athleteID);
@@ -43,7 +43,7 @@ namespace Coomes.Equipper.UnitTest
                 .Setup(ts => ts.DeleteTokens(athleteID))
                 .ThrowsAsync(expectedException);
 
-            var sut = new UnsubscribeAthleteOperation(mockTokenStorage.Object, mockLogger.Object);
+            var sut = new UnsubscribeAthlete(mockTokenStorage.Object, mockLogger.Object);
 
             // when
             Func<Task> tryExecute = () => sut.Execute(athleteID);
