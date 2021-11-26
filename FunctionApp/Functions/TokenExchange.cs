@@ -9,7 +9,7 @@ using Coomes.Equipper.StravaApi;
 using Coomes.Equipper.Operations;
 using Coomes.Equipper.CosmosStorage;
 
-namespace Equipper.FunctionApp
+namespace Coomes.Equipper.FunctionApp
 {
     public static class TokenExchange
     {

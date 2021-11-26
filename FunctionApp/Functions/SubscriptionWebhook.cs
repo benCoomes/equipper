@@ -11,7 +11,7 @@ using Coomes.Equipper.StravaApi;
 using Coomes.Equipper.CosmosStorage;
 using System.Net;
 
-namespace Equipper.FunctionApp
+namespace Coomes.Equipper.FunctionApp.Functions
 {
     public static class SubscriptionWebhook
     {
