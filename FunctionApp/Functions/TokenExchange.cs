@@ -13,7 +13,12 @@ namespace Coomes.Equipper.FunctionApp
 {
     public static class TokenExchange
     {
-        [FunctionName("TokenExchange")]
+        // see https://github.com/Azure/static-web-apps/issues/165
+        // todo: when issue fixed: 
+        //   change this back to 'TokenExchange' 
+        //   remove the proxy in proxies.json
+        //   change param back to 'code'
+        [FunctionName("TokenExchangeWorkaround")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
             ILogger log)
@@ -21,7 +26,7 @@ namespace Coomes.Equipper.FunctionApp
             var correlationID = Guid.NewGuid();
             log.LogInformation("{function} {status} {cid}", "TokenExchange", "Starting", correlationID.ToString());
 
-            string code = req.Query["code"];
+            string code = req.Query["_code"]; // see proxies.json and https://github.com/Azure/static-web-apps/issues/165
             string scope = req.Query["scope"];
             string error = req.Query["error"];
 
