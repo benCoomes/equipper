@@ -1,0 +1,45 @@
+:root {
+    /* https://coolors.co/b8b42d-697a21-fffce8-3e363f-dd403a */
+    --menu-bg-color: #dd403a;
+    --menu-color: #fffce8;
+    --body-bg-color: #fffce8;
+    --body-color: #3e363f;
+    --accent-color: #b8b42d;
+    --accent-alt-color: #67=97A21;
+}
+
+body {
+    background-color: var(--body-bg-color);
+    color: var(--body-color);
+}
+
+.mainHeader {
+    background-color: var(--menu-bg-color);
+    padding-top: 1rem;
+    padding-bottom: 0.5rem;
+    color: var(--menu-color);
+}
+
+.mainHeader__title {
+    color: var(--menu-color);
+    font-size: 3rem;
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+    align-items: center;
+    display: flex;
+}
+
+.mainHeader__logo {
+    width: 2.5rem; 
+    height: 2.5rem; 
+    margin-right: 1rem; 
+}
+
+.mainHeader__title:hover, .mainHeader__title:active {
+    text-decoration: none;
+    color: inherit;
+}
+
+.about {
+    padding-top: 1rem;
+}
