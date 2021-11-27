@@ -40,6 +40,10 @@ body {
     color: inherit;
 }
 
-.about {
-    padding-top: 1rem;
+.section {
+    margin-top: 1rem;
+
+    border-left-color: var(--body-color);
+    border-left-style: solid;
+    border-left-width: 0.25rem;
 }
