@@ -1,9 +1,9 @@
 # MVP
 * front end
+  * remove old logo files
   * Display support contact info
   * Links to navigate to strava accounts
   * follow strava brand guidelines: https://developers.strava.com/guidelines/
-  * Try Static Web App: https://docs.microsoft.com/en-us/azure/static-web-apps/overview
 * Privacy policy 
   * app must have lawful privacy policy including GDPR compliance
   * must be reasonably prominent
