@@ -1,7 +1,7 @@
 :root {
     /* https://coolors.co/b8b42d-697a21-fffce8-3e363f-dd403a */
     --menu-bg-color: #dd403a;
-    --menu-color: #fffce8;
+    --menu-color: white;
     --body-bg-color: #fffce8;
     --body-color: #3e363f;
     --accent-color: #b8b42d;
@@ -29,21 +29,34 @@ body {
     display: flex;
 }
 
+.mainHeader__title:hover, .mainHeader__title:active {
+    text-decoration: none;
+    color: inherit;
+}
+
 .mainHeader__logo {
     width: 2.5rem; 
     height: 2.5rem; 
     margin-right: 1rem; 
 }
 
-.mainHeader__title:hover, .mainHeader__title:active {
-    text-decoration: none;
+.mainHeader__stravaLink {
+    color: var(--menu-color);
+}
+
+.mainHeader__stravaLink:hover, .mainHeader__stravaLink:active {
     color: inherit;
+    filter: brightness(80%);
 }
 
 .section {
     margin-top: 1rem;
+}
 
-    border-left-color: var(--body-color);
-    border-left-style: solid;
-    border-left-width: 0.25rem;
+@media(min-width: 576px) {
+    .section {
+        border-left-color: var(--body-color);
+        border-left-style: solid;
+        border-left-width: 0.25rem;
+    }
 }
