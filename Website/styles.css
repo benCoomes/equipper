@@ -20,23 +20,27 @@ body {
     color: var(--menu-color);
 }
 
-.mainHeader__title {
-    color: var(--menu-color);
-    font-size: 3rem;
-    text-decoration: none;
+.mainHeader__brand {
     margin-bottom: 0.5rem;
-    align-items: center;
     display: flex;
 }
 
-.mainHeader__title:hover, .mainHeader__title:active {
+.brand {
+    text-decoration: none; 
+}
+
+.brand:hover, .brand:active {
     text-decoration: none;
     color: inherit;
 }
 
-.mainHeader__logo {
-    width: 2.5rem; 
-    height: 2.5rem; 
+.brand__title {
+    color: var(--menu-color);
+    font-size: 3rem;
+}
+
+.brand__logo { 
+    height: 3rem; 
     margin-right: 1rem; 
 }
 
