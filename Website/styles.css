@@ -62,11 +62,11 @@ body {
 }
 
 
-.body__link {
+.section__link {
     color: inherit;
 }
 
-.body__link:hover, .body__link:active {
+.section__link:hover, .section__link:active {
     color: inherit;
     filter: brightness(.2);
 }
