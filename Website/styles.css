@@ -60,3 +60,13 @@ body {
         border-left-width: 0.25rem;
     }
 }
+
+
+.body__link {
+    color: inherit;
+}
+
+.body__link:hover, .body__link:active {
+    color: inherit;
+    filter: brightness(.2);
+}
