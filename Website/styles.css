@@ -41,12 +41,8 @@ body {
 }
 
 .mainHeader__stravaLink {
-    color: var(--menu-color);
-}
-
-.mainHeader__stravaLink:hover, .mainHeader__stravaLink:active {
-    color: inherit;
-    filter: brightness(80%);
+    display: inline-block;
+    width: 12rem;
 }
 
 .section {
