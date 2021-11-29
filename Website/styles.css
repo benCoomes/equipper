@@ -70,3 +70,12 @@ body {
     color: inherit;
     filter: brightness(.2);
 }
+
+.section__header {
+    font-weight: bold;
+}
+
+.section__subheader {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
