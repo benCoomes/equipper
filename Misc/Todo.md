@@ -1,16 +1,17 @@
 # MVP
-* front end
-  * Display support contact info
-  * Links to navigate to strava accounts
-  * follow strava brand guidelines: https://developers.strava.com/guidelines/
-  * Try Static Web App: https://docs.microsoft.com/en-us/azure/static-web-apps/overview
-* Privacy policy 
-  * app must have lawful privacy policy including GDPR compliance
-  * must be reasonably prominent
-  * explain how data is collected, stored, and used
-  * See API Agreement section 5
+* Post-auth Landing Page
+  * improve UX by redirecting to front end with message on success/failure. 
+  * be sure case when access is denied or not all required scopes present are handled
+* Log Review
+  * review logs for compliance with privacy policy and API agreement
 
 # Future
+* Activity processing counter
+  * It would be cool to know how many activities Equipper has processed and display this on the website.
+* Record processing stats
+  * Store details of each processing event in Cosmos.
+  * Cannot store activity data, raw or derived.
+  * May store algorithm stats such as std dev, variance, confidence, etc
 * evaluate usefulness of c# records
 * Set Gear - different activity types:
   * run classification only on activities of the same type (run, ride, etc). 
@@ -22,7 +23,8 @@
   * Could this cause issues when all  historical data is affected by equipper?
   * Can use caching up to 7 days to reduce request rates
 * Set Gear - don't change already-processed activities
-  * Does it count as storing strava data to store activity IDs alone?
+  * Cannot store activity IDs longer than 7 days
+  * Consider cosmos table with TTL of 7 days.
 * Mitigate Abuse of Subscription Endpoint
   * check that subscription ID matches expected? 
   * only allow requests from known Strava IPs?

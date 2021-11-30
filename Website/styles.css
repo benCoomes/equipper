@@ -1,0 +1,81 @@
+:root {
+    /* https://coolors.co/b8b42d-697a21-fffce8-3e363f-af322e */
+    --menu-bg-color: #af322e;
+    --menu-color: white;
+    --body-bg-color: #fffce8;
+    --body-color: #3e363f;
+    --accent-color: #b8b42d;
+    --accent-alt-color: #67=97A21;
+}
+
+body {
+    background-color: var(--body-bg-color);
+    color: var(--body-color);
+}
+
+.mainHeader {
+    background-color: var(--menu-bg-color);
+    padding-top: 1rem;
+    padding-bottom: 0.5rem;
+    color: var(--menu-color);
+}
+
+.mainHeader__brand {
+    margin-bottom: 0.5rem;
+    display: flex;
+}
+
+.brand {
+    text-decoration: none; 
+}
+
+.brand:hover, .brand:active {
+    text-decoration: none;
+    color: inherit;
+}
+
+.brand__title {
+    color: var(--menu-color);
+    font-size: 3rem;
+}
+
+.brand__logo { 
+    height: 3rem; 
+    margin-right: 1rem; 
+}
+
+.mainHeader__stravaLink {
+    display: inline-block;
+    width: 12rem;
+}
+
+.section {
+    margin-top: 1rem;
+}
+
+@media(min-width: 576px) {
+    .section {
+        border-left-color: var(--body-color);
+        border-left-style: solid;
+        border-left-width: 0.25rem;
+    }
+}
+
+
+.section__link {
+    color: inherit;
+}
+
+.section__link:hover, .section__link:active {
+    color: inherit;
+    filter: brightness(.2);
+}
+
+.section__header {
+    font-weight: bold;
+}
+
+.section__subheader {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
