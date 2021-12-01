@@ -41,10 +41,7 @@ namespace Coomes.Equipper.FunctionApp
             var token = await ExecuteTokenExchange(code, log);
             
             log.LogInformation("{function} {status} {cid}", "TokenExchange", "Success", correlationID.ToString());
-            return new OkObjectResult(@"
-Authorization Success!
-Equipper will now set the bike you most likely used on each ride you upload.
-You can revoke access at any time by visiting https://www.strava.com/settings/apps.");
+            return new OkResult();
         }
 
         private static async Task<string> ExecuteTokenExchange(string code, ILogger logger) 
