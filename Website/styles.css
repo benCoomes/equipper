@@ -5,7 +5,8 @@
     --body-bg-color: #fffce8;
     --body-color: #3e363f;
     --accent-color: #b8b42d;
-    --accent-alt-color: #67=97A21;
+    --success-color: #425003;
+    --error-color: #8C2724;
 }
 
 body {
@@ -59,8 +60,28 @@ body {
         border-left-style: solid;
         border-left-width: 0.25rem;
     }
+
+    .section--success {
+        border-left-color: var(--success-color);
+    }
+
+    .section--error {
+        border-left-color:  var(--error-color);
+    }
 }
 
+
+.section--success {
+    color: var(--success-color);
+    animation-duration: 1.5s;
+    animation-name: section-fade-in;
+}
+
+.section--error {
+    color: var(--error-color);
+    animation-duration: 1.5s;
+    animation-name: section-fade-in;
+}
 
 .section__link {
     color: inherit;
@@ -78,4 +99,24 @@ body {
 .section__subheader {
     font-size: 1.1rem;
     font-weight: bold;
+}
+
+#authSuccessSection {
+    display: none;
+}
+
+#authErrorSection {
+    display: none;
+}
+
+@keyframes section-fade-in {
+    from {
+        opacity: 0%;
+        margin-top: 5rem;
+    }
+
+    to {
+        opacity: 100%;
+        margin-top: 1rem;
+    }
 }
