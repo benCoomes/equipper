@@ -1,0 +1,8 @@
+{
+    "routes": [
+        {
+            "route": "/auth",
+            "rewrite": "auth.html"
+        }
+    ]
+}
