@@ -45,7 +45,7 @@ namespace Coomes.Equipper.UnitTest
             var sut = new RegisterNewAthlete(tokenProviderMock.Object, tokenStorageMock.Object, loggerMock.Object);
 
             // when
-            await sut.Execute(expectedCode, scopes);
+            await sut.Execute(expectedCode, scopes, error: "");
 
             // then
             tokenProviderMock.Verify(
@@ -76,12 +76,35 @@ namespace Coomes.Equipper.UnitTest
             var sut = new RegisterNewAthlete(tokenProviderMock.Object, tokenStorageMock.Object, loggerMock.Object);
 
             // when
-            Func<Task> tryExecute = () => sut.Execute(authCode, scopes);
+            Func<Task> tryExecute = () => sut.Execute(authCode, scopes, error: null);
 
             // then
             await tryExecute.Should()
                 .ThrowAsync<BadRequestException>()
                 .Where(e => e.Message == "insufficient_scopes");
+        }
+
+        [TestMethod]
+        public async Task RegisterNewAthlete_ThrowsBadRequest_WhenError() 
+        {
+            // given
+            var authCode = "someAuthCode";
+            var scopes = new AuthScopes() {};
+            var error = "access_denied";
+
+            var tokenProviderMock = new Mock<ITokenProvider>();
+            var tokenStorageMock = new Mock<ITokenStorage>();
+            var loggerMock = new Mock<ILogger>();
+
+            var sut = new RegisterNewAthlete(tokenProviderMock.Object, tokenStorageMock.Object, loggerMock.Object);
+
+            // when
+            Func<Task> tryExecute = () => sut.Execute(authCode, scopes, error);
+
+            // then
+            await tryExecute.Should()
+                .ThrowAsync<BadRequestException>()
+                .Where(e => e.Message == "auth_error");
         }
     }
 }

@@ -30,21 +30,15 @@ namespace Coomes.Equipper.FunctionApp
             string scopeString = req.Query["scope"];
             string error = req.Query["error"];
 
-            if(!string.IsNullOrWhiteSpace(error)) 
-            {
-                log.LogError("Received error at authorization callback: {authError}", error);
-                return new BadRequestObjectResult($"Failed to authorize due to error: {error}");
-            }
-
             log.LogInformation("Received auth code with scope '{scope}'", scopeString);
 
-            var token = await ExecuteTokenExchange(code, scopeString, log);
+            var token = await ExecuteTokenExchange(code, scopeString, error, log);
             
             log.LogInformation("{function} {status} {cid}", "TokenExchange", "Success", correlationID.ToString());
             return new OkResult();
         }
 
-        private static async Task<string> ExecuteTokenExchange(string code, string scopesString, ILogger logger) 
+        private static async Task<string> ExecuteTokenExchange(string code, string scopesString, string error, ILogger logger) 
         {
             // todo: better way to build dependencies?
             var options = new StravaApiOptions()
@@ -57,7 +51,7 @@ namespace Coomes.Equipper.FunctionApp
             var exchangeOperation = new RegisterNewAthlete(tokenProvider, tokenStorage, logger);
             var scopes = StravaApi.Models.AuthScopes.Create(scopesString).ToDomainModel();
 
-            var token = await exchangeOperation.Execute(code, scopes);
+            var token = await exchangeOperation.Execute(code, scopes, error);
             return token;
         }
     }

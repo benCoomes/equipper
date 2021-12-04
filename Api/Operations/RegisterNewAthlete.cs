@@ -16,8 +16,14 @@ namespace Coomes.Equipper.Operations
             _logger = logger;
         }
 
-        public async Task<string> Execute(string authCode, AuthScopes scopes) 
+        public async Task<string> Execute(string authCode, AuthScopes scopes, string error) 
         {
+            if(!string.IsNullOrWhiteSpace(error))
+            {
+                _logger.LogError("Error returned from authorization: {authError}", error);
+                throw new BadRequestException("auth_error");
+            }
+
             if(!scopes.CanSetGear())
             {
                 _logger.LogError("Failed to register new athlete due to insufficient scopes.");
