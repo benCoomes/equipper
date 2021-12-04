@@ -35,8 +35,11 @@
         </a>
       </div>
     </header>
+    <section id="authPendingSection" class="section container">
+      <h2>Completing Registration<span id="waitingEllipses">.</span></h2>
+    </section>
     <section id="authSuccessSection" class="section container section--success">
-      <h2 id="authSuccess" class="section__header">Success!</h2>
+      <h2 class="section__header">Success!</h2>
       <p>
         Equipper is now linked to your Strava account. 
         Whenever you upload a ride, Equipper will set the bike that best matches your activity.
@@ -44,7 +47,7 @@
       </p>
     </section>
     <section id="authErrorSection" class="section container section--error">
-      <h2 id="authError" class="section__header">Oh dear...</h2>
+      <h2 class="section__header">Oh dear...</h2>
       <p>
         Something went wrong during authorization. 
         Feel free to try again and please contact <a class="section__link" href="mailto:equipperapp@gmail.com">equipperapp@gmail.com</a> if the problem persists.
@@ -55,10 +58,22 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
   <script>
+    setInterval(() => {
+      let element = document.getElementById("waitingEllipses");
+      let current = element.innerText;
+      if(current.length >= 3) {
+       element.innerHTML = "."; 
+      } else {
+        element.innerHTML = current += ".";
+      }
+    }, 600);
+    
     var params = window.location.search;
-
     fetch(`/api/tokenExchange${params}`)
+
     .then(result => {
+      document.getElementById("authPendingSection").style.display = "none";
+      
       if(result.ok) {
         document.getElementById("authSuccessSection").style.display = "block";
       }
