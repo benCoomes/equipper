@@ -1,11 +1,12 @@
 # MVP
 * Post-auth Landing Page
-  * improve UX by redirecting to front end with message on success/failure. 
   * be sure case when access is denied or not all required scopes present are handled
 * Log Review
   * review logs for compliance with privacy policy and API agreement
 
 # Future
+* UI Framework
+  * Use a UI framework so that the header and html boilerplate are not duplicated between the auth and index page.
 * Activity processing counter
   * It would be cool to know how many activities Equipper has processed and display this on the website.
 * Record processing stats
