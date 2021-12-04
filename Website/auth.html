@@ -70,7 +70,6 @@
     
     var params = window.location.search;
     fetch(`/api/tokenExchange${params}`)
-
     .then(result => {
       document.getElementById("authPendingSection").style.display = "none";
       
