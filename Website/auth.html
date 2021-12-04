@@ -49,8 +49,10 @@
     <section id="authErrorSection" class="section container section--error">
       <h2 class="section__header">Oh dear...</h2>
       <p>
-        Something went wrong during authorization. 
-        Feel free to try again and please contact <a class="section__link" href="mailto:equipperapp@gmail.com">equipperapp@gmail.com</a> if the problem persists.
+        <span id="errorHelp">
+          Something went wrong during authorization. 
+          Feel free to try again and please contact <a class="section__link" href="mailto:equipperapp@gmail.com">equipperapp@gmail.com</a> if the problem persists.
+        </span>
         <a href="/" class="section__link">Back to Equipper Home</a>
       </p>
     </section>
@@ -77,9 +79,23 @@
         document.getElementById("authSuccessSection").style.display = "block";
       }
       else {
-        console.error(`Error returned from token exchange: ${result.status}`);
         document.getElementById("authErrorSection").style.display = "block";
-      }
+        
+        if(result.status == 400)
+        {
+          result.text().then(text => {
+            var errorHelp = document.getElementById("errorHelp");
+            switch(text) {
+              case "insufficient_scopes":
+                errorHelp.innerText = "It looks like you didn't grant Equipper all the permissions that it needs to work correctly. If you'd like to use Equipper, you must grant it every permission that it requests."
+                break;
+              case "auth_error":
+                errorHelp.innerText = "It looks like you didn't grant Equipper access to your Strava account. Equipper needs this access to function."              
+                break;
+            }
+          });
+        }
+      }  
     });
   </script>
 </body>
