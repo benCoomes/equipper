@@ -1,6 +1,4 @@
 # MVP
-* Post-auth Landing Page
-  * be sure case when access is denied or not all required scopes present are handled
 * Log Review
   * review logs for compliance with privacy policy and API agreement
 
@@ -9,6 +7,8 @@
   * Use a UI framework so that the header and html boilerplate are not duplicated between the auth and index page.
 * Activity processing counter
   * It would be cool to know how many activities Equipper has processed and display this on the website.
+* User Counter
+  * Display count of users on the website
 * Record processing stats
   * Store details of each processing event in Cosmos.
   * Cannot store activity data, raw or derived.
@@ -26,6 +26,14 @@
 * Set Gear - don't change already-processed activities
   * Cannot store activity IDs longer than 7 days
   * Consider cosmos table with TTL of 7 days.
+* Data request
+  * necessary when caching activities
+  * support request of data
+  * use auth flow to get access token, then access token to get athlete ID. Then, return athlete data.
+  * Call auth flow with 'read' scope only. Return to different endpoint.
+    * Existing tokens should continue to work with privs granted at the time
+    * do not force consent screen if already authorized.
+  * do not return access tokens in response!
 * Mitigate Abuse of Subscription Endpoint
   * check that subscription ID matches expected? 
   * only allow requests from known Strava IPs?
