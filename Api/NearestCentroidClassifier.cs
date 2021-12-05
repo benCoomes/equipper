@@ -23,7 +23,7 @@ namespace Coomes.Equipper
             _logger.LogInformation("Generated classes: {classes}", classes.ToJson());
             
             var closestMatch = GetClosestMatch(activity, classes);
-            _logger.LogInformation("Matched {matchedGearId} based for activity {activityID} with average speed of {activityAverageSpeed}", 
+            _logger.LogInformation("Matched {matchedGearId} for activity {activityID} with average speed of {activityAverageSpeed}", 
                 closestMatch.GearId, 
                 activity.Id, 
                 activity.AverageSpeed);
