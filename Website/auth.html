@@ -18,7 +18,7 @@
   <meta name="theme-color" content="#af322e">
   <!-- icons end -->
 </head>
-<body style="font-family: 'Courier New', monospace;">
+<body class="equipper">
   <main>
     <header class="mainHeader">
       <div class="container">
@@ -73,14 +73,11 @@
     var params = window.location.search;
     fetch(`/api/tokenExchange${params}`)
     .then(result => {
-      document.getElementById("authPendingSection").style.display = "none";
-      
       if(result.ok) {
+        document.getElementById("authPendingSection").style.display = "none";
         document.getElementById("authSuccessSection").style.display = "block";
       }
-      else {
-        document.getElementById("authErrorSection").style.display = "block";
-        
+      else {        
         if(result.status == 400)
         {
           result.text().then(text => {
@@ -94,8 +91,13 @@
                 break;
             }
           });
+          throw new Error(`Received response code of ${result.status} from token exchange.`);
         }
       }  
+    })
+    .catch(ex => {
+      document.getElementById("authPendingSection").style.display = "none";
+      document.getElementById("authErrorSection").style.display = "block";
     });
   </script>
 </body>
