@@ -1,8 +1,4 @@
-# MVP
-* Log Review
-  * review logs for compliance with privacy policy and API agreement
-
-# Future
+# Todo
 * UI Framework
   * Use a UI framework so that the header and html boilerplate are not duplicated between the auth and index page.
 * Activity processing counter
