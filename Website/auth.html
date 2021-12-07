@@ -77,23 +77,24 @@
         document.getElementById("authPendingSection").style.display = "none";
         document.getElementById("authSuccessSection").style.display = "block";
       }
-      else {        
-        if(result.status == 400)
-        {
-          result.text().then(text => {
-            var errorHelp = document.getElementById("errorHelp");
-            switch(text) {
-              case "insufficient_scopes":
-                errorHelp.innerText = "It looks like you didn't grant Equipper all the permissions that it needs to work correctly. If you'd like to use Equipper, you must grant it every permission that it requests."
-                break;
-              case "auth_error":
-                errorHelp.innerText = "It looks like you didn't grant Equipper access to your Strava account. Equipper needs this access to function."              
-                break;
-            }
-          });
-          throw new Error(`Received response code of ${result.status} from token exchange.`);
-        }
-      }  
+      else if(result.status == 400) {
+        result.text().then(text => {
+          var errorHelp = document.getElementById("errorHelp");
+          switch(text) {
+            case "insufficient_scopes":
+              errorHelp.innerText = "It looks like you didn't grant Equipper all the permissions that it needs to work correctly. If you'd like to use Equipper, you must grant it every permission that it requests."
+              break;
+            case "auth_error":
+              errorHelp.innerText = "It looks like you didn't grant Equipper access to your Strava account. Equipper needs this access to function."              
+              break;
+          }
+          document.getElementById("authPendingSection").style.display = "none";
+          document.getElementById("authErrorSection").style.display = "block";
+        });
+      }
+      else {
+        throw new Error(`Received response code of ${result.status} from token exchange.`);
+      }
     })
     .catch(ex => {
       document.getElementById("authPendingSection").style.display = "none";
