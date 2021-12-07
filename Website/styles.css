@@ -1,12 +1,25 @@
 :root {
-    /* https://coolors.co/b8b42d-697a21-fffce8-3e363f-af322e */
     --menu-bg-color: #af322e;
     --menu-color: white;
     --body-bg-color: #fffce8;
-    --body-color: #3e363f;
+    --body-color: #231f24;
     --accent-color: #b8b42d;
     --success-color: #425003;
     --error-color: #8C2724;
+    --active-brightness: .2;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --menu-bg-color: #af322e;
+        --menu-color: white;
+        --body-bg-color: #231f24;
+        --body-color:  #fffce8;
+        --accent-color: #425003;
+        --success-color: #f5f294;
+        --error-color: #ffa3a0;
+        --active-brightness: 5;
+    }
 }
 
 .equipper {
@@ -91,7 +104,7 @@
 
 .section__link:hover, .section__link:active {
     color: inherit;
-    filter: brightness(.2);
+    filter: brightness(var(--active-brightness))
 }
 
 .section__header {
