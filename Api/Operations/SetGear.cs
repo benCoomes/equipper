@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Coomes.Equipper.Classifiers;
@@ -14,6 +15,7 @@ namespace Coomes.Equipper.Operations
         private ITokenProvider _tokenProvider;
         private ILogger _logger;
         private NearestCentroidClassifier _matcher;
+        private List<Classifier> _alternateMatchers;
 
         public SetGear(IActivityData activityData, ITokenStorage tokenStorage, ITokenProvider tokenProvider, ILogger logger)
         {
@@ -22,6 +24,7 @@ namespace Coomes.Equipper.Operations
             _tokenProvider = tokenProvider;
             _logger = logger;
             _matcher = new NearestCentroidClassifier(logger);
+            _alternateMatchers = new List<Classifier> { new MostFrequentClassifier(logger) };
         }
 
         public async Task Execute(long athleteID, long activityID)
@@ -43,12 +46,21 @@ namespace Coomes.Equipper.Operations
                 throw new SetGearException("There are no historical activities on which to base a gear selection.");
             }
             
-            _matcher.CrossValidateAndLog(otherActivities);
+            LogCrossValidations(otherActivities);
 
             var bestMatchGearId = _matcher.Classify(newActivity, otherActivities); 
             newActivity.GearId = bestMatchGearId;
 
             await _activityData.UpdateGear(athleteTokens.AccessToken, newActivity);
+        }
+
+        private void LogCrossValidations(IEnumerable<Activity> activities) 
+        {
+            _matcher.CrossValidateAndLog(activities);
+            foreach(var altMatcher in _alternateMatchers) 
+            {
+                altMatcher.CrossValidateAndLog(activities);
+            }
         }
 
         private async Task<AthleteTokens> GetTokensAndRefreshIfNeeded(long athleteID)
