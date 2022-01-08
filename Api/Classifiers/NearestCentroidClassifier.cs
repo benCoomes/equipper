@@ -4,29 +4,32 @@ using System.Linq;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 
-namespace Coomes.Equipper
+namespace Coomes.Equipper.Classifiers
 {
-    public class NearestCentroidClassifier
+    public class NearestCentroidClassifier : Classifier
     {
-        private ILogger _logger;
+        public override string AlgorithmName => "NearestCentroid";
 
-        public NearestCentroidClassifier(ILogger logger)
+        public NearestCentroidClassifier(ILogger logger) : base(logger)
         {
-            _logger = logger;
         }
 
-        public string Classify(Activity activity, IEnumerable<Activity> classifiedActivities)
+        protected override string InnerClassify(Activity activity, IEnumerable<Activity> classifiedActivities, bool doLogging) 
         {
-            _logger.LogInformation("Running {algorithm} classification.", nameof(NearestCentroidClassifier));
-            
             var classes = GetClasses(classifiedActivities);
-            _logger.LogInformation("Generated classes: {classes}", classes.ToJson());
+            if(doLogging)
+            {
+                _logger.LogInformation("Generated classes: {classes}", classes.ToJson());
+            }
             
             var closestMatch = GetClosestMatch(activity, classes);
-            _logger.LogInformation("Matched {matchedGearId} for activity {activityID} with average speed of {activityAverageSpeed}", 
-                closestMatch.GearId, 
-                activity.Id, 
-                activity.AverageSpeed);
+            if(doLogging)
+            {
+                _logger.LogInformation("Matched {matchedGearId} for activity {activityID} with average speed of {activityAverageSpeed}", 
+                    closestMatch.GearId, 
+                    activity.Id, 
+                    activity.AverageSpeed);
+            }
 
             return closestMatch.GearId;
         }

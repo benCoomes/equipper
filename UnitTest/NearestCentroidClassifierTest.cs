@@ -3,6 +3,7 @@ using FluentAssertions;
 using System.Collections.Generic;
 using Moq;
 using Microsoft.Extensions.Logging;
+using Coomes.Equipper.Classifiers;
 
 namespace Coomes.Equipper.UnitTest
 {
@@ -10,7 +11,7 @@ namespace Coomes.Equipper.UnitTest
     public class NearestCentroidClassifierTest
     {
         [TestMethod]
-        public void ClassifiesWithOneCategory()
+        public void Classify_ClassifiesWithOneCategory()
         {
             // arrange
             var bike = "bike";
@@ -45,7 +46,7 @@ namespace Coomes.Equipper.UnitTest
         }
 
         [TestMethod]
-        public void ClassifiesWithTwoCategories()
+        public void Classify_ClassifiesWithTwoCategories()
         {
             // arrange
             var bike1 = "bike1";
@@ -79,6 +80,5 @@ namespace Coomes.Equipper.UnitTest
             // assert
             actualGearID.Should().Be(expectedGearID);
         }
-    
     }
 }
