@@ -1,9 +1,4 @@
 # Todo
-* Add Cross Validation
-  * Add cross validation on classifiers and report results in logs
-  * Add new type of classifier to compare when evaluating. Can be simple, like 'most frequent' or 'random'. Keep using nearest centroid to do actual classification.
-* UI Framework
-  * Use a UI framework so that the header and html boilerplate are not duplicated between the auth and index page.
 * Activity processing counter
   * It would be cool to know how many activities Equipper has processed and display this on the website.
 * User Counter
@@ -12,19 +7,12 @@
   * Store details of each processing event in Cosmos.
   * Cannot store activity data, raw or derived.
   * May store algorithm stats such as std dev, variance, confidence, etc
-* evaluate usefulness of c# records
+* UI Framework
+  * Use a UI framework so that the header and html boilerplate are not duplicated between the auth and index page.
 * Set Gear - different activity types:
   * run classification only on activities of the same type (run, ride, etc). 
   * This ensures chosen gear matches activity type
   * Interestingly, I see no exceptions when the app processes a run and attempts to set a bike as the gear. The bike does not end up set on the run in Strava though.
-* Set Gear - store classifications:
-  * Cannot store Strava data per agreement. 
-  * Currently making a request on every activity event for historical data. 
-  * Could this cause issues when all  historical data is affected by equipper?
-  * Can use caching up to 7 days to reduce request rates
-* Set Gear - don't change already-processed activities
-  * Cannot store activity IDs longer than 7 days
-  * Consider cosmos table with TTL of 7 days.
 * Data request
   * necessary when caching activities
   * support request of data
@@ -51,10 +39,6 @@
     * HR data.
   * What data is needed to build the model?
   * Can we do better than the v1 model?
-* Model initialization
-  * Will need to gather data to build model for new subscribers. 
-  * Maybe expensive? May want to protect against unsubscribe/resubscribe cycles.
-  * Consider strava api use terms.
 * Store predictions & revisions
   * Store activity IDs and predicted bike IDs. 
   * Equipper can subscribe to activity updates and check if an athlete has set the bike to a non-predicted value
