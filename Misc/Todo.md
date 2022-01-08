@@ -1,4 +1,7 @@
 # Todo
+* Add Cross Validation
+  * Add cross validation on classifiers and report results in logs
+  * Add new type of classifier to compare when evaluating. Can be simple, like 'most frequent' or 'random'. Keep using nearest centroid to do actual classification.
 * UI Framework
   * Use a UI framework so that the header and html boilerplate are not duplicated between the auth and index page.
 * Activity processing counter

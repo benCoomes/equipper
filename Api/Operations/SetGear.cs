@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Coomes.Equipper.Classifiers;
 using Coomes.Equipper.Contracts;
 using Microsoft.Extensions.Logging;
 
@@ -41,6 +42,8 @@ namespace Coomes.Equipper.Operations
             {
                 throw new SetGearException("There are no historical activities on which to base a gear selection.");
             }
+            
+            _matcher.CrossValidateAndLog(otherActivities);
 
             var bestMatchGearId = _matcher.Classify(newActivity, otherActivities); 
             newActivity.GearId = bestMatchGearId;
