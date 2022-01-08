@@ -3,73 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using Coomes.Equipper.Contracts;
 
 namespace Coomes.Equipper.Classifiers
 {
-    public class NearestCentroidClassifier : IClassifier
+    public class NearestCentroidClassifier : Classifier
     {
-        private ILogger _logger;
+        public override string AlgorithmName => "NearestCentroid";
 
-        public NearestCentroidClassifier(ILogger logger)
+        public NearestCentroidClassifier(ILogger logger) : base(logger)
         {
-            _logger = logger;
         }
 
-        public string Classify(Activity activity, IEnumerable<Activity> classifiedActivities)
+        protected override string InnerClassify(Activity activity, IEnumerable<Activity> classifiedActivities, bool doLogging) 
         {
-            return InnerClassify(activity, classifiedActivities, doLogging: true);
-        }
-
-        public int CrossValidateAndLog(IEnumerable<Activity> activities)
-        {
-            if(activities == null || activities.Count() <= 1) 
-            {
-                return 0;
-            }
-
-            var factor = 4;
-            var totalCount = activities.Count();
-            var correctCount = 0;
-
-            // todo: should blocks be contiguous or distributed? 
-            // Ex problem: factor of 2, and activities have 2 bikes which alternate every other activity.
-            var blocks = activities
-                .Select((a, i) => (index: i, activity: a))
-                .GroupBy(tuple => tuple.index % factor)
-                .Select(g => g.Select(tuple => tuple.activity).ToList())
-                .ToList();
-
-            for(int testBlockIndex = 0; testBlockIndex < blocks.Count; testBlockIndex++)
-            {
-                var testingData = blocks[testBlockIndex];
-                var trainingData = blocks
-                    .Where(block => block != testingData)
-                    .SelectMany(b => b.ToList());
-                
-                foreach(var testActivity in testingData) 
-                {
-                    var result = InnerClassify(testActivity, trainingData, doLogging: false);
-                    if(result == testActivity.GearId)
-                        correctCount++;
-                }
-            }
-
-            double correctPercent = ((double)correctCount) / (double)(totalCount) * 100.0;
-            _logger.LogInformation("Cross-validation results for {algorithm}: {crossValidationCorrect} out of {crossValidationTotal} ({crossValidationPercent}%)",
-                nameof(NearestCentroidClassifier),
-                correctCount,
-                totalCount,
-                Math.Round(correctPercent, 2));
-            return correctCount;
-        }
-
-        private string InnerClassify(Activity activity, IEnumerable<Activity> classifiedActivities, bool doLogging) {
-            if(doLogging) 
-            {
-                _logger.LogInformation("Running {algorithm} classification.", nameof(NearestCentroidClassifier));
-            }
-            
             var classes = GetClasses(classifiedActivities);
             if(doLogging)
             {
