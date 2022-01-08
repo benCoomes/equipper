@@ -206,6 +206,12 @@ namespace Coomes.Equipper.UnitTest
                     Id = 3,
                     AverageSpeed = 20,
                     GearId = "gear_2"
+                },
+                new Activity() 
+                {
+                    Id = 4,
+                    AverageSpeed = 10000,
+                    GearId = null
                 }
             };
 
