@@ -61,43 +61,5 @@ namespace Coomes.Equipper.UnitTest
             // assert
             actualGearID.Should().BeOneOf(bike1, bike2);
         }
-    
-        [TestMethod]
-        public void CrossValidate_ReportsCorrectScore() 
-        {
-            // 1, 2, 3 - correct
-            // 1, 2, 4 - correct
-            // 1, 3, 4 - correct
-            // 2, 3, 4 - correct
-            var activitySetAllCorrect = new List<Activity>() 
-            {
-                new Activity() { GearId = bike1 },
-                new Activity() { GearId = bike1 },
-                new Activity() { GearId = bike1 },
-                new Activity() { GearId = bike1 }
-            };
-
-            // 1, 2, 3 - incorrect
-            // 1, 2, 4 - incorrect
-            // 1, 3, 4 - incorrect
-            // 2, 3, 4 - incorrect
-            var activitySetNoCorrect = new List<Activity>() 
-            {
-                new Activity() { GearId = bike1 },
-                new Activity() { GearId = bike1 },
-                new Activity() { GearId = bike2 },
-                new Activity() { GearId = bike2 }
-            };
-
-            var sut = new MostFrequentClassifier(Mock.Of<ILogger>());
-            
-            // act
-            int actualAllCorrect = sut.CrossValidateAndLog(activitySetAllCorrect);
-            int actualNoCorrect = sut.CrossValidateAndLog(activitySetNoCorrect);
-
-            // assert
-            actualAllCorrect.Should().Be(4);
-            actualNoCorrect.Should().Be(0);
-        }
     }
 }
