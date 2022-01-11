@@ -1,4 +1,4 @@
-name: Equipper Test
+name: Unit and Integration Tests
 
 on:
   pull_request:
