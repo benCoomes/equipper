@@ -9,10 +9,6 @@ namespace Coomes.Equipper.CosmosStorage.Test
     [TestClass]
     public class TokenStorageTests
     {
-        private const string EmulatorConnectionString = 
-            "AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
-        private const string DatabaseName = "EquipperTest";
-
         [TestMethod]
         public async Task TokenStorage_AddOrUpdate_AddsNewTokens()
         {
@@ -27,7 +23,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
             };
 
             var containerName = nameof(TokenStorage_AddOrUpdate_AddsNewTokens);
-            var sut = new TokenStorageForTesting(EmulatorConnectionString, DatabaseName, containerName);
+            var sut = new TokenStorageForTesting(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
             await sut.EnsureDeleted();
 
             // when
@@ -66,7 +62,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
             };
 
             var containerName = nameof(TokenStorage_AddOrUpdate_UpdatesExistingTokens);
-            var sut = new TokenStorageForTesting(EmulatorConnectionString, DatabaseName, containerName);
+            var sut = new TokenStorageForTesting(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
             await sut.EnsureDeleted();
 
             // when
@@ -98,7 +94,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
             };
 
             var containerName = nameof(TokenStorage_Delete_RemovesTokens);
-            var sut = new TokenStorageForTesting(EmulatorConnectionString, DatabaseName, containerName);
+            var sut = new TokenStorageForTesting(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
             await sut.EnsureDeleted();
 
             // when
@@ -119,7 +115,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
             var athleteID = 1234;
 
             var containerName = nameof(TokenStorage_Delete_ThrowsWhenTokensDoNotExist);
-            var sut = new TokenStorageForTesting(EmulatorConnectionString, DatabaseName, containerName);
+            var sut = new TokenStorageForTesting(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
             await sut.EnsureDeleted();
 
             // when
