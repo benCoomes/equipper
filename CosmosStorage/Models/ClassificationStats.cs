@@ -12,6 +12,8 @@ namespace Coomes.Equipper.CosmosStorage
         [JsonProperty("pk")]
         public string PartitionKey { get; set; }
 
+        public CrossValidationResult[] CrossValidations { get; set; }
+
         public ClassificationStats()
         { }
 
@@ -20,13 +22,15 @@ namespace Coomes.Equipper.CosmosStorage
             var guidString = domainModel.Id.ToString();
             ClassificationStatsId = guidString;
             PartitionKey = guidString;
+            CrossValidations = domainModel.CrossValidations.ToDataModels();
         }
 
         public Domain.ClassificationStats ToDomainModel()
         {
             return new Domain.ClassificationStats()
             {
-                Id = Guid.Parse(ClassificationStatsId)
+                Id = Guid.Parse(ClassificationStatsId),
+                CrossValidations = CrossValidations.ToDomainModels()
             };
         }
     }
