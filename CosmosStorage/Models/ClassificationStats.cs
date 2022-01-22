@@ -9,19 +9,19 @@ namespace Coomes.Equipper.CosmosStorage
         [JsonProperty("id")]
         public string ClassificationStatsId { get; set; }
         
-        [JsonProperty("pk")]
-        public string PartitionKey { get; set; }
+        [JsonProperty("athleteId")]
+        public long AthleteId { get; set; }
 
+        [JsonProperty("crossValidations")]
         public CrossValidationResult[] CrossValidations { get; set; }
 
         public ClassificationStats()
         { }
 
-        public ClassificationStats(Domain.ClassificationStats domainModel)
+        public ClassificationStats(Domain.ClassificationStats domainModel, long athleteId)
         {
-            var guidString = domainModel.Id.ToString();
-            ClassificationStatsId = guidString;
-            PartitionKey = guidString;
+            ClassificationStatsId = domainModel.Id.ToString();
+            AthleteId = athleteId;
             CrossValidations = domainModel.CrossValidations.ToDataModels();
         }
 

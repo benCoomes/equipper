@@ -8,17 +8,21 @@ namespace Coomes.Equipper.CosmosStorage
     {
         [JsonProperty("id")]
         public string StravaActivityId { get; set; }
+
+        [JsonProperty("athleteId")]
+        public long AthleteId { get; set; }
         
-        [JsonProperty("pk")]
-        public string PartitionKey { get; set; }
+        [JsonProperty("classificationStatsId")]
+        public string ClassificationStatsId { get; set; }
 
         public ActivityClassificationStats()
         { }
 
-        public ActivityClassificationStats(Domain.Activity domainModel, Domain.ClassificationStats classificationStats)
+        public ActivityClassificationStats(Domain.Activity activityDomainModel, Domain.ClassificationStats classificationStatsDomainModel)
         {
-            StravaActivityId = domainModel.Id.ToString();
-            PartitionKey = classificationStats.Id.ToString();
+            StravaActivityId = activityDomainModel.Id.ToString();
+            AthleteId = activityDomainModel.AthleteId;
+            ClassificationStatsId = classificationStatsDomainModel.Id.ToString();
         }
     }
 }

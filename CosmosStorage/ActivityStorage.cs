@@ -29,11 +29,11 @@ namespace Coomes.Equipper.CosmosStorage
             throw new NotImplementedException();
         }
 
-        public async Task<Domain.ClassificationStats> GetClassificationStats(Guid id)
+        public async Task<Domain.ClassificationStats> GetClassificationStats(Guid id, long athleteId)
         {
             await EnsureInitialized();
             var stringId = id.ToString();
-            var partitionKey = new PartitionKey(stringId);
+            var partitionKey = new PartitionKey(athleteId);
             try 
             {
                 var result = await  _activityContainer.ReadItemAsync<ClassificationStats>(stringId, partitionKey);
@@ -49,11 +49,19 @@ namespace Coomes.Equipper.CosmosStorage
         public async Task StoreActivityResults(Domain.Activity activity, Domain.ClassificationStats classificationStats)
         {
             await EnsureInitialized();
+            var partitionKey = new PartitionKey(activity.AthleteId);
             var activityClassificationDataModel = new ActivityClassificationStats(activity, classificationStats);
-            var classificationStatsDataModel = new ClassificationStats(classificationStats);
-            // TODO: what if concurrent requests? what if exceptions?
-            await _activityContainer.UpsertItemAsync(classificationStatsDataModel, new PartitionKey(classificationStatsDataModel.PartitionKey));
-            await _activityContainer.UpsertItemAsync(activityClassificationDataModel, new PartitionKey(activityClassificationDataModel.PartitionKey));
+            var classificationStatsDataModel = new ClassificationStats(classificationStats, activity.AthleteId);            
+
+            try
+            {
+                await _activityContainer.CreateItemAsync(activityClassificationDataModel, partitionKey);
+                await _activityContainer.CreateItemAsync(classificationStatsDataModel, partitionKey);
+            }
+            catch(CosmosException cex) when (cex.StatusCode == HttpStatusCode.Conflict)
+            {
+                return;
+            }
         }
 
         private async Task EnsureInitialized()
@@ -66,7 +74,7 @@ namespace Coomes.Equipper.CosmosStorage
                 if(_isInitialized) return;
 
                 _cosmosDatabase = await _cosmosClient.CreateDatabaseIfNotExistsAsync(DatabaseID);
-                var containerProps = new ContainerProperties(ContainerID, "/pk");
+                var containerProps = new ContainerProperties(ContainerID, "/athleteId");
                 _activityContainer = await _cosmosDatabase.CreateContainerIfNotExistsAsync(containerProps);
                 _isInitialized = true;
             }
