@@ -43,7 +43,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
             };
 
             var containerName = nameof(ActivityStorage_RecordsActivityResults);
-            var sut = new ActivityStorageForTesting(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
+            var sut = new ActivityStorage(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
             await sut.EnsureDeleted();
 
             // when
@@ -104,7 +104,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
             };
 
             var containerName = nameof(ActivityStorage_DoesNothingWhenActivityAlreadyRecorded);
-            var sut = new ActivityStorageForTesting(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
+            var sut = new ActivityStorage(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
             await sut.EnsureDeleted();
 
             // when
@@ -122,7 +122,6 @@ namespace Coomes.Equipper.CosmosStorage.Test
 
             originalAfterSecondCall.Id.Should().Be(originalClassStats.Id.ToString());
             updatedAfterSecondCall.Should().BeNull();
-
         }
     }
 }

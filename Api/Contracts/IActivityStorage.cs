@@ -5,7 +5,6 @@ namespace Coomes.Equipper.Contracts
 {
     public interface IActivityStorage
     {
-        Task<bool> ActivityHasBeenProcessed(long stravaActivityID);
         Task StoreActivityResults(Activity activity, ClassificationStats classificationStats);
     }
 }

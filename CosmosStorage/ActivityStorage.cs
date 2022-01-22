@@ -1,6 +1,5 @@
 using System;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using Coomes.Equipper.Contracts;
 using Microsoft.Azure.Cosmos;
@@ -8,25 +7,14 @@ using Domain = Coomes.Equipper;
 
 namespace Coomes.Equipper.CosmosStorage
 {
-    public class ActivityStorage : IActivityStorage
+    public class ActivityStorage : CosmosStorageBase, IActivityStorage
     {
-        protected string DatabaseID = "Equipper";
-        protected string ContainerID = "Activities";
-
-        protected CosmosClient _cosmosClient;
-        protected Database _cosmosDatabase;
-        protected Container _activityContainer;
-        private SemaphoreSlim _initLock = new SemaphoreSlim(1);
-        private bool _isInitialized = false;
-
-        public ActivityStorage(string connectionString)
+        public ActivityStorage(string connectionString) : base(connectionString, "Equipper", "Activities", "/athleteId")
         {
-            _cosmosClient = new CosmosClient(connectionString);
         }
 
-        public Task<bool> ActivityHasBeenProcessed(long stravaActivityID)
+        public ActivityStorage(string connectionString, string databaseId, string containerId) : base(connectionString, databaseId, containerId, "/athleteId")
         {
-            throw new NotImplementedException();
         }
 
         public async Task<Domain.ClassificationStats> GetClassificationStats(Guid id, long athleteId)
@@ -36,7 +24,7 @@ namespace Coomes.Equipper.CosmosStorage
             var partitionKey = new PartitionKey(athleteId);
             try 
             {
-                var result = await  _activityContainer.ReadItemAsync<ClassificationStats>(stringId, partitionKey);
+                var result = await  _container.ReadItemAsync<ClassificationStats>(stringId, partitionKey);
                 var dataModel = result.Resource;
                 return dataModel.ToDomainModel();
             }
@@ -55,32 +43,12 @@ namespace Coomes.Equipper.CosmosStorage
 
             try
             {
-                await _activityContainer.CreateItemAsync(activityClassificationDataModel, partitionKey);
-                await _activityContainer.CreateItemAsync(classificationStatsDataModel, partitionKey);
+                await _container.CreateItemAsync(activityClassificationDataModel, partitionKey);
+                await _container.CreateItemAsync(classificationStatsDataModel, partitionKey);
             }
             catch(CosmosException cex) when (cex.StatusCode == HttpStatusCode.Conflict)
             {
                 return;
-            }
-        }
-
-        private async Task EnsureInitialized()
-        {
-            if(_isInitialized) return;
-            
-            await _initLock.WaitAsync();
-            try
-            {
-                if(_isInitialized) return;
-
-                _cosmosDatabase = await _cosmosClient.CreateDatabaseIfNotExistsAsync(DatabaseID);
-                var containerProps = new ContainerProperties(ContainerID, "/athleteId");
-                _activityContainer = await _cosmosDatabase.CreateContainerIfNotExistsAsync(containerProps);
-                _isInitialized = true;
-            }
-            finally
-            {
-                _initLock.Release();
             }
         }
     }

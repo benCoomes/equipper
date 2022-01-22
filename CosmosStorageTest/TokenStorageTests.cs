@@ -23,7 +23,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
             };
 
             var containerName = nameof(TokenStorage_AddOrUpdate_AddsNewTokens);
-            var sut = new TokenStorageForTesting(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
+            var sut = new TokenStorage(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
             await sut.EnsureDeleted();
 
             // when
@@ -62,7 +62,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
             };
 
             var containerName = nameof(TokenStorage_AddOrUpdate_UpdatesExistingTokens);
-            var sut = new TokenStorageForTesting(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
+            var sut = new TokenStorage(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
             await sut.EnsureDeleted();
 
             // when
@@ -94,7 +94,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
             };
 
             var containerName = nameof(TokenStorage_Delete_RemovesTokens);
-            var sut = new TokenStorageForTesting(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
+            var sut = new TokenStorage(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
             await sut.EnsureDeleted();
 
             // when
@@ -115,7 +115,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
             var athleteID = 1234;
 
             var containerName = nameof(TokenStorage_Delete_ThrowsWhenTokensDoNotExist);
-            var sut = new TokenStorageForTesting(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
+            var sut = new TokenStorage(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
             await sut.EnsureDeleted();
 
             // when

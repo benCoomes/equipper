@@ -1,6 +1,4 @@
-﻿using System;
-using System.Net;
-using System.Threading;
+﻿using System.Net;
 using System.Threading.Tasks;
 using Coomes.Equipper.Contracts;
 using Microsoft.Azure.Cosmos;
@@ -8,20 +6,15 @@ using Domain = Coomes.Equipper;
 
 namespace Coomes.Equipper.CosmosStorage
 {
-    public class TokenStorage : ITokenStorage
+    public class TokenStorage : CosmosStorageBase, ITokenStorage
     {
-        protected string DatabaseID = "Equipper";
-        protected string ContainerID = "Tokens";
-
-        protected CosmosClient _cosmosClient;
-        protected Database _cosmosDatabase;
-        protected Container _tokenContainer;
-        private SemaphoreSlim _initLock = new SemaphoreSlim(1);
-        private bool _isInitialized = false;
-
-        public TokenStorage(string connectionString)
+        public TokenStorage(string connectionString) : base(connectionString, "Equipper", "Tokens", "/id")
         {
-            _cosmosClient = new CosmosClient(connectionString);
+        }
+
+        // TOdo; make internal and share with test class
+        public TokenStorage(string connectionString, string databaseId, string containerId) : base(connectionString, databaseId, containerId, "/id")
+        {
         }
 
         public async Task AddOrUpdateTokens(Domain.AthleteTokens athleteTokens)
@@ -30,7 +23,7 @@ namespace Coomes.Equipper.CosmosStorage
             
             var dataModel = new AthleteTokens(athleteTokens);
             var partitionKey = new PartitionKey(dataModel.AthleteID);
-            await _tokenContainer.UpsertItemAsync<AthleteTokens>(dataModel, partitionKey);
+            await _container.UpsertItemAsync<AthleteTokens>(dataModel, partitionKey);
         }
 
         public async Task<Domain.AthleteTokens> GetTokens(long athleteID)
@@ -41,7 +34,7 @@ namespace Coomes.Equipper.CosmosStorage
             var partitionKey = new PartitionKey(id);
             try 
             {
-                var result = await  _tokenContainer.ReadItemAsync<AthleteTokens>(id, partitionKey);
+                var result = await  _container.ReadItemAsync<AthleteTokens>(id, partitionKey);
                 var dataModel = result.Resource;
                 return dataModel.ToDomainModel();
             }
@@ -60,27 +53,7 @@ namespace Coomes.Equipper.CosmosStorage
             
             // todo: does this call return a status code or throw an exception on failure?
             // if status code, verify success
-            await _tokenContainer.DeleteItemAsync<AthleteTokens>(id, partitionKey);
-        }
-
-        private async Task EnsureInitialized()
-        {
-            if(_isInitialized) return;
-            
-            await _initLock.WaitAsync();
-            try
-            {
-                if(_isInitialized) return;
-
-                _cosmosDatabase = await _cosmosClient.CreateDatabaseIfNotExistsAsync(DatabaseID);
-                var containerProps = new ContainerProperties(ContainerID, "/id");
-                _tokenContainer = await _cosmosDatabase.CreateContainerIfNotExistsAsync(containerProps);
-                _isInitialized = true;
-            }
-            finally
-            {
-                _initLock.Release();
-            }
+            await _container.DeleteItemAsync<AthleteTokens>(id, partitionKey);
         }
     }
 }
