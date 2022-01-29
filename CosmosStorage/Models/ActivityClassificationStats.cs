@@ -15,6 +15,9 @@ namespace Coomes.Equipper.CosmosStorage
         [JsonProperty("classificationStatsId")]
         public string ClassificationStatsId { get; set; }
 
+        [JsonProperty("ttl")]
+        public int TimeToLive { get; set; } = 604800; // 7 days, in seconds
+
         public ActivityClassificationStats()
         { }
 
