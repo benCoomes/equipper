@@ -11,20 +11,26 @@ namespace Coomes.Equipper.Operations
     public class SetGear
     {
         private IActivityData _activityData;
+        private IActivityStorage _activityStorage;
         private ITokenStorage _tokenStorage;
         private ITokenProvider _tokenProvider;
         private ILogger _logger;
         private NearestCentroidClassifier _matcher;
-        private List<Classifier> _alternateMatchers;
+        private List<Classifier> _candidateMatchers;
 
-        public SetGear(IActivityData activityData, ITokenStorage tokenStorage, ITokenProvider tokenProvider, ILogger logger)
+        public SetGear(IActivityData activityData, IActivityStorage activityStorage, ITokenStorage tokenStorage, ITokenProvider tokenProvider, ILogger logger)
         {
             _activityData = activityData;
+            _activityStorage = activityStorage;
             _tokenStorage = tokenStorage;
             _tokenProvider = tokenProvider;
             _logger = logger;
             _matcher = new NearestCentroidClassifier(logger);
-            _alternateMatchers = new List<Classifier> { new MostFrequentClassifier(logger) };
+            _candidateMatchers = new List<Classifier> 
+            { 
+                new NearestCentroidClassifier(logger),
+                new MostFrequentClassifier(logger) 
+            };
         }
 
         public async Task Execute(long athleteID, long activityID)
@@ -46,7 +52,7 @@ namespace Coomes.Equipper.Operations
                 throw new SetGearException("There are no historical activities on which to base a gear selection.");
             }
             
-            LogCrossValidations(otherActivities);
+            await RecordActivityClassification(newActivity, otherActivities);
 
             var bestMatchGearId = _matcher.Classify(newActivity, otherActivities); 
             newActivity.GearId = bestMatchGearId;
@@ -54,12 +60,23 @@ namespace Coomes.Equipper.Operations
             await _activityData.UpdateGear(athleteTokens.AccessToken, newActivity);
         }
 
-        private void LogCrossValidations(IEnumerable<Activity> activities) 
+        private async Task RecordActivityClassification(Activity newActivity, IEnumerable<Activity> activities) 
         {
-            _matcher.CrossValidateAndLog(activities);
-            foreach(var altMatcher in _alternateMatchers) 
+            try
             {
-                altMatcher.CrossValidateAndLog(activities);
+                var results = new ClassificationStats() { Id = Guid.NewGuid() };
+                foreach(var matcher in _candidateMatchers) 
+                {
+                    if(matcher.TryDoCrossValidation(activities, out var crossValidation))
+                    {
+                        results.CrossValidations.Add(crossValidation);
+                    }
+                }
+                await _activityStorage.StoreActivityResults(newActivity, results);
+            }
+            catch(Exception e)
+            {
+                _logger.LogWarning(e, "Failed to store activity classifications.");
             }
         }
 
