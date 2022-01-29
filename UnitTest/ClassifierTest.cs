@@ -52,12 +52,12 @@ namespace Coomes.Equipper.UnitTest
             sut.ClassificationResult = bike1;
             
             // act
-            int actualAllCorrect = sut.CrossValidateAndLog(activitySetAllCorrect);
-            int actualHalfCorrect = sut.CrossValidateAndLog(activitySetHalfCorrect);
+            sut.TryDoCrossValidation(activitySetAllCorrect, out var actualAllCorrect);
+            sut.TryDoCrossValidation(activitySetHalfCorrect, out var actualHalfCorrect);
 
             // assert
-            actualAllCorrect.Should().Be(4);
-            actualHalfCorrect.Should().Be(2);
+            actualAllCorrect.Correct.Should().Be(4);
+            actualHalfCorrect.Correct.Should().Be(2);
         }
 
         [TestMethod]
@@ -89,16 +89,20 @@ namespace Coomes.Equipper.UnitTest
             sut.ClassificationResult = bike1;
             
             // act
-            int actualEmptyActivityResult = sut.CrossValidateAndLog(emptyActivitySet);
-            int actualOneActivityResult = sut.CrossValidateAndLog(oneActivitySet);
-            int actualTwoActivityOneCorrectResult = sut.CrossValidateAndLog(twoActivitySetOneCorrect);
-            int actualTwoActivityZeroCorrectResult = sut.CrossValidateAndLog(twoActivitySetZeroCorrect);
+            var emptyStatus = sut.TryDoCrossValidation(emptyActivitySet, out var actualEmptyActivityResult);
+            var oneActivityStatus = sut.TryDoCrossValidation(oneActivitySet, out var actualOneActivityResult);
+            sut.TryDoCrossValidation(twoActivitySetOneCorrect, out var actualTwoActivityOneCorrectResult);
+            sut.TryDoCrossValidation(twoActivitySetZeroCorrect, out var actualTwoActivityZeroCorrectResult);
 
             // assert
-            actualEmptyActivityResult.Should().Be(0);
-            actualOneActivityResult.Should().Be(0);
-            actualTwoActivityZeroCorrectResult.Should().Be(0);
-            actualTwoActivityOneCorrectResult.Should().Be(1);
+            emptyStatus.Should().BeFalse();
+            actualEmptyActivityResult.Should().BeNull();
+
+            oneActivityStatus.Should().BeFalse();
+            actualOneActivityResult.Should().BeNull();
+
+            actualTwoActivityZeroCorrectResult.Correct.Should().Be(0);
+            actualTwoActivityOneCorrectResult.Correct.Should().Be(1);
         }
     }
 }

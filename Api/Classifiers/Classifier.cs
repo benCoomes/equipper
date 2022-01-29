@@ -24,13 +24,35 @@ namespace Coomes.Equipper.Classifiers
             return InnerClassify(activity, classifiedActivities, doLogging: true);
         }
         
-        public int CrossValidateAndLog(IEnumerable<Activity> activities)
+        public bool TryDoCrossValidation(IEnumerable<Activity> activities, out CrossValidationResult crossValidationResult)
         {
             if(activities == null || activities.Count() <= 1) 
             {
-                return 0;
+                crossValidationResult = null;
+                return false;
             }
+            
+            try
+            {
+                crossValidationResult = DoCrossValidation(activities);
+                double correctPercent = ((double)crossValidationResult.Correct) / (double)(crossValidationResult.Total) * 100.0;
+                _logger.LogInformation("Cross-validation results for {algorithm}: {crossValidationCorrect} out of {crossValidationTotal} ({crossValidationPercent}%)",
+                    crossValidationResult.AlgorithmName,
+                    crossValidationResult.Correct,
+                    crossValidationResult.Total,
+                    Math.Round(correctPercent, 2));
+                return true;
+            }
+            catch(Exception e)
+            {
+                crossValidationResult = null;
+                _logger.LogWarning(e, "Cross Validation because of an unexpected exception.");
+                return false;
+            }
+        }
 
+        private CrossValidationResult DoCrossValidation(IEnumerable<Activity> activities)
+        {
             var factor = 4;
             var totalCount = activities.Count();
             var correctCount = 0;
@@ -58,13 +80,12 @@ namespace Coomes.Equipper.Classifiers
                 }
             }
 
-            double correctPercent = ((double)correctCount) / (double)(totalCount) * 100.0;
-            _logger.LogInformation("Cross-validation results for {algorithm}: {crossValidationCorrect} out of {crossValidationTotal} ({crossValidationPercent}%)",
-                AlgorithmName,
-                correctCount,
-                totalCount,
-                Math.Round(correctPercent, 2));
-            return correctCount;
+            return new CrossValidationResult()
+            {
+                AlgorithmName = this.AlgorithmName,
+                Correct = correctCount,
+                Total = totalCount
+            };
         }
     }
 }
