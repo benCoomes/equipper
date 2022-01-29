@@ -53,7 +53,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
                 AthleteID = 1234,
                 ExpiresAtUtc = DateTime.Parse("2021-02-03 13:14:15").ToUniversalTime()
             };
-            var udpatedTokens = new Domain.AthleteTokens()
+            var updatedTokens = new Domain.AthleteTokens()
             {
                 AccessToken = "newAccessToken",
                 RefreshToken = null, // null values still overwrite existing value
@@ -69,15 +69,15 @@ namespace Coomes.Equipper.CosmosStorage.Test
             var beforeOriginal = await sut.GetTokens(athleteID);
             await sut.AddOrUpdateTokens(originalTokens);
             var afterOriginal = await sut.GetTokens(athleteID);
-            await sut.AddOrUpdateTokens(udpatedTokens);
+            await sut.AddOrUpdateTokens(updatedTokens);
             var afterUpdate = await sut.GetTokens(athleteID);
 
             // then
             beforeOriginal.Should().BeNull();
             afterOriginal.AccessToken.Should().Be(originalTokens.AccessToken);
             afterOriginal.RefreshToken.Should().Be(originalTokens.RefreshToken);
-            afterUpdate.AccessToken.Should().Be(udpatedTokens.AccessToken);
-            afterUpdate.RefreshToken.Should().Be(udpatedTokens.RefreshToken);
+            afterUpdate.AccessToken.Should().Be(updatedTokens.AccessToken);
+            afterUpdate.RefreshToken.Should().Be(updatedTokens.RefreshToken);
         }
     
         [TestMethod]
