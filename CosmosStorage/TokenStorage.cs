@@ -8,12 +8,14 @@ namespace Coomes.Equipper.CosmosStorage
 {
     public class TokenStorage : CosmosStorageBase, ITokenStorage
     {
-        public TokenStorage(string connectionString) : base(connectionString, "Equipper", "Tokens", "/id")
+        private static ContainerProperties _containerProperties = new ContainerProperties("Tokens", "/id");
+
+        public TokenStorage(string connectionString) : base(connectionString, "Equipper", _containerProperties)
         {
         }
 
         // TOdo; make internal and share with test class
-        public TokenStorage(string connectionString, string databaseId, string containerId) : base(connectionString, databaseId, containerId, "/id")
+        public TokenStorage(string connectionString, string databaseId, string containerId) : base(connectionString, databaseId, new ContainerProperties(containerId, "/id"))
         {
         }
 

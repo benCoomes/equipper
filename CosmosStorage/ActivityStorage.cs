@@ -9,11 +9,13 @@ namespace Coomes.Equipper.CosmosStorage
 {
     public class ActivityStorage : CosmosStorageBase, IActivityStorage
     {
-        public ActivityStorage(string connectionString) : base(connectionString, "Equipper", "Activities", "/athleteId")
+        private static ContainerProperties _containerProperties = GetContainerProps("Activities");
+
+        public ActivityStorage(string connectionString) : base(connectionString, "Equipper", _containerProperties)
         {
         }
 
-        public ActivityStorage(string connectionString, string databaseId, string containerId) : base(connectionString, databaseId, containerId, "/athleteId")
+        public ActivityStorage(string connectionString, string databaseId, string containerId) : base(connectionString, databaseId, GetContainerProps(containerId))
         {
         }
 
@@ -50,6 +52,14 @@ namespace Coomes.Equipper.CosmosStorage
             {
                 return;
             }
+        }
+
+        private static ContainerProperties GetContainerProps(string containerId)
+        {
+            return new ContainerProperties(containerId, "/athleteId")
+            {
+                DefaultTimeToLive = -1 // enable TTL but do not expire items by default
+            };
         }
     }
 }

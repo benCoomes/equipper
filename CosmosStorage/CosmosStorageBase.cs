@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,22 +8,25 @@ namespace Coomes.Equipper.CosmosStorage
 {
     public abstract class CosmosStorageBase
     {
-        protected readonly string PartitionKeyPath;
         protected readonly string DatabaseID;
-        protected readonly string ContainerID;
         protected Container _container;
-
+        
 
         private bool _isInitialized = false;
         private SemaphoreSlim _initLock = new SemaphoreSlim(1);
         private CosmosClient _cosmosClient;
         private Database _cosmosDatabase;
+        private ContainerProperties _containerProps;
         
-        internal CosmosStorageBase(string connectionString, string databaseID, string containerID, string partitionKeyPath)
+        internal CosmosStorageBase(string connectionString, string databaseID, ContainerProperties containerProps)
         {
-            PartitionKeyPath = partitionKeyPath;
+            if(string.IsNullOrWhiteSpace(containerProps?.Id))
+                throw new ArgumentException($"{nameof(containerProps)} must not be null and must contain an Id.");
+            if(string.IsNullOrWhiteSpace(containerProps?.PartitionKeyPath))
+                throw new ArgumentException($"{nameof(containerProps)} must not be null and must contain a PartitionKeyPath.");
+
             DatabaseID = databaseID;
-            ContainerID = containerID;
+            _containerProps = containerProps;
             _cosmosClient = new CosmosClient(connectionString);
         }
 
@@ -34,7 +38,7 @@ namespace Coomes.Equipper.CosmosStorage
             try 
             {
                 await database.ReadAsync(); // throws 404 if DNE
-                var container = database.GetContainer(ContainerID);
+                var container = database.GetContainer(_containerProps.Id);
                 await container.DeleteContainerAsync(); // throws 404 if DNE
             }
             catch(CosmosException cex) when (cex.StatusCode == HttpStatusCode.NotFound)
@@ -53,8 +57,7 @@ namespace Coomes.Equipper.CosmosStorage
                 if(_isInitialized) return;
 
                 _cosmosDatabase = await _cosmosClient.CreateDatabaseIfNotExistsAsync(DatabaseID);
-                var containerProps = new ContainerProperties(ContainerID, PartitionKeyPath);
-                _container = await _cosmosDatabase.CreateContainerIfNotExistsAsync(containerProps);
+                _container = await _cosmosDatabase.CreateContainerIfNotExistsAsync(_containerProps);
                 _isInitialized = true;
             }
             finally
