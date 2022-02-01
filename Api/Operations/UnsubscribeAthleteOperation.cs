@@ -21,6 +21,7 @@ namespace Coomes.Equipper.Operations
             try
             {
                 await _tokenStorage.DeleteTokens(athleteID);
+                // todo: clear out classification/activity data
             }
             catch(Exception e)
             {

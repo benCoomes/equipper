@@ -4,13 +4,15 @@ using Domain = Coomes.Equipper;
 
 namespace Coomes.Equipper.StravaApi.Models
 {
-    internal class Activity : StravaModel<Domain.Activity>
+    // todo: make internal and share with test class
+    public class Activity : StravaModel<Domain.Activity>
     {
         public static Activity FromJsonBytes(byte[] jsonBytes)
         {
             return JsonSerializer.Deserialize<Activity>(jsonBytes);
         }
 
+        public SummaryAthlete athlete { get; set; }
         public double distance { get; set; }
         public int moving_time { get; set; }
         public double total_elevation_gain { get; set; }
@@ -31,6 +33,7 @@ namespace Coomes.Equipper.StravaApi.Models
         {
             return new Domain.Activity()
             {
+                AthleteId = athlete?.id ?? default,
                 Distance = distance,
                 MovingTime = moving_time,
                 TotalElevationGain = total_elevation_gain,

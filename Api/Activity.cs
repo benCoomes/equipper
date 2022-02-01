@@ -4,6 +4,7 @@ namespace Coomes.Equipper
 {
     public class Activity 
     {
+        public long AthleteId { get; set; }
         public double Distance { get; set; }
         public int MovingTime { get; set; }
         public double TotalElevationGain { get; set; }

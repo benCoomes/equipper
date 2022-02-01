@@ -1,12 +1,20 @@
 # Todo
-* Activity processing counter
-  * It would be cool to know how many activities Equipper has processed and display this on the website.
-* User Counter
-  * Display count of users on the website
-* Record processing stats
+* Record processing stats & Activity Count
   * Store details of each processing event in Cosmos.
   * Cannot store activity data, raw or derived.
   * May store algorithm stats such as std dev, variance, confidence, etc
+  * Plan: 
+    * ~~Create new 'Activity' data model which has Strava activity ID, athlete ID, and stats ID (guid). This model will have TTL of 7 days, which is the acceptable limit per Strava API agreement.~~
+    * ~~Store 'ClassificationStats' model, which has a guid and cross-validation results for each algorithm.~~
+    * In SetGear: 
+      * Check for existing Activity with matching Strava ID. If one found, do nothing else and return.
+      * ~~Run as usual. Update activity with best-match gear.~~
+      * ~~Set the ClassificationStats guid on the activity model. Persist the Activity and ClassificationStats items.~~
+        * ~~If this fails, log warning and continue. One cause of failure could be a concurrently processed event for the same activity, in which case first-in-wins is acceptable.~~
+    * Create new endpoint to return count of ClassificationStats as 'about' how many activities Equipper has processed. Errors and duplicate events more than 7 days apart prevent this from being exact.
+  * With this plan, we should accomplish a few things: don't reprocess activities (within 7 days of initial event), get approximate count of number of unique activities processed, and persist data about algorithms. And, all without storing any Strava data longer than 7 days!
+* User Counter
+  * Display count of users on the website
 * UI Framework
   * Use a UI framework so that the header and html boilerplate are not duplicated between the auth and index page.
 * Set Gear - different activity types:

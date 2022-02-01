@@ -21,6 +21,7 @@ namespace Coomes.Equipper.UnitTest
         private Mock<ITokenProvider> _tokenProviderMock;
         private Mock<ITokenStorage> _tokenStorageMock;
         private Mock<IActivityData> _activityDataMock;
+        private Mock<IActivityStorage> _activityStorageMock;
         private Mock<ILogger> _loggerMock;
 
         private void InitMocks()
@@ -39,6 +40,11 @@ namespace Coomes.Equipper.UnitTest
             _activityDataMock
                 .Setup(ad => ad.GetActivities(_athleteTokens.AccessToken, It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(_mostReccentActivities);
+
+            _activityStorageMock = new Mock<IActivityStorage>();
+            _activityStorageMock
+                .Setup(storage => storage.StoreActivityResults(It.IsAny<Activity>(), It.IsAny<ClassificationStats>()))
+                .Returns(Task.CompletedTask);
 
             _loggerMock = new Mock<ILogger>();
         }
@@ -64,6 +70,11 @@ namespace Coomes.Equipper.UnitTest
             _activityDataMock
                 .Setup(ad => ad.GetActivities(refreshedTokens.AccessToken, It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(_mostReccentActivities);
+
+            _activityStorageMock = new Mock<IActivityStorage>();
+            _activityStorageMock
+                .Setup(storage => storage.StoreActivityResults(It.IsAny<Activity>(), It.IsAny<ClassificationStats>()))
+                .Returns(Task.CompletedTask);
 
             _loggerMock = new Mock<ILogger>();
         }
@@ -91,7 +102,12 @@ namespace Coomes.Equipper.UnitTest
             };
 
             InitMocks();
-            var sut = new SetGear(_activityDataMock.Object, _tokenStorageMock.Object, _tokenProviderMock.Object, _loggerMock.Object);
+            var sut = new SetGear(
+                _activityDataMock.Object, 
+                _activityStorageMock.Object,
+                _tokenStorageMock.Object,
+                _tokenProviderMock.Object,
+                _loggerMock.Object);
             
             // when
             Func<Task> tryExecute = () => sut.Execute(_athleteId, _triggerActivityId);
@@ -123,7 +139,12 @@ namespace Coomes.Equipper.UnitTest
             };
 
             InitMocks();
-            var sut = new SetGear(_activityDataMock.Object, _tokenStorageMock.Object, _tokenProviderMock.Object, _loggerMock.Object);
+            var sut = new SetGear(
+                _activityDataMock.Object, 
+                _activityStorageMock.Object,
+                _tokenStorageMock.Object,
+                _tokenProviderMock.Object,
+                _loggerMock.Object);
             
             // when
             Func<Task> tryExecute = () => sut.Execute(_athleteId, _triggerActivityId);
@@ -167,7 +188,12 @@ namespace Coomes.Equipper.UnitTest
             };
 
             InitMocks();
-            var sut = new SetGear(_activityDataMock.Object, _tokenStorageMock.Object, _tokenProviderMock.Object, _loggerMock.Object);
+            var sut = new SetGear(
+                _activityDataMock.Object, 
+                _activityStorageMock.Object,
+                _tokenStorageMock.Object,
+                _tokenProviderMock.Object,
+                _loggerMock.Object);
             
             // when
             Func<Task> tryExecute = () => sut.Execute(_athleteId, _triggerActivityId);
@@ -176,8 +202,10 @@ namespace Coomes.Equipper.UnitTest
             await tryExecute.Should().ThrowAsync<SetGearException>();
         }
 
-        [TestMethod]
-        public async Task SetGear_GetsReccentActivitiesAndSetsBestMatchGear() 
+        [DataTestMethod]
+        [DataRow(true)]
+        [DataRow(false)]
+        public async Task SetGear_GetsReccentActivitiesAndSetsBestMatchGear(bool activityStoreThrows) 
         {
             _triggerActivityId = 3;
             _athleteId = 1000;
@@ -198,25 +226,32 @@ namespace Coomes.Equipper.UnitTest
                 new Activity()
                 {
                     Id = 2,
-                    AverageSpeed = 11,
-                    GearId = "gear_1"
+                    AverageSpeed = 21,
+                    GearId = "gear_2"
                 },
                 new Activity()
                 {
                     Id = 3,
                     AverageSpeed = 20,
-                    GearId = "gear_2"
-                },
-                new Activity() 
-                {
-                    Id = 4,
-                    AverageSpeed = 10000,
                     GearId = null
                 }
             };
 
             InitMocks();
-            var sut = new SetGear(_activityDataMock.Object, _tokenStorageMock.Object, _tokenProviderMock.Object, _loggerMock.Object);
+            if(activityStoreThrows)
+            {
+                _activityStorageMock.Reset();
+                _activityStorageMock
+                    .Setup(storage => storage.StoreActivityResults(It.IsAny<Activity>(), It.IsAny<ClassificationStats>()))
+                    .ThrowsAsync(new Exception("There is a problem with the activity storage."));
+            }
+
+            var sut = new SetGear(
+                _activityDataMock.Object, 
+                _activityStorageMock.Object,
+                _tokenStorageMock.Object,
+                _tokenProviderMock.Object,
+                _loggerMock.Object);
 
             // when
             await sut.Execute(_athleteId, _triggerActivityId);
@@ -224,6 +259,64 @@ namespace Coomes.Equipper.UnitTest
             // then
             _activityDataMock.Verify(
                 ad => ad.GetActivities(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()),
+                Times.Once);
+            _activityDataMock.Verify(
+                ad => ad.UpdateGear(It.IsAny<string>(), It.Is<Activity>(a => a.GearId == "gear_2")),
+                Times.Once);
+        }
+
+        [TestMethod]
+        public async Task SetGear_RecordsClassificationStats()
+        {
+            _triggerActivityId = 3;
+            _athleteId = 1000;
+            _athleteTokens = new AthleteTokens()
+            {
+                AccessToken = "validAccessToken",
+                AthleteID = _athleteId,
+                ExpiresAtUtc = DateTime.UtcNow.AddHours(1)
+            };
+            _mostReccentActivities = new List<Activity>()
+            {
+                new Activity()
+                {
+                    Id = 1,
+                    AthleteId = _athleteId,
+                    AverageSpeed = 10,
+                    GearId = "gear_1"
+                },
+                new Activity()
+                {
+                    Id = 2,
+                    AthleteId = _athleteId,
+                    AverageSpeed = 21,
+                    GearId = "gear_2"
+                },
+                new Activity()
+                {
+                    Id = 3,
+                    AthleteId = _athleteId,
+                    AverageSpeed = 20,
+                    GearId = null
+                }
+            };
+
+            InitMocks();
+            var sut = new SetGear(
+                _activityDataMock.Object,
+                _activityStorageMock.Object,
+                _tokenStorageMock.Object,
+                _tokenProviderMock.Object,
+                _loggerMock.Object);
+
+            // when
+            await sut.Execute(_athleteId, _triggerActivityId);
+
+            // then
+            _activityStorageMock.Verify(
+                storage => storage.StoreActivityResults(
+                    It.Is<Activity>(a => a.AthleteId == _athleteId && a.Id == _triggerActivityId), 
+                    It.IsAny<ClassificationStats>()),
                 Times.Once
             );
         }
@@ -265,7 +358,12 @@ namespace Coomes.Equipper.UnitTest
             };
 
             InitMocksForRefresh(refreshedTokens);
-            var sut = new SetGear(_activityDataMock.Object, _tokenStorageMock.Object, _tokenProviderMock.Object, _loggerMock.Object);
+            var sut = new SetGear(
+                _activityDataMock.Object, 
+                _activityStorageMock.Object,
+                _tokenStorageMock.Object,
+                _tokenProviderMock.Object,
+                _loggerMock.Object);
 
             // when
             await sut.Execute(_athleteId, _triggerActivityId);
@@ -307,11 +405,17 @@ namespace Coomes.Equipper.UnitTest
             var tokenProviderMock = new Mock<ITokenProvider>();
             var activityDataMock = new Mock<IActivityData>();
             var tokenStorageMock = new Mock<ITokenStorage>();
+            var activityStorageMock = new Mock<IActivityStorage>();
             var loggerMock = new Mock<ILogger>();
             tokenStorageMock
                 .Setup(ts => ts.GetTokens(_athleteId))
                 .ReturnsAsync(default(AthleteTokens)); // ITokenStorage returns null if no athlete
-            var sut = new SetGear(activityDataMock.Object, tokenStorageMock.Object, tokenProviderMock.Object, loggerMock.Object);
+            var sut = new SetGear(
+                activityDataMock.Object, 
+                activityStorageMock.Object,
+                tokenStorageMock.Object,
+                tokenProviderMock.Object,
+                loggerMock.Object);
 
             // when
             Func<Task> tryExecute = () => sut.Execute(_athleteId, _triggerActivityId);
