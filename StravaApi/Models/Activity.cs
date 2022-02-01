@@ -4,6 +4,7 @@ using Domain = Coomes.Equipper;
 
 namespace Coomes.Equipper.StravaApi.Models
 {
+    // todo: make internal and share with test class
     public class Activity : StravaModel<Domain.Activity>
     {
         public static Activity FromJsonBytes(byte[] jsonBytes)
