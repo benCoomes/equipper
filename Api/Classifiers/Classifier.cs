@@ -46,7 +46,7 @@ namespace Coomes.Equipper.Classifiers
             catch(Exception e)
             {
                 crossValidationResult = null;
-                _logger.LogWarning(e, "Cross Validation because of an unexpected exception.");
+                _logger.LogWarning(e, "Storage of cross validations failed due to an unexpected exception.");
                 return false;
             }
         }
