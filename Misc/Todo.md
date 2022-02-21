@@ -6,8 +6,8 @@
   * Plan: 
     * ~~Create new 'Activity' data model which has Strava activity ID, athlete ID, and stats ID (guid). This model will have TTL of 7 days, which is the acceptable limit per Strava API agreement.~~
     * ~~Store 'ClassificationStats' model, which has a guid and cross-validation results for each algorithm.~~
-    * In SetGear: 
-      * Check for existing Activity with matching Strava ID. If one found, do nothing else and return.
+    * ~~In SetGear: ~~
+      * ~~Check for existing Activity with matching Strava ID. If one found, do nothing else and return.~~
       * ~~Run as usual. Update activity with best-match gear.~~
       * ~~Set the ClassificationStats guid on the activity model. Persist the Activity and ClassificationStats items.~~
         * ~~If this fails, log warning and continue. One cause of failure could be a concurrently processed event for the same activity, in which case first-in-wins is acceptable.~~
