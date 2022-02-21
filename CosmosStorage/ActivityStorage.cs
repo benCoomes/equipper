@@ -19,6 +19,23 @@ namespace Coomes.Equipper.CosmosStorage
         {
         }
 
+        public async Task<bool> ContainsResults(long athleteId, long activityId)
+        {
+            await EnsureInitialized();
+            var stringId = activityId.ToString();
+            var partitionKey = new PartitionKey(athleteId);
+            try
+            {
+                await _container.ReadItemAsync<ActivityClassificationStats>(stringId, partitionKey);
+                return true;
+            }
+            catch (CosmosException cex) when (cex.StatusCode == HttpStatusCode.NotFound)
+            {
+                return false;
+            }
+            
+        }
+
         public async Task<Domain.ClassificationStats> GetClassificationStats(Guid id, long athleteId)
         {
             await EnsureInitialized();

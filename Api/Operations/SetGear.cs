@@ -37,6 +37,12 @@ namespace Coomes.Equipper.Operations
         {
             var athleteTokens = await GetTokensAndRefreshIfNeeded(athleteID);
 
+            if(await _activityStorage.ContainsResults(athleteID, activityID))
+            {
+                _logger.LogInformation("Ignoring activity event for activity {activityId} because it has already been processed.");
+                return;
+            }
+            
             var activities = await _activityData.GetActivities(athleteTokens.AccessToken);
 
             var newActivity = activities.SingleOrDefault(a => a.Id == activityID);
@@ -45,7 +51,6 @@ namespace Coomes.Equipper.Operations
                 throw new SetGearException("The triggering activity was not in the most reccent activities");
             }
             
-            // todo: don't use activities where the gear has been set by Equipper?
             var otherActivities = activities.Where(a => a.Id != activityID && !string.IsNullOrWhiteSpace(a.GearId)).ToList();
             if(otherActivities.Count == 0) 
             {

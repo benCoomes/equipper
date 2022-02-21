@@ -389,12 +389,64 @@ namespace Coomes.Equipper.UnitTest
         }
 
         [TestMethod]
-        public void SetGear_IgnoresActivity_WhenAlreadyProcessed() 
+        public async Task SetGear_IgnoresActivity_WhenAlreadyProcessed() 
         {
-            // Either need to keep track of processed activities
-            // or ignore activies with non-default gear. 
-            // Athletes could then set 'null' gear as default.
-            Assert.Inconclusive("Not implemented");
+            _triggerActivityId = 3;
+            _athleteId = 1000;
+            _athleteTokens = new AthleteTokens()
+            {
+                AccessToken = "validAccessToken",
+                AthleteID = _athleteId,
+                ExpiresAtUtc = DateTime.UtcNow.AddHours(1)
+            };
+            _mostReccentActivities = new List<Activity>()
+            {
+                new Activity()
+                {
+                    Id = 1,
+                    AverageSpeed = 10,
+                    GearId = "gear_1"
+                },
+                new Activity()
+                {
+                    Id = 2,
+                    AverageSpeed = 21,
+                    GearId = "gear_2"
+                },
+                new Activity()
+                {
+                    Id = 3,
+                    AverageSpeed = 20,
+                    GearId = "gear_2"
+                }
+            };
+
+            InitMocks();
+
+            _activityStorageMock
+                .Setup(astore => astore.ContainsResults(_athleteId, _triggerActivityId))
+                .ReturnsAsync(true);
+
+            var sut = new SetGear(
+                _activityDataMock.Object, 
+                _activityStorageMock.Object,
+                _tokenStorageMock.Object,
+                _tokenProviderMock.Object,
+                _loggerMock.Object);
+
+            // when
+            await sut.Execute(_athleteId, _triggerActivityId);
+
+            // then
+            _activityStorageMock.Verify(
+                astore => astore.ContainsResults(It.IsAny<long>(), It.IsAny<long>()),
+                Times.Once);
+            _activityDataMock.Verify(
+                ad => ad.GetActivities(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()),
+                Times.Never);
+            _activityDataMock.Verify(
+                ad => ad.UpdateGear(It.IsAny<string>(), It.Is<Activity>(a => a.GearId == "gear_2")),
+                Times.Never);
         }
 
         [TestMethod]
