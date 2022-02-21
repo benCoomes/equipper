@@ -19,6 +19,11 @@ namespace Coomes.Equipper.CosmosStorage
         {
         }
 
+        public Task<bool> ContainsResults(long activityId)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<Domain.ClassificationStats> GetClassificationStats(Guid id, long athleteId)
         {
             await EnsureInitialized();
