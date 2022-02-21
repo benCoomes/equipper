@@ -59,6 +59,44 @@ namespace Coomes.Equipper.CosmosStorage.Test
             afterAdd.CrossValidations.Should().Contain(cv => cv.Correct == cv1.Correct && cv.Total == cv1.Total && cv.AlgorithmName == cv1.AlgorithmName);
             afterAdd.CrossValidations.Should().Contain(cv => cv.Correct == cv2.Correct && cv.Total == cv2.Total && cv.AlgorithmName == cv2.AlgorithmName);
         }
+
+        [TestMethod]
+        public async Task ActivityStorage_ChecksIfActivityHasResults()
+        {
+            // given 
+            var activity = new Domain.Activity()
+            {
+                Id = 12345,
+                AthleteId = 1,
+                GearId = "b100"
+            };
+            var classificationStats = new Domain.ClassificationStats()
+            {
+                Id = Guid.NewGuid(),
+                CrossValidations = new List<Domain.CrossValidationResult>() 
+                {  
+                    new Domain.CrossValidationResult()
+                    {
+                        AlgorithmName = "Excellent guessing",
+                        Total = 50,
+                        Correct = 26
+                    }
+                }
+            };
+
+            var containerName = nameof(ActivityStorage_ChecksIfActivityHasResults);
+            var sut = new ActivityStorage(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
+            await sut.EnsureDeleted();
+
+            // when
+            var beforeAdd = await sut.ContainsResults(activity.AthleteId, activity.Id);
+            await sut.StoreActivityResults(activity, classificationStats);
+            var afterAdd = await sut.ContainsResults(activity.AthleteId, activity.Id);
+
+            // then
+            beforeAdd.Should().BeFalse();
+            afterAdd.Should().BeTrue();
+        }
     
         [TestMethod]
         public async Task ActivityStorage_DoesNothingWhenActivityAlreadyRecorded()

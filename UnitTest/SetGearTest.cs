@@ -424,7 +424,7 @@ namespace Coomes.Equipper.UnitTest
             InitMocks();
 
             _activityStorageMock
-                .Setup(astore => astore.ContainsResults(_triggerActivityId))
+                .Setup(astore => astore.ContainsResults(_athleteId, _triggerActivityId))
                 .ReturnsAsync(true);
 
             var sut = new SetGear(
@@ -439,7 +439,7 @@ namespace Coomes.Equipper.UnitTest
 
             // then
             _activityStorageMock.Verify(
-                astore => astore.ContainsResults(It.IsAny<long>()),
+                astore => astore.ContainsResults(It.IsAny<long>(), It.IsAny<long>()),
                 Times.Once);
             _activityDataMock.Verify(
                 ad => ad.GetActivities(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()),

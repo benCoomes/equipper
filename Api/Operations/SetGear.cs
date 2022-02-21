@@ -37,7 +37,7 @@ namespace Coomes.Equipper.Operations
         {
             var athleteTokens = await GetTokensAndRefreshIfNeeded(athleteID);
 
-            if(await _activityStorage.ContainsResults(activityID))
+            if(await _activityStorage.ContainsResults(athleteID, activityID))
             {
                 _logger.LogInformation("Ignoring activity event for activity {activityId} because it has already been processed.");
                 return;
