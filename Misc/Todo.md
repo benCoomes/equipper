@@ -11,7 +11,10 @@
       * ~~Run as usual. Update activity with best-match gear.~~
       * ~~Set the ClassificationStats guid on the activity model. Persist the Activity and ClassificationStats items.~~
         * ~~If this fails, log warning and continue. One cause of failure could be a concurrently processed event for the same activity, in which case first-in-wins is acceptable.~~
-    * Create new endpoint to return count of ClassificationStats as 'about' how many activities Equipper has processed. Errors and duplicate events more than 7 days apart prevent this from being exact.
+    * Create new endpoint to return count of ClassificationStats as 'about' how many activities Equipper has processed. Errors and duplicate events more than 7 days apart prevent this from being 
+    exact.
+      * Add tests for when activity-link model is deleted
+      * Implement caching in count operation.
   * With this plan, we should accomplish a few things: don't reprocess activities (within 7 days of initial event), get approximate count of number of unique activities processed, and persist data about algorithms. And, all without storing any Strava data longer than 7 days!
 * User Counter
   * Display count of users on the website

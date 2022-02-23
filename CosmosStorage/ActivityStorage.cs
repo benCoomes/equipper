@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Coomes.Equipper.Contracts;
@@ -71,9 +72,15 @@ namespace Coomes.Equipper.CosmosStorage
             }
         }
 
-        public Task<int> CountActivityResults()
+        public async Task<int> CountActivityResults()
         {
-            return Task.FromResult(42);
+            await EnsureInitialized();
+
+            var query = new QueryDefinition("SELECT VALUE count(1) FROM c Where IS_DEFINED(c.crossValidations)");
+            var resultIterator = _container.GetItemQueryIterator<int>(query);
+            var response = await resultIterator.ReadNextAsync();
+            var count = response.Resource.First();
+            return count;
         }
 
         private static ContainerProperties GetContainerProps(string containerId)
