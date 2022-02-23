@@ -71,6 +71,11 @@ namespace Coomes.Equipper.CosmosStorage
             }
         }
 
+        public Task<int> CountActivityResults()
+        {
+            return Task.FromResult(42);
+        }
+
         private static ContainerProperties GetContainerProps(string containerId)
         {
             return new ContainerProperties(containerId, "/athleteId")
