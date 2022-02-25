@@ -24,10 +24,10 @@ namespace Coomes.Equipper.CosmosStorage
         {
             await EnsureInitialized();
             var stringId = activityId.ToString();
-            var partitionKey = new PartitionKey(athleteId);
+            var athletePartition = new PartitionKey(athleteId);
             try
             {
-                await _container.ReadItemAsync<ActivityClassificationStats>(stringId, partitionKey);
+                await _container.ReadItemAsync<ActivityClassificationStats>(stringId, athletePartition);
                 return true;
             }
             catch (CosmosException cex) when (cex.StatusCode == HttpStatusCode.NotFound)
@@ -41,10 +41,10 @@ namespace Coomes.Equipper.CosmosStorage
         {
             await EnsureInitialized();
             var stringId = id.ToString();
-            var partitionKey = new PartitionKey(athleteId);
+            var athletePartition = new PartitionKey(athleteId);
             try 
             {
-                var result = await  _container.ReadItemAsync<ClassificationStats>(stringId, partitionKey);
+                var result = await  _container.ReadItemAsync<ClassificationStats>(stringId, athletePartition);
                 var dataModel = result.Resource;
                 return dataModel.ToDomainModel();
             }
@@ -57,14 +57,14 @@ namespace Coomes.Equipper.CosmosStorage
         public async Task StoreActivityResults(Domain.Activity activity, Domain.ClassificationStats classificationStats)
         {
             await EnsureInitialized();
-            var partitionKey = new PartitionKey(activity.AthleteId);
+            var athletePartition = new PartitionKey(activity.AthleteId);
             var activityClassificationDataModel = new ActivityClassificationStats(activity, classificationStats);
             var classificationStatsDataModel = new ClassificationStats(classificationStats, activity.AthleteId);            
 
             try
             {
-                await _container.CreateItemAsync(activityClassificationDataModel, partitionKey);
-                await _container.CreateItemAsync(classificationStatsDataModel, partitionKey);
+                await _container.CreateItemAsync(activityClassificationDataModel, athletePartition);
+                await _container.CreateItemAsync(classificationStatsDataModel, athletePartition);
             }
             catch(CosmosException cex) when (cex.StatusCode == HttpStatusCode.Conflict)
             {
@@ -81,6 +81,14 @@ namespace Coomes.Equipper.CosmosStorage
             var response = await resultIterator.ReadNextAsync();
             var count = response.Resource.First();
             return count;
+        }
+
+        public async Task DeleteActivityData(Domain.Activity activity)
+        {
+            await EnsureInitialized();
+            
+            var athletePartition = new PartitionKey(activity.AthleteId);
+            await _container.DeleteItemAsync<ActivityClassificationStats>(activity.Id.ToString(), athletePartition);
         }
 
         private static ContainerProperties GetContainerProps(string containerId)

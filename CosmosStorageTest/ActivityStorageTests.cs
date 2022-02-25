@@ -194,10 +194,13 @@ namespace Coomes.Equipper.CosmosStorage.Test
             var countBeforeAdd = await sut.CountActivityResults();
             await sut.StoreActivityResults(activity, classificationStats);
             var countAfterAdd = await sut.CountActivityResults();
+            await sut.DeleteActivityData(activity); // simulate TTL expiration
+            var countAfterDeleteActivityData = await sut.CountActivityResults();
 
             // then
             countBeforeAdd.Should().Be(0);
             countAfterAdd.Should().Be(1);
+            countAfterDeleteActivityData.Should().Be(1);
         }
     }
 }
