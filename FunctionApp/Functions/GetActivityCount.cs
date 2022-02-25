@@ -12,7 +12,7 @@ namespace Coomes.Equipper.FunctionApp.Functions
 {
     public static class GetActivityCount
     {
-        [FunctionName("GetActivityCount")]
+        [FunctionName("ActivityCount")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
             ILogger logger)

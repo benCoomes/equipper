@@ -17,6 +17,10 @@ namespace Coomes.Equipper.Operations
 
         public Task<int> Execute() 
         {
+            // do not check in!
+            Task.Delay(5000).GetAwaiter().GetResult();
+            // do not check in!
+
             return _activityStorage.CountActivityResults();
         }
     }
