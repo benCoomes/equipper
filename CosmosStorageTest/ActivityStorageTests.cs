@@ -161,5 +161,46 @@ namespace Coomes.Equipper.CosmosStorage.Test
             originalAfterSecondCall.Id.Should().Be(originalClassStats.Id.ToString());
             updatedAfterSecondCall.Should().BeNull();
         }
+    
+        [TestMethod]
+        public async Task ActivityStorage_CountsActivityResults()
+        {
+            // given 
+            var activity = new Domain.Activity()
+            {
+                Id = 12345,
+                AthleteId = 1,
+                GearId = "b100"
+            };
+            var classificationStats = new Domain.ClassificationStats()
+            {
+                Id = Guid.NewGuid(),
+                CrossValidations = new List<Domain.CrossValidationResult>()
+                {
+                    new Domain.CrossValidationResult()
+                    {
+                        AlgorithmName = "Excellent guessing",
+                        Total = 50,
+                        Correct = 26
+                    }
+                }
+            };
+
+            var containerName = nameof(ActivityStorage_RecordsActivityResults);
+            var sut = new ActivityStorage(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
+            await sut.EnsureDeleted();
+
+            // when
+            var countBeforeAdd = await sut.CountActivityResults();
+            await sut.StoreActivityResults(activity, classificationStats);
+            var countAfterAdd = await sut.CountActivityResults();
+            await sut.DeleteActivityData(activity); // simulate TTL expiration
+            var countAfterDeleteActivityData = await sut.CountActivityResults();
+
+            // then
+            countBeforeAdd.Should().Be(0);
+            countAfterAdd.Should().Be(1);
+            countAfterDeleteActivityData.Should().Be(1);
+        }
     }
 }

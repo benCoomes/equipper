@@ -8,5 +8,7 @@ namespace Coomes.Equipper.Contracts
         Task StoreActivityResults(Activity activity, ClassificationStats classificationStats);
 
         Task<bool> ContainsResults(long athleteId, long activityId);
+
+        Task<int> CountActivityResults();
     }
 }

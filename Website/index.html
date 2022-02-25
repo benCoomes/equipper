@@ -39,7 +39,7 @@
       <h2 id="about" class="section__header">What is Equipper?</h2>
       <p>
         Equipper is an application that helps you set the correct bike on each ride that you upload to Strava. 
-        It works by picking the bike that was used most often on previous rides similar to your latest ride.
+        It works by picking the bike that was used most often on previous rides similar to your latest ride. It has processed <span id="activityCount">???</span> activities so far!
       </p>
     </section>
     <section class="section container">
@@ -122,6 +122,15 @@
     var authLink = document.getElementById("authLink");
     var host = window.location.host;
     authLink.setAttribute("href", `https://www.strava.com/oauth/authorize?client_id=12230&response_type=code&redirect_uri=https://${host}/auth&approval_prompt=force&scope=read,activity:read,activity:write`)
+    
+    fetch("/api/activityCount")
+    .then(result => {
+      if(result.ok) {
+        result.text().then(count => {
+          document.getElementById("activityCount").textContent = count;
+        });
+      }
+    });
   </script>
 </body>
 </html>
