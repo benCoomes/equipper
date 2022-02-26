@@ -146,18 +146,22 @@
     fetch("/.auth/me")
     .then(result => {
       if(result.ok) {
-        result.json().then(identity => {
-          var userNameDisplay = document.getElementById("usernameDisplay");
-          userNameDisplay.textContent = identity.userDetails;
+        result.json().then(response => {
+          var identity = response.clientPrincipal;
+          if(identity)
+          {
+            var userNameDisplay = document.getElementById("usernameDisplay");
+            userNameDisplay.textContent = identity.userDetails;
 
-          var idProviderDisplay = document.getElementById("idProviderDisplay");
-          idProviderDisplay.textContent = identity.identityProvider;
+            var idProviderDisplay = document.getElementById("idProviderDisplay");
+            idProviderDisplay.textContent = identity.identityProvider;
 
-          var loginSection = document.getElementById("loginSection");
-          loginSection.style.display = "none";
+            var loginSection = document.getElementById("loginSection");
+            loginSection.style.display = "none";
 
-          var userInfoSection = document.getElementById("userInfoSection");
-          userInfoSection.style.display = "block";
+            var userInfoSection = document.getElementById("userInfoSection");
+            userInfoSection.style.display = "block";
+          }
         })
       }
     });
