@@ -50,6 +50,7 @@
     <section id="userInfoSection" class="section container" >
       <h2 id="userInfoHeader" class="section__header">Welcome Back!</h2>
       <p>You are currently signed in as <span id="usernameDisplay">???</span> through <span id="idProviderDisplay">???</span></p>
+      <a id="logoutLink" href="#" class="section__link">Log Out</a>
     </section>
     <section class="section container">
       <h2 id="connect" class="section__header">Get Started</h2>
@@ -130,9 +131,11 @@
   <script>
     var authLink = document.getElementById("authLink");
     var gitHubLogin = document.getElementById("gitHubLogin");
+    var logoutLink = document.getElementById("logoutLink");
     var host = window.location.host;
     authLink.setAttribute("href", `https://www.strava.com/oauth/authorize?client_id=12230&response_type=code&redirect_uri=https://${host}/auth&approval_prompt=force&scope=read,activity:read,activity:write`)
     gitHubLogin.setAttribute("href", `/.auth/login/github?post_login_redirect_uri=https://${host}`);
+    logoutLink.setAttribute("href", `/.auth/logout?post_logout_redirect_uri=https://${host}`);
     
     fetch("/api/activityCount")
     .then(result => {
