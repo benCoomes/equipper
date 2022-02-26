@@ -46,6 +46,8 @@
       <h2 id="loginHeader" class="section__header">Log In</h2>
       <p>Sign in with any of the providers below in order to manage your Equipper settings and data.</p>
       <a id="gitHubLogin" href="#" class="section__link">Sign in with GitHub</a>
+      <a id="aadLogin" href="#" class="section__link">Sign in with Microsoft</a>
+      <a id="twitterLogin" href="#" class="section__link">Sign in with Twitter</a>
     </section>
     <section id="userInfoSection" class="section container" >
       <h2 id="userInfoHeader" class="section__header">Welcome Back!</h2>
@@ -131,10 +133,14 @@
   <script>
     var authLink = document.getElementById("authLink");
     var gitHubLogin = document.getElementById("gitHubLogin");
+    var aadLogin = document.getElementById("aadLogin");
+    var twitterLogin = document.getElementById("twitterLogin");
     var logoutLink = document.getElementById("logoutLink");
     var host = window.location.host;
     authLink.setAttribute("href", `https://www.strava.com/oauth/authorize?client_id=12230&response_type=code&redirect_uri=https://${host}/auth&approval_prompt=force&scope=read,activity:read,activity:write`)
     gitHubLogin.setAttribute("href", `/.auth/login/github?post_login_redirect_uri=https://${host}`);
+    aadLogin.setAttribute("href", `/.auth/login/aad?post_login_redirect_uri=https://${host}`);
+    twitterLogin.setAttribute("href", `/.auth/login/twitter?post_login_redirect_uri=https://${host}`);
     logoutLink.setAttribute("href", `/.auth/logout?post_logout_redirect_uri=https://${host}`);
     
     fetch("/api/activityCount")
