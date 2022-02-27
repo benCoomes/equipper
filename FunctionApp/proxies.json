@@ -1,7 +1,7 @@
 {
     "$schema": "http://json.schemastore.org/proxies",
     "proxies": {
-        "callback": {
+        "tokenExchange": {
             "matchCondition": {
                 "methods": [ "GET" ],
                 "route": "/api/TokenExchange"
@@ -10,6 +10,16 @@
             "requestOverrides": {
               "backend.request.querystring.code": "",
               "backend.request.querystring._code": "{request.querystring.code}"
+            }
+        },
+        "secureSubscriptionCallback" : {
+            "matchCondition": {
+                "methods": [ "GET", "POST" ],
+                "route": "/api/superSecretEndpoint"
+            },
+            "backendUri": "https://localhost/api/SubscriptionWebhook",
+            "requestOverrides": {
+                "backend.request.headers.x-subscription-secret": "foobar" 
             }
         }
     }
