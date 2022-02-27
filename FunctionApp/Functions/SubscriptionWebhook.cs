@@ -50,7 +50,7 @@ namespace Coomes.Equipper.FunctionApp.Functions
         {
             return req.Headers.TryGetValue("x-subscription-secret", out var secretHeader) 
                 && secretHeader.Count == 1 
-                && secretHeader[0] == "foobar";
+                && secretHeader[0] == Settings.SubscriptionSecret;
         }
 
         private static Task<IActionResult> ConfirmSubscription(HttpRequest req, ILogger logger)
