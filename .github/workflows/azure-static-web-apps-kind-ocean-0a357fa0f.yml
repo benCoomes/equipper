@@ -18,6 +18,9 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Set Subscription Proxy
+        run: |
+           sed 's/subscriptionSecretPlaceholder/barfood/' ./FunctionApp/proxies.json
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1

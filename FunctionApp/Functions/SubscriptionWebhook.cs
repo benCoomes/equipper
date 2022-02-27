@@ -32,7 +32,7 @@ namespace Coomes.Equipper.FunctionApp.Functions
             {
                 case "GET":
                 {
-                    return await  ConfirmSubscription(req, log);
+                    return await ConfirmSubscription(req, log);
                 }
                 case "POST":
                 {

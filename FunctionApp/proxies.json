@@ -15,11 +15,11 @@
         "secureSubscriptionCallback" : {
             "matchCondition": {
                 "methods": [ "GET", "POST" ],
-                "route": "/api/superSecretEndpoint"
+                "route": "/api/subscriptionSecretPlaceholder"
             },
             "backendUri": "https://localhost/api/SubscriptionWebhook",
             "requestOverrides": {
-                "backend.request.headers.x-subscription-secret": "foobar" 
+                "backend.request.headers.x-subscription-secret": "subscriptionSecretPlaceholder" 
             }
         }
     }
