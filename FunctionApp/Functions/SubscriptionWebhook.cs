@@ -22,7 +22,7 @@ namespace Coomes.Equipper.FunctionApp.Functions
         {
             if(!IsAuthorizedRequest(req))
             {
-                return new StatusCodeResult((int)HttpStatusCode.Unauthorized);
+                return new StatusCodeResult((int)HttpStatusCode.Forbidden);
             }
 
             // todo: anonymous endpoint - rate limiting? don't trust anything

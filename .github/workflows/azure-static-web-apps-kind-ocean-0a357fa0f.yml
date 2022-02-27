@@ -20,7 +20,7 @@ jobs:
           submodules: true
       - name: Set Subscription Proxy
         run: |
-           sed 's/subscriptionSecretPlaceholder/${{ secrets.STRAVA_SUBSCRIPTION_SECRET }}/' ./FunctionApp/proxies.json
+           sed -i 's/subscriptionSecretPlaceholder/${{ secrets.STRAVA_SUBSCRIPTION_SECRET }}/' ./FunctionApp/proxies.json
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
