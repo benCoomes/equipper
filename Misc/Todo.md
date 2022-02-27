@@ -23,8 +23,20 @@
     * do not force consent screen if already authorized.
   * do not return access tokens in response!
 * Mitigate Abuse of Subscription Endpoint
-  * check that subscription ID matches expected? 
-  * only allow requests from known Strava IPs?
+  * Create 'secret' endpoint that only Strava knows
+    * Secret urls are used by google docs and other content management systems to provide 'anyone with the link can access' behavior. 
+    * See this SO discussion: https://stackoverflow.com/questions/4833314/are-secret-urls-truly-secure
+    * In Equipper's case, a secret URL avoids some of the common drawbacks over passwords
+      * The secret is only known to Strava and Equipper (systems) and people who administer those systems.
+      * There is no need for users to know it or for it to be shared. 
+    * There is one challenge: function names (their endpoints) need to in source code, yet secrets should not be in source code. Equipper is open source.
+      * To work around this, I may be able to use a proxy to the subscriptions endpoint. 
+      * Proxies are configured in a json file. 
+      * Prior to publishing the app, the publishing pipeline could replace tokens in the proxy file with secrets known to the pipeline. 
+      * Then, when rewriting from the proxy endpoint to the standard endpoint, include a request parameter or header that contains the secret. 
+      * The function can then check that this secret exists in the expected place with the correct value.
+      * Calls to the subscription endpoint without this secret will return a 403, and an alert can be set up for any 403 errors from the subscription endpoint.
+  * Also can check that subscription ID matches what is expected - this won't hurt, but certainly shouldn't be trusted by itself. Also, it can't be used for the subscription verification step.
   * rate limiting
   * alerts on suspicious activity
 * Prediction logic v2
