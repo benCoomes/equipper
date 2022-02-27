@@ -20,6 +20,11 @@ namespace Coomes.Equipper.FunctionApp.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
+            if(!IsAuthorizedRequest(req))
+            {
+                return new StatusCodeResult((int)HttpStatusCode.Forbidden);
+            }
+
             // todo: anonymous endpoint - rate limiting? don't trust anything
             // make sure no activity or athlete information is returned in response.
             // do not make any changes to athlete data that would allow for abuse by malicious callers
@@ -27,7 +32,7 @@ namespace Coomes.Equipper.FunctionApp.Functions
             {
                 case "GET":
                 {
-                    return await  ConfirmSubscription(req, log);
+                    return await ConfirmSubscription(req, log);
                 }
                 case "POST":
                 {
@@ -39,6 +44,13 @@ namespace Coomes.Equipper.FunctionApp.Functions
                     return new StatusCodeResult((int)HttpStatusCode.MethodNotAllowed);
                 }
             }
+        }
+
+        private static bool IsAuthorizedRequest(HttpRequest req)
+        {
+            return req.Headers.TryGetValue("x-subscription-secret", out var secretHeader) 
+                && secretHeader.Count == 1 
+                && secretHeader[0] == Settings.SubscriptionSecret;
         }
 
         private static Task<IActionResult> ConfirmSubscription(HttpRequest req, ILogger logger)
