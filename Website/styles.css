@@ -124,6 +124,10 @@
     display: none;
 }
 
+#userInfoSection {
+    display: none;
+}
+
 @keyframes section-fade-in {
     from {
         opacity: 0%;
