@@ -12,9 +12,6 @@ namespace Coomes.Equipper.FunctionApp
         public static string SubscriptionVerificationToken => 
             Environment.GetEnvironmentVariable("FunctionApp__VerificationToken");
 
-        public static string SubscriptionSecret => 
-            Environment.GetEnvironmentVariable("FunctionApp__SubscriptionSecret");
-        
         public static string CosmosConnectionString => 
             Environment.GetEnvironmentVariable("CosmosStorage__ConnectionString");
     }
