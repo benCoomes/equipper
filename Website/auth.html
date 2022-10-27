@@ -70,8 +70,15 @@
       }
     }, 600);
     
-    var params = window.location.search;
-    fetch(`/api/tokenExchange${params}`)
+    // rewrite code parameter if it exists. See https://github.com/Azure/static-web-apps/issues/165
+    let params = (new URL(document.location)).searchParams;
+    if (params.has("code")) {
+      let codeValue = params.get("code")
+      params.set("_code", codeValue)
+      params.delete("code")
+    }
+
+    fetch(`/api/TokenExchange?${params.toString()}`)
     .then(result => {
       if(result.ok) {
         document.getElementById("authPendingSection").style.display = "none";
