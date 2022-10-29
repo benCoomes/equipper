@@ -1,0 +1,6 @@
+{
+  "name": "equipper dev container",
+  "build": {
+    "dockerfile": "Dockerfile"
+  }
+}
