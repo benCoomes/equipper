@@ -2,5 +2,6 @@
   "name": "equipper dev container",
   "build": {
     "dockerfile": "Dockerfile"
-  }
+  },
+  "postCreateCommand": "./devcontainer/post-create-command.sh"
 }
