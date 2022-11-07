@@ -1,0 +1,3 @@
+#! /bin/sh
+
+swa start ./Website --api-location ./FunctionApp/

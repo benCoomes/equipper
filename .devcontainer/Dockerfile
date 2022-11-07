@@ -1,4 +1,9 @@
 FROM mcr.microsoft.com/devcontainers/universal:2-linux
 
 RUN apt-get update
-RUN apt-get install figlet
+
+# static web apps emulator
+RUN npm install -g @azure/static-web-apps-cli
+
+# docker emulator
+RUN docker pull mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator

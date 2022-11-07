@@ -1,5 +1,5 @@
 # Dev Env Setup
-Setup instructions for a development environment, while a proper codespaces devcontainer.json is pending. 
+Setup instructions for a development environment, while a proper codespaces devcontainer.json is pending. Microsoft has [documentation](https://learn.microsoft.com/en-us/azure/static-web-apps/local-development) with additional details.
 
 ## Essentials
 Create default codespace (as of Oct 2022). Should be Ubuntu 20.04 (`cat /etc/os-release` to check)
