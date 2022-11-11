@@ -10,7 +10,7 @@ namespace Coomes.Equipper.CosmosStorage
     {
         private static ContainerProperties _containerProperties = new ContainerProperties("Tokens", "/id");
 
-        public TokenStorage(string connectionString) : base(connectionString, "Equipper", _containerProperties)
+        public TokenStorage(string connectionString, bool disableSSL=false) : base(connectionString, "Equipper", _containerProperties)
         {
         }
 

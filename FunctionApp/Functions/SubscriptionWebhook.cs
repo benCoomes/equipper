@@ -114,9 +114,9 @@ namespace Coomes.Equipper.FunctionApp.Functions
                 ClientSecret = Settings.ClientSecret
             };
             var tokenProvider = new TokenClient(options, log);
-            var tokenStorage = new TokenStorage(Settings.CosmosConnectionString);
+            var tokenStorage = new TokenStorage(Settings.CosmosConnectionString, disableSSL: Settings.IsDevelopment);
             var activityData = new ActivityClient(log);
-            var activityStorage = new ActivityStorage(Settings.CosmosConnectionString);
+            var activityStorage = new ActivityStorage(Settings.CosmosConnectionString, disableSSL: Settings.IsDevelopment);
             var setGearOperation = new SetGear(activityData, activityStorage, tokenStorage, tokenProvider, log);
 
             await setGearOperation.Execute(stravaEvent.owner_id, stravaEvent.object_id);
@@ -125,7 +125,7 @@ namespace Coomes.Equipper.FunctionApp.Functions
         private static async Task ExecuteAthleteUnsubscribe(StravaEvent stravaEvent, ILogger log)
         {
             // todo: better way to build dependencies?
-            var tokenStorage = new TokenStorage(Settings.CosmosConnectionString);
+            var tokenStorage = new TokenStorage(Settings.CosmosConnectionString, disableSSL: Settings.IsDevelopment);
             var unsubscribeAthleteOperation = new UnsubscribeAthlete(tokenStorage, log);
             await unsubscribeAthleteOperation.Execute(stravaEvent.object_id);
         }

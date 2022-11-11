@@ -17,6 +17,9 @@ namespace Coomes.Equipper.FunctionApp.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
             ILogger logger)
         {
+            logger.LogInformation("DEVELOPMENT_MODE: {devMode}", Settings.IsDevelopment);
+
+
             var correlationID = Guid.NewGuid();
             logger.LogInformation("{function} {status} {cid}", "GetActivityCount", "Starting", correlationID.ToString());
 
@@ -29,7 +32,7 @@ namespace Coomes.Equipper.FunctionApp.Functions
         private static Task<int> ExecuteGetCount(ILogger logger)
         {
             // todo: better way to build dependencies?
-            var activityStorage = new ActivityStorage(Settings.CosmosConnectionString);
+            var activityStorage = new ActivityStorage(Settings.CosmosConnectionString, disableSSL: Settings.IsDevelopment);
             var countOperation = new GetProccessedActivityCount(activityStorage, logger);
             return countOperation.Execute();
         }

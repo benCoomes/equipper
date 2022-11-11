@@ -44,7 +44,7 @@ namespace Coomes.Equipper.FunctionApp
                  ClientSecret = Settings.ClientSecret
             };
             var tokenProvider = new TokenClient(options, logger);
-            var tokenStorage = new TokenStorage(Settings.CosmosConnectionString);
+            var tokenStorage = new TokenStorage(Settings.CosmosConnectionString, disableSSL: Settings.IsDevelopment);
             var exchangeOperation = new RegisterNewAthlete(tokenProvider, tokenStorage, logger);
             var scopes = StravaApi.Models.AuthScopes.Create(scopesString).ToDomainModel();
 

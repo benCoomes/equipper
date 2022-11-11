@@ -12,11 +12,12 @@ namespace Coomes.Equipper.CosmosStorage
     {
         private static ContainerProperties _containerProperties = GetContainerProps("Activities");
 
-        public ActivityStorage(string connectionString) : base(connectionString, "Equipper", _containerProperties)
+        public ActivityStorage(string connectionString, bool disableSSL=false) : base(connectionString, "Equipper", _containerProperties)
         {
         }
 
-        public ActivityStorage(string connectionString, string databaseId, string containerId) : base(connectionString, databaseId, GetContainerProps(containerId))
+        // TODO: make internal and share with test class
+        public ActivityStorage(string connectionString, string databaseId, string containerId) : base(connectionString, databaseId, GetContainerProps(containerId), disableSSL: true)
         {
         }
 

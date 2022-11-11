@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
@@ -18,7 +19,11 @@ namespace Coomes.Equipper.CosmosStorage
         private Database _cosmosDatabase;
         private ContainerProperties _containerProps;
         
-        internal CosmosStorageBase(string connectionString, string databaseID, ContainerProperties containerProps)
+        internal CosmosStorageBase(
+            string connectionString, 
+            string databaseID, 
+            ContainerProperties containerProps, 
+            bool disableSSL=false)
         {
             if(string.IsNullOrWhiteSpace(containerProps?.Id))
                 throw new ArgumentException($"{nameof(containerProps)} must not be null and must contain an Id.");
@@ -27,7 +32,26 @@ namespace Coomes.Equipper.CosmosStorage
 
             DatabaseID = databaseID;
             _containerProps = containerProps;
-            _cosmosClient = new CosmosClient(connectionString);
+            _cosmosClient = new CosmosClient(connectionString, clientOptions: ClientOptions(disableSSL));
+        }
+
+        internal static CosmosClientOptions ClientOptions(bool disableSSL) {
+            if (disableSSL) {
+                return new CosmosClientOptions(){
+                    HttpClientFactory = () =>
+                    {
+                        HttpMessageHandler httpMessageHandler = new HttpClientHandler()
+                        {
+                            ServerCertificateCustomValidationCallback = (req, cert, chain, errors) => true
+                        };
+
+                        return new HttpClient(httpMessageHandler);
+                    },
+                    ConnectionMode = ConnectionMode.Gateway
+                };
+            }
+
+            return new CosmosClientOptions();
         }
 
         // todo: make internal, for test class only.

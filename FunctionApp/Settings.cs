@@ -14,5 +14,12 @@ namespace Coomes.Equipper.FunctionApp
 
         public static string CosmosConnectionString => 
             Environment.GetEnvironmentVariable("CosmosStorage__ConnectionString");
+
+        public static bool IsDevelopment {
+            get {
+                var setting = Environment.GetEnvironmentVariable("RuntimeEnvironment");
+                return setting == "development"; 
+            }
+        }
     }
 }
