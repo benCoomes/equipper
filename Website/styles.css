@@ -102,6 +102,10 @@
     color: inherit;
 }
 
+.section__link img {
+    height: 16px;
+}
+
 .section__link:hover, .section__link:active {
     color: inherit;
     filter: brightness(var(--active-brightness))

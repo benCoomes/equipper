@@ -45,14 +45,25 @@
     <section id="loginSection" class="section container">
       <h2 id="loginHeader" class="section__header">Log In</h2>
       <p>Sign in with any of the providers below in order to manage your Equipper settings and data.</p>
-      <a id="gitHubLogin" href="#" class="section__link">Sign in with GitHub</a>
-      <a id="aadLogin" href="#" class="section__link">Sign in with Microsoft</a>
-      <a id="twitterLogin" href="#" class="section__link">Sign in with Twitter</a>
+      <a href="/.auth/login/github" class="section__link">
+        <picture>
+          <source srcset="/assets/GitHub-Mark-Light-64px.png" media="(prefers-color-scheme:dark)">
+          <img src="assets/GitHub-Mark-64px.png" alt="GitHub logo">
+        </picture>
+        Sign in with GitHub
+      </a>
+      <a href="/.auth/login/aad" class="section__link">
+        <picture>
+          <img src="assets/ms_logo.svg" alt="Microsoft logo">
+        </picture>
+        Sign in with Microsoft
+      </a>
+      <a href="/.auth/login/twitter" class="section__link">Sign in with Twitter</a>
     </section>
     <section id="userInfoSection" class="section container" >
       <h2 id="userInfoHeader" class="section__header">Welcome Back!</h2>
       <p>You are currently signed in as <span id="usernameDisplay">???</span> through <span id="idProviderDisplay">???</span></p>
-      <a id="logoutLink" href="#" class="section__link">Log Out</a>
+      <a id="logoutLink" href="/.auth/logout" class="section__link">Log Out</a>
     </section>
     <section class="section container">
       <h2 id="connect" class="section__header">Get Started</h2>
@@ -132,17 +143,8 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
   <script>
     var authLink = document.getElementById("authLink");
-    var gitHubLogin = document.getElementById("gitHubLogin");
-    var aadLogin = document.getElementById("aadLogin");
-    var twitterLogin = document.getElementById("twitterLogin");
-    var logoutLink = document.getElementById("logoutLink");
     var host = window.location.host;
-    authLink.setAttribute("href", `https://www.strava.com/oauth/authorize?client_id=12230&response_type=code&redirect_uri=https://${host}/auth&approval_prompt=force&scope=read,activity:read,activity:write`)
-    gitHubLogin.setAttribute("href", `/.auth/login/github?post_login_redirect_uri=https://${host}`);
-    aadLogin.setAttribute("href", `/.auth/login/aad?post_login_redirect_uri=https://${host}`);
-    twitterLogin.setAttribute("href", `/.auth/login/twitter?post_login_redirect_uri=https://${host}`);
-    logoutLink.setAttribute("href", `/.auth/logout?post_logout_redirect_uri=https://${host}`);
-    
+    authLink.setAttribute("href", `https://www.strava.com/oauth/authorize?client_id=12230&response_type=code&redirect_uri=https://${host}/auth&approval_prompt=force&scope=read,activity:read,activity:write`)    
     fetch("/api/activityCount")
     .then(result => {
       if(result.ok) {
