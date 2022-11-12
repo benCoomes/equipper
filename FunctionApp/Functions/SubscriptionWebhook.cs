@@ -15,19 +15,16 @@ namespace Coomes.Equipper.FunctionApp.Functions
 {
     public static class SubscriptionWebhook
     {
-        [FunctionName("SubscriptionWebhook")]
+        [FunctionName("__SubscriptionWebhookPlaceholder__")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
-            // todo: anonymous endpoint - rate limiting? don't trust anything
-            // make sure no activity or athlete information is returned in response.
-            // do not make any changes to athlete data that would allow for abuse by malicious callers
             switch(req.Method)
             {
                 case "GET":
                 {
-                    return await  ConfirmSubscription(req, log);
+                    return await ConfirmSubscription(req, log);
                 }
                 case "POST":
                 {
