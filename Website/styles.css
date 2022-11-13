@@ -2,11 +2,12 @@
     --menu-bg-color: #af322e;
     --menu-color: white;
     --body-bg-color: #fffef9;
+    --body-bg-color-lighter: #ffffff;
     --body-color: #231f24;
     --accent-color: #b8b42d;
     --success-color: #425003;
     --error-color: #8C2724;
-    --active-brightness: .2;
+    --active-brightness: .9;
 }
 
 .equipper {
@@ -95,20 +96,30 @@
 }
 
 .loginList {
-
+    list-style-type: none;
+    padding-inline-start: 10px;
 }
 
 .loginList__item {
     margin-bottom: 10px;
-    min-width: 300px;
+    min-width: 250px;
     text-align: left;
+}
+
+.eq-btn {
     color: var(--body-color);
-    background-color: var(--body-bg-color); 
+    background-color: var(--body-bg-color-lighter);
     border-color: var(--body-color);
 }
 
-.loginList__item img {
-    height: 24px;
+.eq-btn:hover, .eq-btn:active {
+    color: inherit;
+    filter: brightness(var(--active-brightness))
+}
+
+.eq-btn img {
+    width: 24px;
+    margin-right: 12px;
 }
 
 #authSuccessSection {

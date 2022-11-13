@@ -46,31 +46,23 @@
 
     <section id="loginSection" class="section container">
       <h2 id="loginHeader" class="section__header">Log In</h2>
-      <p>Log in with any of the options below to get started.</p>
-      <ul id="loginList">
+      <p>Log in with any of the options below to get started:</p>
+      <ul class="loginList">
         <li>
-          <a href="/.auth/login/github" class="loginList__item section__link btn">
-            <picture>
-              <source srcset="assets/GitHub_Mark_Light_64px.png" media="(prefers-color-scheme:dark)">
-              <img src="assets/GitHub_Mark_64px.png" alt="GitHub logo">
-            </picture>
+          <a href="/.auth/login/github" class="loginList__item btn eq-btn">
+            <img src="assets/GitHub_Mark_64px.png" alt="GitHub logo">
             Sign in with GitHub
           </a>
         </li>
         <li>
-          <a href="/.auth/login/aad" class="loginList__item section__link btn">
-            <picture>
-              <img src="assets/ms_logo.svg" alt="Microsoft logo">
-            </picture>
+          <a href="/.auth/login/aad" class="loginList__item btn eq-btn">
+            <img src="assets/ms_logo.svg" alt="Microsoft logo">
             Sign in with Microsoft
           </a>
         </li>
         <li>
-          <a href="/.auth/login/twitter" class="loginList__item section__link btn">
-            <picture>
-              <source srcset="assets/2021_Twitter_logo_white.png" media="(prefers-color-scheme:dark)">
-              <img src="assets/2021_Twitter_logo_blue.png" alt="Twitter logo">
-            </picture>
+          <a href="/.auth/login/twitter" class="loginList__item btn eq-btn">
+            <img src="assets/2021_Twitter_logo_blue.png" alt="Twitter logo">
             Sign in with Twitter
           </a>
         </li>
@@ -80,7 +72,7 @@
     <section id="userInfoSection" class="section container" >
       <h2 id="userInfoHeader" class="section__header">Welcome Back!</h2>
       <p>You are currently signed in as <span id="usernameDisplay">???</span> through <span id="idProviderDisplay">???</span></p>
-      <a id="logoutLink" href="/.auth/logout" class="section__link">Log Out</a>
+      <a id="logoutLink" href="/.auth/logout" class="btn eq-btn">Log Out</a>
     </section>
     
     <section class="section container">
