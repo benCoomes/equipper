@@ -20,7 +20,8 @@ namespace Coomes.Equipper.FunctionApp
         {
             return await ErrorHandler.RunWithErrorHandling(log, async () => {
                 var correlationID = Guid.NewGuid();
-                log.LogInformation("{function} {status} {cid}", "TokenExchange", "Starting", correlationID.ToString());
+                var user = StaticWebAppsAuth.ParseUser(req);
+                log.LogInformation("{function} {status} {cid} {userId}", "TokenExchange", "Starting", correlationID.ToString(), user.UserId);
 
                 string code = req.Query["_code"]; // see https://github.com/Azure/static-web-apps/issues/165 and auth.html
                 string scopeString = req.Query["scope"];
@@ -30,7 +31,7 @@ namespace Coomes.Equipper.FunctionApp
 
                 var token = await ExecuteTokenExchange(code, scopeString, error, log);
                 
-                log.LogInformation("{function} {status} {cid}", "TokenExchange", "Success", correlationID.ToString());
+                log.LogInformation("{function} {status} {cid} {userId}", "TokenExchange", "Success", correlationID.ToString(), user.UserId);
                 return new OkResult();
             });
         }
