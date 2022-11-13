@@ -1,7 +1,7 @@
 :root {
     --menu-bg-color: #af322e;
     --menu-color: white;
-    --body-bg-color: #fffce8;
+    --body-bg-color: #fffef9;
     --body-color: #231f24;
     --accent-color: #b8b42d;
     --success-color: #425003;
@@ -9,24 +9,11 @@
     --active-brightness: .2;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --menu-bg-color: #af322e;
-        --menu-color: white;
-        --body-bg-color: #231f24;
-        --body-color:  #fffce8;
-        --accent-color: #425003;
-        --success-color: #f5f294;
-        --error-color: #ffa3a0;
-        --active-brightness: 5;
-    }
-}
-
 .equipper {
     background-color: var(--body-bg-color);
     color: var(--body-color);
     font-size: 1.2rem;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: "Arial", "Helvetica", sans-serif
 }
 
 .mainHeader {
@@ -53,6 +40,7 @@
 .brand__title {
     color: var(--menu-color);
     font-size: 3rem;
+    font-family: Courier, 'Courier New', monospace; 
 }
 
 .brand__logo { 
