@@ -35,6 +35,7 @@
         </a>
       </div>
     </header>
+    
     <section class="section container">
       <h2 id="about" class="section__header">What is Equipper?</h2>
       <p>
@@ -42,29 +43,46 @@
         It works by picking the bike that was used most often on previous rides similar to your latest ride. It has processed <span id="activityCount">???</span> activities so far!
       </p>
     </section>
+
     <section id="loginSection" class="section container">
       <h2 id="loginHeader" class="section__header">Log In</h2>
-      <p>Sign in with any of the providers below in order to manage your Equipper settings and data.</p>
-      <a href="/.auth/login/github" class="section__link">
-        <picture>
-          <source srcset="/assets/GitHub-Mark-Light-64px.png" media="(prefers-color-scheme:dark)">
-          <img src="assets/GitHub-Mark-64px.png" alt="GitHub logo">
-        </picture>
-        Sign in with GitHub
-      </a>
-      <a href="/.auth/login/aad" class="section__link">
-        <picture>
-          <img src="assets/ms_logo.svg" alt="Microsoft logo">
-        </picture>
-        Sign in with Microsoft
-      </a>
-      <a href="/.auth/login/twitter" class="section__link">Sign in with Twitter</a>
+      <p>Log in with any of the options below to get started.</p>
+      <ul id="loginList">
+        <li>
+          <a href="/.auth/login/github" class="loginList__item section__link btn">
+            <picture>
+              <source srcset="assets/GitHub_Mark_Light_64px.png" media="(prefers-color-scheme:dark)">
+              <img src="assets/GitHub_Mark_64px.png" alt="GitHub logo">
+            </picture>
+            Sign in with GitHub
+          </a>
+        </li>
+        <li>
+          <a href="/.auth/login/aad" class="loginList__item section__link btn">
+            <picture>
+              <img src="assets/ms_logo.svg" alt="Microsoft logo">
+            </picture>
+            Sign in with Microsoft
+          </a>
+        </li>
+        <li>
+          <a href="/.auth/login/twitter" class="loginList__item section__link btn">
+            <picture>
+              <source srcset="assets/2021_Twitter_logo_white.png" media="(prefers-color-scheme:dark)">
+              <img src="assets/2021_Twitter_logo_blue.png" alt="Twitter logo">
+            </picture>
+            Sign in with Twitter
+          </a>
+        </li>
+      </ul>
     </section>
+    
     <section id="userInfoSection" class="section container" >
       <h2 id="userInfoHeader" class="section__header">Welcome Back!</h2>
       <p>You are currently signed in as <span id="usernameDisplay">???</span> through <span id="idProviderDisplay">???</span></p>
       <a id="logoutLink" href="/.auth/logout" class="section__link">Log Out</a>
     </section>
+    
     <section class="section container">
       <h2 id="connect" class="section__header">Get Started</h2>
       <p>
@@ -88,6 +106,7 @@
         </svg>
       </a>
     </section>
+    
     <section class="section container">
       <h2 id="unsubscribe" class="section__header">Unsubscribe</h2>
       <p>
@@ -96,6 +115,7 @@
         Once you revoke access, Equipper will delete any of your data which it has stored. You may always reconnect Equipper later if you choose.
       </p>
     </section>
+    
     <section class="section container">
       <h2 id="contact" class="section__header">Contact & Support</h2>
       <p>
@@ -104,6 +124,7 @@
         If you'd like to contribute yourself, Equipper is open source. Check it out on <a class="section__link" href="https://github.com/benCoomes/equipper">GitHub</a>!
       </p>
     </section>
+    
     <section class="section container">
       <h2 id="privacy-policy" class="section__header">Privacy Policy</h2>
       <p>

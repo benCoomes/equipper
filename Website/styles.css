@@ -85,7 +85,6 @@
     }
 }
 
-
 .section--success {
     color: var(--success-color);
     animation-duration: 1.5s;
@@ -98,19 +97,6 @@
     animation-name: section-fade-in;
 }
 
-.section__link {
-    color: inherit;
-}
-
-.section__link img {
-    height: 16px;
-}
-
-.section__link:hover, .section__link:active {
-    color: inherit;
-    filter: brightness(var(--active-brightness))
-}
-
 .section__header {
     font-weight: bold;
 }
@@ -118,6 +104,23 @@
 .section__subheader {
     font-size: 1.3rem;
     font-weight: bold;
+}
+
+.loginList {
+
+}
+
+.loginList__item {
+    margin-bottom: 10px;
+    min-width: 300px;
+    text-align: left;
+    color: var(--body-color);
+    background-color: var(--body-bg-color); 
+    border-color: var(--body-color);
+}
+
+.loginList__item img {
+    height: 24px;
 }
 
 #authSuccessSection {
