@@ -157,7 +157,8 @@
   <script>
     var authLink = document.getElementById("authLink");
     var host = window.location.host;
-    authLink.setAttribute("href", `https://www.strava.com/oauth/authorize?client_id=12230&response_type=code&redirect_uri=https://${host}/auth&approval_prompt=force&scope=read,activity:read,activity:write`)    
+    var protocol = window.location.protocol;
+    authLink.setAttribute("href", `https://www.strava.com/oauth/authorize?client_id=12230&response_type=code&redirect_uri=${protocol}//${host}/auth&approval_prompt=force&scope=read,activity:read,activity:write`)    
     fetch("/api/activityCount")
     .then(result => {
       if(result.ok) {
