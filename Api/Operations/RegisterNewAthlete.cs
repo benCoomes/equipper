@@ -16,8 +16,12 @@ namespace Coomes.Equipper.Operations
             _logger = logger;
         }
 
-        public async Task<string> Execute(string authCode, AuthScopes scopes, string error) 
+        public async Task<string> Execute(string authCode, AuthScopes scopes, EquipperUser user, string error) 
         {
+            if(user == null || !user.Authenticated) {
+                throw new NotAuthorizedException();
+            }
+
             if(!string.IsNullOrWhiteSpace(error))
             {
                 _logger.LogError("Error returned from authorization: {authError}", error);
