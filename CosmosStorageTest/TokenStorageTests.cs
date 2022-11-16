@@ -16,10 +16,11 @@ namespace Coomes.Equipper.CosmosStorage.Test
             var athleteID = 1234;
             var expectedTokens = new Domain.AthleteTokens()
             {
+                UserID = "abcd1234",
                 AccessToken = "accessToken",
                 RefreshToken = "refreshToken",
                 AthleteID = 1234,
-                ExpiresAtUtc = DateTime.UtcNow.AddHours(4)
+                ExpiresAtUtc = DateTime.UtcNow.AddHours(4),
             };
 
             var containerName = nameof(TokenStorage_AddOrUpdate_AddsNewTokens);
@@ -35,6 +36,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
             beforeAdd.Should().BeNull();
             afterAdd.Should().NotBeNull();
             
+            afterAdd.UserID.Should().Be(expectedTokens.UserID);
             afterAdd.AccessToken.Should().Be(expectedTokens.AccessToken);
             afterAdd.RefreshToken.Should().Be(expectedTokens.RefreshToken);
             afterAdd.AthleteID.Should().Be(expectedTokens.AthleteID);
@@ -48,6 +50,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
             var athleteID = 1234;
             var originalTokens = new Domain.AthleteTokens()
             {
+                UserID = "originalUserID",
                 AccessToken = "ogAccessToken",
                 RefreshToken = "ogRefreshToken",
                 AthleteID = 1234,
@@ -55,6 +58,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
             };
             var updatedTokens = new Domain.AthleteTokens()
             {
+                UserID = "newUserID", // changing the UserID is possible but should _never_ be done. This must be protected against in domain code.
                 AccessToken = "newAccessToken",
                 RefreshToken = null, // null values still overwrite existing value
                 AthleteID = 1234,
@@ -74,8 +78,10 @@ namespace Coomes.Equipper.CosmosStorage.Test
 
             // then
             beforeOriginal.Should().BeNull();
+            afterOriginal.UserID.Should().Be(originalTokens.UserID);
             afterOriginal.AccessToken.Should().Be(originalTokens.AccessToken);
             afterOriginal.RefreshToken.Should().Be(originalTokens.RefreshToken);
+            afterUpdate.UserID.Should().Be(updatedTokens.UserID);
             afterUpdate.AccessToken.Should().Be(updatedTokens.AccessToken);
             afterUpdate.RefreshToken.Should().Be(updatedTokens.RefreshToken);
         }
@@ -87,6 +93,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
             var athleteID = 1234;
             var existingTokens = new Domain.AthleteTokens()
             {
+                UserID = "User5678",
                 AccessToken = "accessToken",
                 RefreshToken = "refreshToken",
                 AthleteID = athleteID,
