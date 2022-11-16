@@ -1,3 +1,3 @@
 * When authorizing with Strava
-  * only complete if logged in
-  * Store SWA id with token information - use to lookup Strava account when logged in
+  * decide on multiple athletes per user and implement
+  * Check on other places where tokens can be updated to ensure they don't incorrectly change userID

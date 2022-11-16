@@ -35,6 +35,16 @@ namespace Coomes.Equipper.Operations
             }
 
             var athleteTokens = await _tokenProvider.GetToken(authCode);
+            
+            var existingTokenForAthlete = await _tokenStorage.GetTokens(athleteTokens.AthleteID);
+            if(existingTokenForAthlete?.UserID != null && existingTokenForAthlete.UserID != user.UserId) {
+                throw new BadRequestException("Athlete is already associated to an existing Equipper account.");
+            }
+
+            // TODO: Do not check if user is associated to other athletes?
+            // Do we supported a single Equipper user to have multiple linked Strava accounts?
+            // See https://github.com/benCoomes/equipper/issues/46
+
             await _tokenStorage.AddOrUpdateTokens(athleteTokens);
             return athleteTokens.AccessToken;
         }
