@@ -78,6 +78,90 @@ namespace Coomes.Equipper.UnitTest
         }
 
         [TestMethod]
+        public async Task RegisterNewAthlete_ThrowsBadRequest_ForUserWithDifferentAthleteRegistration() 
+        {
+            // given
+            var user = new LoggedInUser("user", "User Name");
+            var authCode = "someAuthCode";
+            var existingAthleteID = 1234;
+            var newAthleteID = 5678;
+            var stravaTokens = new AthleteTokens()
+            {
+                AthleteID = newAthleteID
+            };
+            var existingTokens = new AthleteTokens()
+            {
+                UserID = user.UserId,
+                AthleteID = existingAthleteID
+            };
+
+            var tokenProviderMock = new Mock<ITokenProvider>();
+            tokenProviderMock
+                .Setup(tp => tp.GetToken(authCode))
+                .ReturnsAsync(stravaTokens);
+            var tokenStorageMock = new Mock<ITokenStorage>();
+            tokenStorageMock
+                .Setup(ts => ts.GetTokenForUser(user.UserId))
+                .ReturnsAsync(existingTokens);
+            tokenStorageMock
+                .Setup(ts => ts.GetTokens(newAthleteID))
+                .Returns(Task.FromResult<AthleteTokens>(null));
+            tokenStorageMock
+                .Setup(ts => ts.AddOrUpdateTokens(stravaTokens));
+
+            var sut = new RegisterNewAthlete(tokenProviderMock.Object, tokenStorageMock.Object, Mock.Of<ILogger>());
+
+            // when
+            Func<Task> tryRegister = () => sut.Execute(authCode, _validAuthScopes, user, error: null);
+
+            // then
+            await tryRegister.Should().ThrowAsync<BadRequestException>();
+            tokenStorageMock.Verify(ts => ts.AddOrUpdateTokens(It.IsAny<AthleteTokens>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task RegisterNewAthlete_UpdatesTokens_ForUserWithSameAthleteRegistration() 
+        {
+            // given
+            var user = new LoggedInUser("user", "User Name");
+            var authCode = "someAuthCode";
+            var athleteID = 1234;
+            var stravaTokens = new AthleteTokens()
+            {
+                AthleteID = athleteID,
+                AccessToken = "brandNewAccessToken"
+            };
+            var existingTokens = new AthleteTokens()
+            {
+                UserID = user.UserId,
+                AthleteID = athleteID
+            };
+
+            var tokenProviderMock = new Mock<ITokenProvider>();
+            tokenProviderMock
+                .Setup(tp => tp.GetToken(authCode))
+                .ReturnsAsync(stravaTokens);
+            var tokenStorageMock = new Mock<ITokenStorage>();
+            tokenStorageMock
+                .Setup(ts => ts.GetTokenForUser(user.UserId))
+                .ReturnsAsync(existingTokens);
+            tokenStorageMock
+                .Setup(ts => ts.GetTokens(athleteID))
+                .ReturnsAsync(existingTokens);
+            tokenStorageMock
+                .Setup(ts => ts.AddOrUpdateTokens(stravaTokens));
+
+            var sut = new RegisterNewAthlete(tokenProviderMock.Object, tokenStorageMock.Object, Mock.Of<ILogger>());
+
+            // when
+            var storedToken = await sut.Execute(authCode, _validAuthScopes, user, error: null);
+
+            // then
+            storedToken.Should().Be(stravaTokens.AccessToken);
+            tokenStorageMock.Verify(ts => ts.AddOrUpdateTokens(stravaTokens), Times.Once);
+        }
+
+        [TestMethod]
         public async Task RegisterNewAthlete_ThrowsBadRequest_ForExistingAthlete_RegisteredToDifferentUser() 
         {
             // given

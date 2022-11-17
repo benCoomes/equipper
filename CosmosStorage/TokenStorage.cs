@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using Coomes.Equipper.Contracts;
 using Microsoft.Azure.Cosmos;
@@ -44,6 +45,11 @@ namespace Coomes.Equipper.CosmosStorage
             {
                 return null;
             }
+        }
+
+        public Task<Domain.AthleteTokens> GetTokenForUser(string userID) 
+        {
+            throw new NotImplementedException();
         }
 
         public async Task DeleteTokens(long athleteID)
