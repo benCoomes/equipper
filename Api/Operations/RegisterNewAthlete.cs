@@ -49,7 +49,7 @@ namespace Coomes.Equipper.Operations
                 throw new BadRequestException("Athlete is already associated to an existing Equipper account.");
             }
 
-
+            athleteTokens.UserID = user.UserId;
             await _tokenStorage.AddOrUpdateTokens(athleteTokens);
             return athleteTokens.AccessToken;
         }

@@ -23,24 +23,28 @@ namespace Coomes.Equipper.UnitTest
         public async Task RegisterNewAthlete_ExchangesAuthCodeAndStoresTokens() 
         {
             // given
-            var user = new LoggedInUser("1234", "User1234");
+            var user = new LoggedInUser("5678", "User5678");
+            var storedTokens = default(AthleteTokens);
             var expectedCode = "expectedCode";
-            var expectedTokens = new AthleteTokens()
+            var expiresAt = DateTime.UtcNow.AddHours(4);
+            var stravaTokens = new AthleteTokens()
             {
+                UserID = null, // Strava response does not include UserID, which comes from SWA authentication
                 AthleteID = 1234,
                 AccessToken = "expectedAccessToken",
                 RefreshToken = "expectedRefreshToken",
-                ExpiresAtUtc = DateTime.UtcNow.AddHours(4)
+                ExpiresAtUtc = expiresAt
             };
 
             var tokenProviderMock = new Mock<ITokenProvider>();
             tokenProviderMock
                 .Setup(tp => tp.GetToken(expectedCode))
-                .ReturnsAsync(expectedTokens);
+                .ReturnsAsync(stravaTokens);
 
             var tokenStorageMock = new Mock<ITokenStorage>();
             tokenStorageMock
-                .Setup(ts => ts.AddOrUpdateTokens(expectedTokens));
+                .Setup(ts => ts.AddOrUpdateTokens(It.IsAny<AthleteTokens>()))
+                .Callback<AthleteTokens>(tokens => storedTokens = tokens);
             
             var loggerMock = new Mock<ILogger>();
 
@@ -54,9 +58,14 @@ namespace Coomes.Equipper.UnitTest
                 tp => tp.GetToken(expectedCode), 
                 Times.Once);
             tokenStorageMock.Verify(
-                ts => ts.AddOrUpdateTokens(expectedTokens),
+                ts => ts.AddOrUpdateTokens(It.IsAny<AthleteTokens>()),
                 Times.Once
             );
+            storedTokens.AccessToken.Should().Be("expectedAccessToken");
+            storedTokens.RefreshToken.Should().Be("expectedRefreshToken");
+            storedTokens.AthleteID.Should().Be(1234);
+            storedTokens.ExpiresAtUtc.Should().Be(expiresAt);
+            storedTokens.UserID.Should().Be(user.UserId);
         }
 
         [TestMethod]
