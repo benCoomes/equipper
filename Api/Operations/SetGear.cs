@@ -99,6 +99,7 @@ namespace Coomes.Equipper.Operations
             if (refreshAt < now)
             {
                 var newTokens = await _tokenProvider.RefreshToken(athleteTokens);
+                newTokens.UserID = athleteTokens.UserID;
                 await _tokenStorage.AddOrUpdateTokens(newTokens); // todo: concurrent updates?? take latest expire time?
                 athleteTokens = newTokens;
             }
