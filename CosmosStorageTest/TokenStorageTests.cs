@@ -29,15 +29,14 @@ namespace Coomes.Equipper.CosmosStorage.Test
             return _sutInitTask;
         }
 
-
         [TestMethod]
         public async Task TokenStorage_AddOrUpdate_AddsNewTokens()
         {
             // given 
-            var athleteID = _rand.Next();
+            var athleteID = _rand.NextInt64();
             var expectedTokens = new Domain.AthleteTokens()
             {
-                UserID = "abcd1234",
+                UserID = Guid.NewGuid().ToString(),
                 AccessToken = "accessToken",
                 RefreshToken = "refreshToken",
                 AthleteID = athleteID,
@@ -66,7 +65,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
         public async Task TokenStorage_AddOrUpdate_UpdatesExistingTokens()
         {
             // given 
-            var athleteID = _rand.Next();
+            var athleteID = _rand.NextInt64();
             var originalTokens = new Domain.AthleteTokens()
             {
                 UserID = "originalUserID",
@@ -102,15 +101,46 @@ namespace Coomes.Equipper.CosmosStorage.Test
             afterUpdate.AccessToken.Should().Be(updatedTokens.AccessToken);
             afterUpdate.RefreshToken.Should().Be(updatedTokens.RefreshToken);
         }
+
+        [TestMethod]
+        public async Task TokenStorage_GetTokenForUser_GetsCorrectTokens() 
+        {
+            // given
+            var storedTokens = new Domain.AthleteTokens() {
+                AthleteID = _rand.NextInt64(),
+                UserID = Guid.NewGuid().ToString(),
+                AccessToken = "accessToken",
+                RefreshToken = "refreshToken"
+            };
+
+            var sut = await GetSut();
+
+            // when
+            await sut.AddOrUpdateTokens(new Domain.AthleteTokens{
+                AthleteID = _rand.NextInt64(),
+                UserID = Guid.NewGuid().ToString(),
+                AccessToken = "random seeded user"
+            });
+            var beforeAdd = await sut.GetTokenForUser(storedTokens.UserID);
+            await sut.AddOrUpdateTokens(storedTokens);
+            var afterAdd = await sut.GetTokenForUser(storedTokens.UserID);
+
+            // then
+            beforeAdd.Should().BeNull();
+            afterAdd.UserID.Should().Be(storedTokens.UserID);
+            afterAdd.AthleteID.Should().Be(storedTokens.AthleteID);
+            afterAdd.AccessToken.Should().Be(storedTokens.AccessToken);
+            afterAdd.RefreshToken.Should().Be(storedTokens.RefreshToken);
+        }
     
         [TestMethod]
         public async Task TokenStorage_Delete_RemovesTokens()
         {
             // given 
-            var athleteID = _rand.Next();
+            var athleteID = _rand.NextInt64();
             var existingTokens = new Domain.AthleteTokens()
             {
-                UserID = "User5678",
+                UserID = Guid.NewGuid().ToString(),
                 AccessToken = "accessToken",
                 RefreshToken = "refreshToken",
                 AthleteID = athleteID,
@@ -134,7 +164,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
         public async Task TokenStorage_Delete_ThrowsWhenTokensDoNotExist()
         {
             // given 
-            var athleteID = _rand.Next();
+            var athleteID = _rand.NextInt64();
 
             var sut = await GetSut();
 

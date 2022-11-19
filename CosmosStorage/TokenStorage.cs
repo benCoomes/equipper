@@ -1,8 +1,9 @@
-﻿using System;
+﻿using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Coomes.Equipper.Contracts;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using Domain = Coomes.Equipper;
 
 namespace Coomes.Equipper.CosmosStorage
@@ -47,9 +48,19 @@ namespace Coomes.Equipper.CosmosStorage
             }
         }
 
-        public Task<Domain.AthleteTokens> GetTokenForUser(string userID) 
+        public async Task<Domain.AthleteTokens> GetTokenForUser(string userID) 
         {
-            throw new NotImplementedException();
+            await EnsureInitialized();
+
+            var query = _container
+                .GetItemLinqQueryable<AthleteTokens>()
+                .Where(at => at.UserID == userID);
+            
+            using(var iterator = query.ToFeedIterator()) {
+                var result = await iterator.ReadNextAsync();
+                var tokens = result.Resource.FirstOrDefault();
+                return tokens?.ToDomainModel() ?? default(Domain.AthleteTokens);
+            }
         }
 
         public async Task DeleteTokens(long athleteID)
