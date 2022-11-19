@@ -62,6 +62,40 @@ namespace Coomes.Equipper.CosmosStorage.Test
         }
 
         [TestMethod]
+        public async Task TokenStorage_AddOrUpdate_ThrowsIfMissingUserIDOrActorID()
+        {
+            // given 
+            var athleteID = _rand.NextInt64();
+            var missingUser = new Domain.AthleteTokens()
+            {
+                UserID = null,
+                AthleteID = athleteID,
+            };
+            var missingAthlete = new Domain.AthleteTokens()
+            {
+                UserID = Guid.NewGuid().ToString(),
+                AthleteID = 0,
+            };
+            var missingBoth = new Domain.AthleteTokens()
+            {
+                UserID = null,
+                AthleteID = 0,
+            };
+
+            var sut = await GetSut();
+            
+            // when
+            Func<Task> tryMissingUser = () =>  sut.AddOrUpdateTokens(missingUser);
+            Func<Task> tryMissingAthlete = () =>  sut.AddOrUpdateTokens(missingAthlete);
+            Func<Task> tryMissingBoth = () =>  sut.AddOrUpdateTokens(missingBoth);
+
+            // then
+            await tryMissingUser.Should().ThrowAsync<InvalidOperationException>();
+            await tryMissingUser.Should().ThrowAsync<InvalidOperationException>();
+            await tryMissingUser.Should().ThrowAsync<InvalidOperationException>();
+        }
+
+        [TestMethod]
         public async Task TokenStorage_AddOrUpdate_UpdatesExistingTokens()
         {
             // given 

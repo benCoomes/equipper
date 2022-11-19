@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Coomes.Equipper.Contracts;
@@ -23,6 +24,10 @@ namespace Coomes.Equipper.CosmosStorage
 
         public async Task AddOrUpdateTokens(Domain.AthleteTokens athleteTokens)
         {
+            if(!athleteTokens.IsValid()) {
+                throw new InvalidOperationException("Athlete tokens are not valid.");
+            }
+
             await EnsureInitialized();
             
             var dataModel = new AthleteTokens(athleteTokens);

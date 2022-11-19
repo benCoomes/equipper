@@ -11,5 +11,10 @@ namespace Coomes.Equipper
         public DateTime ExpiresAtUtc { get; set; }
         public string RefreshToken { get; set; }
         public string AccessToken { get; set; }
+
+        public bool IsValid() 
+        {
+            return AthleteID != 0 && !string.IsNullOrWhiteSpace(UserID);
+        }
     }
 }
