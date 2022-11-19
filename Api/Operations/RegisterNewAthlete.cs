@@ -20,7 +20,7 @@ namespace Coomes.Equipper.Operations
         {
             if(user == null || !user.Authenticated) 
             {
-                throw new NotAuthorizedException();
+                throw new UnauthorizedException();
             }
 
             if(!string.IsNullOrWhiteSpace(error))

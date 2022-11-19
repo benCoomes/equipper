@@ -82,8 +82,8 @@ namespace Coomes.Equipper.UnitTest
             Func<Task> tryNullUser = () => sut.Execute(authCode, _validAuthScopes, anonUser, error: null);
             
             // then
-            await tryAnonUser.Should().ThrowAsync<NotAuthorizedException>();
-            await tryNullUser.Should().ThrowAsync<NotAuthorizedException>();
+            await tryAnonUser.Should().ThrowAsync<UnauthorizedException>();
+            await tryNullUser.Should().ThrowAsync<UnauthorizedException>();
         }
 
         [TestMethod]
