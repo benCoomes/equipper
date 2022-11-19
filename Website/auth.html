@@ -94,6 +94,11 @@
             case "auth_error":
               errorHelp.innerText = "It looks like you didn't grant Equipper access to your Strava account. Equipper needs this access to function."              
               break;
+            case "existing_strava_account":
+              errorHelp.innerText = "It looks like you have already linked a Strava account to Equipper. Remove Equipper from your other Strava account, or sign in with a different profile to link this Strava account."
+              break;
+            case "existing_equipper_account":
+              errorHelp.innerText = "It looks like your Strava account is already associated to a different Equipper account. Try signing in to Equipper with your other account to access your profile."
           }
           document.getElementById("authPendingSection").style.display = "none";
           document.getElementById("authErrorSection").style.display = "block";

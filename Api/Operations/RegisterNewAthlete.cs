@@ -40,13 +40,13 @@ namespace Coomes.Equipper.Operations
             var existingUserToken = await _tokenStorage.GetTokenForUser(user.UserId);
             if(existingUserToken != null && existingUserToken.AthleteID != athleteTokens.AthleteID) 
             {
-                throw new BadRequestException("User already has a linked Strava account");
+                throw new BadRequestException("existing_strava_account"); // User already has a linked Strava account
             }
             
             var existingTokenForAthlete = await _tokenStorage.GetTokens(athleteTokens.AthleteID);
             if(existingTokenForAthlete?.UserID != null && existingTokenForAthlete.UserID != user.UserId) 
             {
-                throw new BadRequestException("Athlete is already associated to an existing Equipper account.");
+                throw new BadRequestException("existing_equipper_account"); // Athlete is already associated to an existing Equipper account.
             }
 
             athleteTokens.UserID = user.UserId;

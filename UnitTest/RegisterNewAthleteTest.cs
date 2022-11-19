@@ -124,7 +124,9 @@ namespace Coomes.Equipper.UnitTest
             Func<Task> tryRegister = () => sut.Execute(authCode, _validAuthScopes, user, error: null);
 
             // then
-            await tryRegister.Should().ThrowAsync<BadRequestException>();
+            await tryRegister.Should()
+                .ThrowAsync<BadRequestException>()
+                .Where(e => e.Message == "existing_strava_account");;
             tokenStorageMock.Verify(ts => ts.AddOrUpdateTokens(It.IsAny<AthleteTokens>()), Times.Never);
         }
 
@@ -205,7 +207,9 @@ namespace Coomes.Equipper.UnitTest
             Func<Task> tryUpdate = () => sut.Execute(authCode, _validAuthScopes, user, error: null);
 
             // then
-            await tryUpdate.Should().ThrowAsync<BadRequestException>();
+            await tryUpdate.Should()
+                .ThrowAsync<BadRequestException>()
+                .Where(e => e.Message == "existing_equipper_account");
             tokenStorageMock.Verify(
                 ts => ts.AddOrUpdateTokens(It.IsAny<AthleteTokens>()),
                 Times.Never
