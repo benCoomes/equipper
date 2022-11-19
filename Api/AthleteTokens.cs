@@ -14,7 +14,9 @@ namespace Coomes.Equipper
 
         public bool IsValid() 
         {
-            return AthleteID != 0 && !string.IsNullOrWhiteSpace(UserID);
+            // todo: check UserID as well. Right now, existing tokens in prod don't have a user ID.
+            // because they were created before authentication was implemented.
+            return AthleteID != 0; // && !string.IsNullOrWhiteSpace(UserID);
         }
     }
 }

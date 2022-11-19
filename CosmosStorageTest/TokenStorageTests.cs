@@ -62,7 +62,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
         }
 
         [TestMethod]
-        public async Task TokenStorage_AddOrUpdate_ThrowsIfMissingUserIDOrActorID()
+        public async Task TokenStorage_AddOrUpdate_ThrowsIfMissingActorID()
         {
             // given 
             var athleteID = _rand.NextInt64();
@@ -90,9 +90,11 @@ namespace Coomes.Equipper.CosmosStorage.Test
             Func<Task> tryMissingBoth = () =>  sut.AddOrUpdateTokens(missingBoth);
 
             // then
-            await tryMissingUser.Should().ThrowAsync<InvalidOperationException>();
-            await tryMissingUser.Should().ThrowAsync<InvalidOperationException>();
-            await tryMissingUser.Should().ThrowAsync<InvalidOperationException>();
+            await tryMissingAthlete.Should().ThrowAsync<InvalidOperationException>();
+            await tryMissingBoth.Should().ThrowAsync<InvalidOperationException>();
+            // todo: check UserID as well. Right now, existing tokens in prod don't have a user ID.
+            // because they were created before authentication was implemented.
+            await tryMissingUser.Should().NotThrowAsync(); 
         }
 
         [TestMethod]
