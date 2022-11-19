@@ -48,7 +48,7 @@ namespace Coomes.Equipper.Operations
             var newActivity = activities.SingleOrDefault(a => a.Id == activityID);
             if (newActivity == null)
             {
-                throw new SetGearException("The triggering activity was not in the most reccent activities");
+                throw new SetGearException("The triggering activity was not in the most recent activities");
             }
             
             var otherActivities = activities.Where(a => a.Id != activityID && !string.IsNullOrWhiteSpace(a.GearId)).ToList();
