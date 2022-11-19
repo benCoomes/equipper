@@ -9,23 +9,42 @@ namespace Coomes.Equipper.CosmosStorage.Test
     [TestClass]
     public class TokenStorageTests
     {
+        private static Random _rand = new Random(); 
+        private static Task<TokenStorage> _sutInitTask;
+
+        [ClassInitialize]
+        public static void TestClassSetup(TestContext _)
+        {
+            var sut = new TokenStorage(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, TestConstants.TokenContainerName);
+            Func<Task<TokenStorage>> sutInit = async () => {
+                await sut.EnsureDeleted();
+                await sut.GetTokens(_rand.NextInt64());
+                return sut;
+            };
+            _sutInitTask = sutInit();
+        }
+
+        private static Task<TokenStorage> GetSut() 
+        {
+            return _sutInitTask;
+        }
+
+
         [TestMethod]
         public async Task TokenStorage_AddOrUpdate_AddsNewTokens()
         {
             // given 
-            var athleteID = 1234;
+            var athleteID = _rand.Next();
             var expectedTokens = new Domain.AthleteTokens()
             {
                 UserID = "abcd1234",
                 AccessToken = "accessToken",
                 RefreshToken = "refreshToken",
-                AthleteID = 1234,
+                AthleteID = athleteID,
                 ExpiresAtUtc = DateTime.UtcNow.AddHours(4),
             };
 
-            var containerName = nameof(TokenStorage_AddOrUpdate_AddsNewTokens);
-            var sut = new TokenStorage(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
-            await sut.EnsureDeleted();
+            var sut = await GetSut();
 
             // when
             var beforeAdd = await sut.GetTokens(athleteID);
@@ -47,13 +66,13 @@ namespace Coomes.Equipper.CosmosStorage.Test
         public async Task TokenStorage_AddOrUpdate_UpdatesExistingTokens()
         {
             // given 
-            var athleteID = 1234;
+            var athleteID = _rand.Next();
             var originalTokens = new Domain.AthleteTokens()
             {
                 UserID = "originalUserID",
                 AccessToken = "ogAccessToken",
                 RefreshToken = "ogRefreshToken",
-                AthleteID = 1234,
+                AthleteID = athleteID,
                 ExpiresAtUtc = DateTime.Parse("2021-02-03 13:14:15").ToUniversalTime()
             };
             var updatedTokens = new Domain.AthleteTokens()
@@ -61,13 +80,11 @@ namespace Coomes.Equipper.CosmosStorage.Test
                 UserID = "newUserID", // changing the UserID is possible but should _never_ be done. This must be protected against in domain code.
                 AccessToken = "newAccessToken",
                 RefreshToken = null, // null values still overwrite existing value
-                AthleteID = 1234,
+                AthleteID = athleteID,
                 ExpiresAtUtc = DateTime.Parse("2021-02-04 14:15:16").ToUniversalTime()
             };
 
-            var containerName = nameof(TokenStorage_AddOrUpdate_UpdatesExistingTokens);
-            var sut = new TokenStorage(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
-            await sut.EnsureDeleted();
+            var sut = await GetSut();
 
             // when
             var beforeOriginal = await sut.GetTokens(athleteID);
@@ -90,7 +107,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
         public async Task TokenStorage_Delete_RemovesTokens()
         {
             // given 
-            var athleteID = 1234;
+            var athleteID = _rand.Next();
             var existingTokens = new Domain.AthleteTokens()
             {
                 UserID = "User5678",
@@ -100,9 +117,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
                 ExpiresAtUtc = DateTime.UtcNow.AddHours(4)
             };
 
-            var containerName = nameof(TokenStorage_Delete_RemovesTokens);
-            var sut = new TokenStorage(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
-            await sut.EnsureDeleted();
+            var sut = await GetSut();
 
             // when
             await sut.AddOrUpdateTokens(existingTokens);
@@ -119,11 +134,9 @@ namespace Coomes.Equipper.CosmosStorage.Test
         public async Task TokenStorage_Delete_ThrowsWhenTokensDoNotExist()
         {
             // given 
-            var athleteID = 1234;
+            var athleteID = _rand.Next();
 
-            var containerName = nameof(TokenStorage_Delete_ThrowsWhenTokensDoNotExist);
-            var sut = new TokenStorage(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
-            await sut.EnsureDeleted();
+            var sut = await GetSut();
 
             // when
             var beforeDelete = await sut.GetTokens(athleteID);

@@ -10,14 +10,35 @@ namespace Coomes.Equipper.CosmosStorage.Test
     [TestClass]
     public class ActivityStorageTests
     {
+        private static Random _rand = new Random(); 
+        private static Task<ActivityStorage> _sutInitTask;
+
+        [ClassInitialize]
+        public static void TestClassSetup(TestContext _)
+        {
+            var sut = new ActivityStorage(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, TestConstants.ActivityContainerName);
+            Func<Task<ActivityStorage>> sutInit = async () => {
+                await sut.EnsureDeleted();
+                await sut.GetClassificationStats(Guid.NewGuid(), _rand.NextInt64());
+                return sut;
+            };
+            _sutInitTask = sutInit();
+        }
+
+        private static Task<ActivityStorage> GetSut() 
+        {
+            return _sutInitTask;
+        }
+
+
         [TestMethod]
         public async Task ActivityStorage_RecordsActivityResults()
         {
             // given 
             var activity = new Domain.Activity()
             {
-                Id = 12345,
-                AthleteId = 1,
+                Id = _rand.NextInt64(),
+                AthleteId = _rand.Next(),
                 GearId = "b100"
             };
             var cv1 = new Domain.CrossValidationResult()
@@ -42,9 +63,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
                 }
             };
 
-            var containerName = nameof(ActivityStorage_RecordsActivityResults);
-            var sut = new ActivityStorage(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
-            await sut.EnsureDeleted();
+            var sut = await GetSut();
 
             // when
             var beforeAdd = await sut.GetClassificationStats(classificationStats.Id, activity.AthleteId);
@@ -66,8 +85,8 @@ namespace Coomes.Equipper.CosmosStorage.Test
             // given 
             var activity = new Domain.Activity()
             {
-                Id = 12345,
-                AthleteId = 1,
+                Id = _rand.NextInt64(),
+                AthleteId = _rand.Next(),
                 GearId = "b100"
             };
             var classificationStats = new Domain.ClassificationStats()
@@ -84,9 +103,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
                 }
             };
 
-            var containerName = nameof(ActivityStorage_ChecksIfActivityHasResults);
-            var sut = new ActivityStorage(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
-            await sut.EnsureDeleted();
+            var sut = await GetSut();
 
             // when
             var beforeAdd = await sut.ContainsResults(activity.AthleteId, activity.Id);
@@ -104,8 +121,8 @@ namespace Coomes.Equipper.CosmosStorage.Test
             // given
             var originalActivity = new Domain.Activity()
             {
-                Id = 12345,
-                AthleteId = 1,
+                Id = _rand.NextInt64(),
+                AthleteId = _rand.Next(),
                 GearId = "b100"
             };
             var updatedActivity = new Domain.Activity()
@@ -141,9 +158,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
                 }
             };
 
-            var containerName = nameof(ActivityStorage_DoesNothingWhenActivityAlreadyRecorded);
-            var sut = new ActivityStorage(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
-            await sut.EnsureDeleted();
+            var sut = await GetSut();
 
             // when
             await sut.StoreActivityResults(originalActivity, originalClassStats);
@@ -168,8 +183,8 @@ namespace Coomes.Equipper.CosmosStorage.Test
             // given 
             var activity = new Domain.Activity()
             {
-                Id = 12345,
-                AthleteId = 1,
+                Id = _rand.NextInt64(),
+                AthleteId = _rand.Next(),
                 GearId = "b100"
             };
             var classificationStats = new Domain.ClassificationStats()
@@ -186,7 +201,8 @@ namespace Coomes.Equipper.CosmosStorage.Test
                 }
             };
 
-            var containerName = nameof(ActivityStorage_RecordsActivityResults);
+            // this test is very sensitive to concurrent changes, so it gets its own container
+            var containerName = nameof(ActivityStorage_CountsActivityResults);
             var sut = new ActivityStorage(TestConstants.EmulatorConnectionString, TestConstants.DatabaseName, containerName);
             await sut.EnsureDeleted();
 
