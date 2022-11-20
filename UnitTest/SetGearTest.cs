@@ -16,7 +16,7 @@ namespace Coomes.Equipper.UnitTest
         private int _triggerActivityId;
         private int _athleteId;
         private AthleteTokens _athleteTokens;
-        private List<Activity> _mostReccentActivities;
+        private List<Activity> _mostRecentActivities;
 
         private Mock<ITokenProvider> _tokenProviderMock;
         private Mock<ITokenStorage> _tokenStorageMock;
@@ -39,7 +39,7 @@ namespace Coomes.Equipper.UnitTest
                 .ThrowsAsync(new UnauthorizedException());
             _activityDataMock
                 .Setup(ad => ad.GetActivities(_athleteTokens.AccessToken, It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(_mostReccentActivities);
+                .ReturnsAsync(_mostRecentActivities);
 
             _activityStorageMock = new Mock<IActivityStorage>();
             _activityStorageMock
@@ -69,7 +69,7 @@ namespace Coomes.Equipper.UnitTest
                 .ThrowsAsync(new UnauthorizedException());
             _activityDataMock
                 .Setup(ad => ad.GetActivities(refreshedTokens.AccessToken, It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(_mostReccentActivities);
+                .ReturnsAsync(_mostRecentActivities);
 
             _activityStorageMock = new Mock<IActivityStorage>();
             _activityStorageMock
@@ -91,7 +91,7 @@ namespace Coomes.Equipper.UnitTest
                 AthleteID = _athleteId,
                 ExpiresAtUtc = DateTime.UtcNow.AddHours(1)
             };
-            _mostReccentActivities = new List<Activity>()
+            _mostRecentActivities = new List<Activity>()
             {
                 new Activity()
                 {
@@ -128,7 +128,7 @@ namespace Coomes.Equipper.UnitTest
                 AthleteID = _athleteId,
                 ExpiresAtUtc = DateTime.UtcNow.AddHours(1)
             };
-            _mostReccentActivities = new List<Activity>()
+            _mostRecentActivities = new List<Activity>()
             { 
                 new Activity()
                 {
@@ -165,7 +165,7 @@ namespace Coomes.Equipper.UnitTest
                 AthleteID = _athleteId,
                 ExpiresAtUtc = DateTime.UtcNow.AddHours(1)
             };
-            _mostReccentActivities = new List<Activity>()
+            _mostRecentActivities = new List<Activity>()
             {
                 new Activity()
                 {
@@ -205,7 +205,7 @@ namespace Coomes.Equipper.UnitTest
         [DataTestMethod]
         [DataRow(true)]
         [DataRow(false)]
-        public async Task SetGear_GetsReccentActivitiesAndSetsBestMatchGear(bool activityStoreThrows) 
+        public async Task SetGear_GetsRecentActivitiesAndSetsBestMatchGear(bool activityStoreThrows) 
         {
             _triggerActivityId = 3;
             _athleteId = 1000;
@@ -215,7 +215,7 @@ namespace Coomes.Equipper.UnitTest
                 AthleteID = _athleteId,
                 ExpiresAtUtc = DateTime.UtcNow.AddHours(1)
             };
-            _mostReccentActivities = new List<Activity>()
+            _mostRecentActivities = new List<Activity>()
             {
                 new Activity()
                 {
@@ -276,7 +276,7 @@ namespace Coomes.Equipper.UnitTest
                 AthleteID = _athleteId,
                 ExpiresAtUtc = DateTime.UtcNow.AddHours(1)
             };
-            _mostReccentActivities = new List<Activity>()
+            _mostRecentActivities = new List<Activity>()
             {
                 new Activity()
                 {
@@ -325,10 +325,12 @@ namespace Coomes.Equipper.UnitTest
         public async Task SetGear_RefreshesTokenIfExpired()
         {
             // given
+            var storedTokens = default(AthleteTokens);
             _triggerActivityId = 3;
             _athleteId = 1000;
             _athleteTokens = new AthleteTokens()
             {
+                UserID = "5678", // these tokens are already stored and should have a UserID
                 AccessToken = "oldAccessToken",
                 RefreshToken = "oldRefreshToken",
                 AthleteID = _athleteId,
@@ -336,12 +338,13 @@ namespace Coomes.Equipper.UnitTest
             };
             var refreshedTokens = new AthleteTokens()
             {
+                UserID = null, // Strava does not include UserID in response
                 AccessToken = "newAccessToken",
                 RefreshToken = "newRefreshToken",
                 AthleteID = _athleteId,
                 ExpiresAtUtc = DateTime.UtcNow.AddHours(1)
             };
-            _mostReccentActivities = new List<Activity>()
+            _mostRecentActivities = new List<Activity>()
             {
                 new Activity()
                 {
@@ -358,6 +361,9 @@ namespace Coomes.Equipper.UnitTest
             };
 
             InitMocksForRefresh(refreshedTokens);
+             _tokenStorageMock
+                .Setup(ts => ts.AddOrUpdateTokens(It.IsAny<AthleteTokens>()))
+                .Callback<AthleteTokens>(tokens => storedTokens = tokens);
             var sut = new SetGear(
                 _activityDataMock.Object, 
                 _activityStorageMock.Object,
@@ -380,6 +386,7 @@ namespace Coomes.Equipper.UnitTest
             _tokenStorageMock.Verify(
                 ts => ts.AddOrUpdateTokens(refreshedTokens),
                 Times.Once);
+            storedTokens.UserID.Should().Be(_athleteTokens.UserID);
         }
         
         [TestMethod]
@@ -399,7 +406,7 @@ namespace Coomes.Equipper.UnitTest
                 AthleteID = _athleteId,
                 ExpiresAtUtc = DateTime.UtcNow.AddHours(1)
             };
-            _mostReccentActivities = new List<Activity>()
+            _mostRecentActivities = new List<Activity>()
             {
                 new Activity()
                 {

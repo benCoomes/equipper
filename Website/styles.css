@@ -2,11 +2,12 @@
     --menu-bg-color: #af322e;
     --menu-color: white;
     --body-bg-color: #fffef9;
+    --body-bg-color-lighter: #ffffff;
     --body-color: #231f24;
     --accent-color: #b8b42d;
     --success-color: #425003;
     --error-color: #8C2724;
-    --active-brightness: .2;
+    --active-brightness: .9;
 }
 
 .equipper {
@@ -55,6 +56,7 @@
 
 .section {
     margin-top: 1rem;
+    display: none;
 }
 
 @media(min-width: 576px) {
@@ -72,7 +74,6 @@
         border-left-color:  var(--error-color);
     }
 }
-
 
 .section--success {
     color: var(--success-color);
@@ -95,11 +96,42 @@
     font-weight: bold;
 }
 
+.loginList {
+    list-style-type: none;
+    padding-inline-start: 10px;
+}
+
+.loginList__item {
+    margin-bottom: 10px;
+    min-width: 250px;
+    text-align: left;
+}
+
+.eq-btn {
+    color: var(--body-color);
+    background-color: var(--body-bg-color-lighter);
+    border-color: var(--body-color);
+}
+
+.eq-btn:hover, .eq-btn:active {
+    color: inherit;
+    filter: brightness(var(--active-brightness))
+}
+
+.eq-btn img {
+    width: 24px;
+    margin-right: 12px;
+}
+
 #authSuccessSection {
     display: none;
 }
 
 #authErrorSection {
+    display: none;
+}
+
+#userInfoSection {
     display: none;
 }
 

@@ -1,7 +1,10 @@
-﻿using System.Net;
+﻿using System;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Coomes.Equipper.Contracts;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using Domain = Coomes.Equipper;
 
 namespace Coomes.Equipper.CosmosStorage
@@ -21,6 +24,10 @@ namespace Coomes.Equipper.CosmosStorage
 
         public async Task AddOrUpdateTokens(Domain.AthleteTokens athleteTokens)
         {
+            if(!athleteTokens.IsValid()) {
+                throw new InvalidOperationException("Athlete tokens are not valid.");
+            }
+
             await EnsureInitialized();
             
             var dataModel = new AthleteTokens(athleteTokens);
@@ -43,6 +50,21 @@ namespace Coomes.Equipper.CosmosStorage
             catch (CosmosException cex) when (cex.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
+            }
+        }
+
+        public async Task<Domain.AthleteTokens> GetTokenForUser(string userID) 
+        {
+            await EnsureInitialized();
+
+            var query = _container
+                .GetItemLinqQueryable<AthleteTokens>()
+                .Where(at => at.UserID == userID);
+            
+            using(var iterator = query.ToFeedIterator()) {
+                var result = await iterator.ReadNextAsync();
+                var tokens = result.Resource.FirstOrDefault();
+                return tokens?.ToDomainModel() ?? default(Domain.AthleteTokens);
             }
         }
 

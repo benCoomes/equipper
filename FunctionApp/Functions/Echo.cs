@@ -15,14 +15,19 @@ namespace Coomes.Equipper.FunctionApp.Functions
             ILogger log)
         {
             var correlationID = Guid.NewGuid();
-            log.LogInformation("{function} {status} {cid}", "Echo", "Starting", correlationID.ToString());
+            var user = StaticWebAppsAuth.ParseUser(req);
+            log.LogInformation("{function} {status} {cid} {userId}", "Echo", "Starting", correlationID.ToString(), user.UserId);
 
             string value = req.Query["value"];
 
             string responseMessage = "";
             if(string.Equals("I'm an idiot", value, StringComparison.CurrentCultureIgnoreCase))
             {
-                responseMessage = "You're an idiot!";
+                if(user.Authenticated) {
+                    responseMessage = $"You're an idiot, {user.DisplayName}!";
+                } else {
+                    responseMessage = "You're an idiot!";
+                }
             }
             else if (!string.IsNullOrEmpty(value))
             {
@@ -33,7 +38,7 @@ namespace Coomes.Equipper.FunctionApp.Functions
                 responseMessage = "Saying nothing, you hear only the silence of the void...";
             }
 
-            log.LogInformation("{function} {status} {cid}", "Echo", "Success", correlationID.ToString());
+            log.LogInformation("{function} {status} {cid} {userId}", "Echo", "Success", correlationID.ToString(), user.UserId);
             return new OkObjectResult(responseMessage);
         }
     }

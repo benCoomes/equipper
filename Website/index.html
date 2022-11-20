@@ -35,17 +35,50 @@
         </a>
       </div>
     </header>
-    <section class="section container">
+    
+    <section id="about-section" class="section container">
       <h2 id="about" class="section__header">What is Equipper?</h2>
       <p>
         Equipper is an application that helps you set the correct bike on each ride that you upload to Strava. 
         It works by picking the bike that was used most often on previous rides similar to your latest ride. It has processed <span id="activityCount">???</span> activities so far!
       </p>
     </section>
-    <section class="section container">
+
+    <section id="login-section" class="section container">
+      <h2 id="loginHeader" class="section__header">Log In</h2>
+      <p>Log in with any of the options below to get started:</p>
+      <ul class="loginList">
+        <li>
+          <a href="/.auth/login/github" class="loginList__item btn eq-btn">
+            <img src="assets/GitHub_Mark_64px.png" alt="GitHub logo">
+            Sign in with GitHub
+          </a>
+        </li>
+        <li>
+          <a href="/.auth/login/aad" class="loginList__item btn eq-btn">
+            <img src="assets/ms_logo.svg" alt="Microsoft logo">
+            Sign in with Microsoft
+          </a>
+        </li>
+        <li>
+          <a href="/.auth/login/twitter" class="loginList__item btn eq-btn">
+            <img src="assets/2021_Twitter_logo_blue.png" alt="Twitter logo">
+            Sign in with Twitter
+          </a>
+        </li>
+      </ul>
+    </section>
+    
+    <section id="user-info-section" class="section container" >
+      <h2 id="userInfoHeader" class="section__header">Welcome Back!</h2>
+      <p>You are currently signed in as <span id="usernameDisplay"></span></p>
+      <a id="logoutLink" href="/.auth/logout" class="btn eq-btn">Log Out</a>
+    </section>
+    
+    <section id="strava-auth-section" class="section container">
       <h2 id="connect" class="section__header">Get Started</h2>
       <p>
-        To use Equipper, click the link below. 
+        To connect Equipper to your Strava account, click the link below. 
         You will be prompted to allow Equipper to view and make changes to your Strava activities. 
         After authorization, Equipper will start processing any new activity you upload.
       </p>
@@ -65,7 +98,8 @@
         </svg>
       </a>
     </section>
-    <section class="section container">
+    
+    <section id="unsubscribe-section" class="section container">
       <h2 id="unsubscribe" class="section__header">Unsubscribe</h2>
       <p>
         You can unsubscribe from Equipper and revoke its access to your Strava account at any time.
@@ -73,7 +107,8 @@
         Once you revoke access, Equipper will delete any of your data which it has stored. You may always reconnect Equipper later if you choose.
       </p>
     </section>
-    <section class="section container">
+    
+    <section id="contact-section" class="section container">
       <h2 id="contact" class="section__header">Contact & Support</h2>
       <p>
         Equipper is proudly developed and supported by Ben Coomes. 
@@ -81,7 +116,8 @@
         If you'd like to contribute yourself, Equipper is open source. Check it out on <a class="section__link" href="https://github.com/benCoomes/equipper">GitHub</a>!
       </p>
     </section>
-    <section class="section container">
+    
+    <section id="privacy-section" class="section container">
       <h2 id="privacy-policy" class="section__header">Privacy Policy</h2>
       <p>
         Your privacy is important.
@@ -121,8 +157,8 @@
   <script>
     var authLink = document.getElementById("authLink");
     var host = window.location.host;
-    authLink.setAttribute("href", `https://www.strava.com/oauth/authorize?client_id=12230&response_type=code&redirect_uri=https://${host}/auth&approval_prompt=force&scope=read,activity:read,activity:write`)
-    
+    var protocol = window.location.protocol;
+    authLink.setAttribute("href", `https://www.strava.com/oauth/authorize?client_id=12230&response_type=code&redirect_uri=${protocol}//${host}/auth&approval_prompt=force&scope=read,activity:read,activity:write`)    
     fetch("/api/activityCount")
     .then(result => {
       if(result.ok) {
@@ -130,6 +166,50 @@
           document.getElementById("activityCount").textContent = count;
         });
       }
+    });
+
+    function enableSection(sectionId) {
+      let section = document.getElementById(sectionId);
+      section.style.display = "block";
+    }
+
+    const displayWhenAuthenticatedSections = [
+      "user-info-section",
+      "strava-auth-section",
+      "unsubscribe-section",
+      "contact-section",
+      "privacy-section"
+    ];
+
+    const displayWhenUnauthenticatedSections = [
+      "about-section", 
+      "login-section",
+      "unsubscribe-section",
+      "contact-section",
+      "privacy-section"
+    ];
+
+    fetch("/.auth/me")
+    .then(result => {
+      if(!result.ok) {
+        return Promise.reject(result.status)
+      }
+      
+      result.json().then(response => {
+        var identity = response?.clientPrincipal;
+        if(!identity) {
+          displayWhenUnauthenticatedSections.forEach(enableSection)
+        } else {
+          var userNameDisplay = document.getElementById("usernameDisplay");
+          userNameDisplay.textContent = identity.userDetails;
+          displayWhenAuthenticatedSections.forEach(enableSection)
+        }
+      })
+    })
+    .catch(error => {
+      console.error("error when loading user")
+      console.error(error)
+      displayWhenUnauthenticatedSections.forEach(enableSection)
     });
   </script>
 </body>

@@ -29,14 +29,14 @@ namespace Coomes.Equipper.CosmosStorage.Test
             return _sutInitTask;
         }
 
-
         [TestMethod]
         public async Task TokenStorage_AddOrUpdate_AddsNewTokens()
         {
             // given 
-            var athleteID = _rand.Next();
+            var athleteID = _rand.NextInt64();
             var expectedTokens = new Domain.AthleteTokens()
             {
+                UserID = Guid.NewGuid().ToString(),
                 AccessToken = "accessToken",
                 RefreshToken = "refreshToken",
                 AthleteID = athleteID,
@@ -54,6 +54,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
             beforeAdd.Should().BeNull();
             afterAdd.Should().NotBeNull();
             
+            afterAdd.UserID.Should().Be(expectedTokens.UserID);
             afterAdd.AccessToken.Should().Be(expectedTokens.AccessToken);
             afterAdd.RefreshToken.Should().Be(expectedTokens.RefreshToken);
             afterAdd.AthleteID.Should().Be(expectedTokens.AthleteID);
@@ -61,12 +62,49 @@ namespace Coomes.Equipper.CosmosStorage.Test
         }
 
         [TestMethod]
+        public async Task TokenStorage_AddOrUpdate_ThrowsIfMissingActorID()
+        {
+            // given 
+            var athleteID = _rand.NextInt64();
+            var missingUser = new Domain.AthleteTokens()
+            {
+                UserID = null,
+                AthleteID = athleteID,
+            };
+            var missingAthlete = new Domain.AthleteTokens()
+            {
+                UserID = Guid.NewGuid().ToString(),
+                AthleteID = 0,
+            };
+            var missingBoth = new Domain.AthleteTokens()
+            {
+                UserID = null,
+                AthleteID = 0,
+            };
+
+            var sut = await GetSut();
+            
+            // when
+            Func<Task> tryMissingUser = () =>  sut.AddOrUpdateTokens(missingUser);
+            Func<Task> tryMissingAthlete = () =>  sut.AddOrUpdateTokens(missingAthlete);
+            Func<Task> tryMissingBoth = () =>  sut.AddOrUpdateTokens(missingBoth);
+
+            // then
+            await tryMissingAthlete.Should().ThrowAsync<InvalidOperationException>();
+            await tryMissingBoth.Should().ThrowAsync<InvalidOperationException>();
+            // todo: check UserID as well. Right now, existing tokens in prod don't have a user ID.
+            // because they were created before authentication was implemented.
+            await tryMissingUser.Should().NotThrowAsync(); 
+        }
+
+        [TestMethod]
         public async Task TokenStorage_AddOrUpdate_UpdatesExistingTokens()
         {
             // given 
-            var athleteID = _rand.Next();
+            var athleteID = _rand.NextInt64();
             var originalTokens = new Domain.AthleteTokens()
             {
+                UserID = "originalUserID",
                 AccessToken = "ogAccessToken",
                 RefreshToken = "ogRefreshToken",
                 AthleteID = athleteID,
@@ -74,6 +112,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
             };
             var updatedTokens = new Domain.AthleteTokens()
             {
+                UserID = "newUserID", // changing the UserID is possible but should _never_ be done. This must be protected against in domain code.
                 AccessToken = "newAccessToken",
                 RefreshToken = null, // null values still overwrite existing value
                 AthleteID = athleteID,
@@ -91,19 +130,53 @@ namespace Coomes.Equipper.CosmosStorage.Test
 
             // then
             beforeOriginal.Should().BeNull();
+            afterOriginal.UserID.Should().Be(originalTokens.UserID);
             afterOriginal.AccessToken.Should().Be(originalTokens.AccessToken);
             afterOriginal.RefreshToken.Should().Be(originalTokens.RefreshToken);
+            afterUpdate.UserID.Should().Be(updatedTokens.UserID);
             afterUpdate.AccessToken.Should().Be(updatedTokens.AccessToken);
             afterUpdate.RefreshToken.Should().Be(updatedTokens.RefreshToken);
+        }
+
+        [TestMethod]
+        public async Task TokenStorage_GetTokenForUser_GetsCorrectTokens() 
+        {
+            // given
+            var storedTokens = new Domain.AthleteTokens() {
+                AthleteID = _rand.NextInt64(),
+                UserID = Guid.NewGuid().ToString(),
+                AccessToken = "accessToken",
+                RefreshToken = "refreshToken"
+            };
+
+            var sut = await GetSut();
+
+            // when
+            await sut.AddOrUpdateTokens(new Domain.AthleteTokens{
+                AthleteID = _rand.NextInt64(),
+                UserID = Guid.NewGuid().ToString(),
+                AccessToken = "random seeded user"
+            });
+            var beforeAdd = await sut.GetTokenForUser(storedTokens.UserID);
+            await sut.AddOrUpdateTokens(storedTokens);
+            var afterAdd = await sut.GetTokenForUser(storedTokens.UserID);
+
+            // then
+            beforeAdd.Should().BeNull();
+            afterAdd.UserID.Should().Be(storedTokens.UserID);
+            afterAdd.AthleteID.Should().Be(storedTokens.AthleteID);
+            afterAdd.AccessToken.Should().Be(storedTokens.AccessToken);
+            afterAdd.RefreshToken.Should().Be(storedTokens.RefreshToken);
         }
     
         [TestMethod]
         public async Task TokenStorage_Delete_RemovesTokens()
         {
             // given 
-            var athleteID = _rand.Next();
+            var athleteID = _rand.NextInt64();
             var existingTokens = new Domain.AthleteTokens()
             {
+                UserID = Guid.NewGuid().ToString(),
                 AccessToken = "accessToken",
                 RefreshToken = "refreshToken",
                 AthleteID = athleteID,
@@ -127,7 +200,7 @@ namespace Coomes.Equipper.CosmosStorage.Test
         public async Task TokenStorage_Delete_ThrowsWhenTokensDoNotExist()
         {
             // given 
-            var athleteID = _rand.Next();
+            var athleteID = _rand.NextInt64();
 
             var sut = await GetSut();
 

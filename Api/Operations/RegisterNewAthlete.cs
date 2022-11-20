@@ -16,8 +16,13 @@ namespace Coomes.Equipper.Operations
             _logger = logger;
         }
 
-        public async Task<string> Execute(string authCode, AuthScopes scopes, string error) 
+        public async Task<string> Execute(string authCode, AuthScopes scopes, EquipperUser user, string error) 
         {
+            if(user == null || !user.Authenticated) 
+            {
+                throw new UnauthorizedException();
+            }
+
             if(!string.IsNullOrWhiteSpace(error))
             {
                 _logger.LogError("Error returned from authorization: {authError}", error);
@@ -31,6 +36,20 @@ namespace Coomes.Equipper.Operations
             }
 
             var athleteTokens = await _tokenProvider.GetToken(authCode);
+            
+            var existingUserToken = await _tokenStorage.GetTokenForUser(user.UserId);
+            if(existingUserToken != null && existingUserToken.AthleteID != athleteTokens.AthleteID) 
+            {
+                throw new BadRequestException("existing_strava_account"); // User already has a linked Strava account
+            }
+            
+            var existingTokenForAthlete = await _tokenStorage.GetTokens(athleteTokens.AthleteID);
+            if(existingTokenForAthlete?.UserID != null && existingTokenForAthlete.UserID != user.UserId) 
+            {
+                throw new BadRequestException("existing_equipper_account"); // Athlete is already associated to an existing Equipper account.
+            }
+
+            athleteTokens.UserID = user.UserId;
             await _tokenStorage.AddOrUpdateTokens(athleteTokens);
             return athleteTokens.AccessToken;
         }

@@ -8,6 +8,7 @@ namespace Coomes.Equipper.CosmosStorage
     {
         [JsonProperty("id")]
         public string AthleteID { get; set; }
+        public string UserID { get; set; }
         public DateTime ExpiresAtUtc { get; set; }
         public string RefreshToken { get; set; }
         public string AccessToken { get; set; }
@@ -18,6 +19,7 @@ namespace Coomes.Equipper.CosmosStorage
         public AthleteTokens(Domain.AthleteTokens domainModel)
         {
             AthleteID = domainModel.AthleteID.ToString();
+            UserID = domainModel.UserID;
             ExpiresAtUtc = domainModel.ExpiresAtUtc;
             RefreshToken = domainModel.RefreshToken;
             AccessToken = domainModel.AccessToken;
@@ -28,6 +30,7 @@ namespace Coomes.Equipper.CosmosStorage
             return new Domain.AthleteTokens() 
             {
                 AthleteID = long.Parse(AthleteID),
+                UserID = UserID,
                 ExpiresAtUtc = ExpiresAtUtc,
                 RefreshToken = RefreshToken,
                 AccessToken = AccessToken

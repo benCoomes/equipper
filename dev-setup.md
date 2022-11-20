@@ -7,15 +7,15 @@ Create a codespace on the main branch.
 ### Start Cosmos DB Emulator
 Start the emulator:
 ```sh
-./script/cosmosdb
+script/cosmosdb
 ```
 
 Once started, install the emulator's certificate:
 ```sh
-./script/cosmoscert
+script/cosmoscert
 ```
 
 ## Running the Static Web App
 ```sh
-./script/server
+script/server
 ```
