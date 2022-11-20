@@ -18,11 +18,12 @@ namespace Coomes.Equipper.FunctionApp.Functions
             ILogger logger)
         {
             var correlationID = Guid.NewGuid();
-            logger.LogInformation("{function} {status} {cid}", "GetActivityCount", "Starting", correlationID.ToString());
+            var user = StaticWebAppsAuth.ParseUser(req);
+            logger.LogInformation("{function} {status} {cid} {userId}", "GetActivityCount", "Starting", correlationID.ToString(), user.UserId);
 
             var count = await ExecuteGetCount(logger);
 
-            logger.LogInformation("{function} {status} {cid}", "GetActivityCount", "Success", correlationID.ToString());
+            logger.LogInformation("{function} {status} {cid} {userId}", "GetActivityCount", "Success", correlationID.ToString(), user.UserId);
             return new OkObjectResult(count);
         }
 
