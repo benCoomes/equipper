@@ -12,7 +12,7 @@ namespace Coomes.Equipper.Operations
 
             if (athleteTokens == null)
             {
-                throw new SetGearException($"No athlete with ID {athleteID} is registered.");
+                throw new TokenException($"No athlete with ID {athleteID} is registered.");
             }
 
             var refreshAt = athleteTokens.ExpiresAtUtc.Subtract(TimeSpan.FromMinutes(5));

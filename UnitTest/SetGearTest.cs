@@ -480,7 +480,7 @@ namespace Coomes.Equipper.UnitTest
             Func<Task> tryExecute = () => sut.Execute(_athleteId, _triggerActivityId);
 
             // then
-            await tryExecute.Should().ThrowAsync<SetGearException>();
+            await tryExecute.Should().ThrowAsync<TokenException>();
 
             activityDataMock.Verify(
                 ad => ad.GetActivities(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()),
