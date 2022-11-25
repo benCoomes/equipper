@@ -98,6 +98,14 @@
         </svg>
       </a>
     </section>
+
+    <section id="user-profile-section" class="section container">
+      <h2 id="user-profile" class="section__header">Linked Strava Account</h2>
+      <p>
+        <img id="strava-profile-image" alt="linked Strava account profile image" class="profileImage">
+        <a id="strava-profile-link" href="#"><span id="strava-profile-name"></span></a>
+      </p>
+    </section>
     
     <section id="unsubscribe-section" class="section container">
       <h2 id="unsubscribe" class="section__header">Unsubscribe</h2>
@@ -175,11 +183,18 @@
 
     const displayWhenAuthenticatedSections = [
       "user-info-section",
-      "strava-auth-section",
       "unsubscribe-section",
       "contact-section",
       "privacy-section"
     ];
+
+    const displayWhenStravaConnected = [
+      "user-profile-section",
+    ]
+    
+    const displayWhenStravaDisconnected = [
+      "strava-auth-section",
+    ]
 
     const displayWhenUnauthenticatedSections = [
       "about-section", 
@@ -210,6 +225,31 @@
       console.error("error when loading user")
       console.error(error)
       displayWhenUnauthenticatedSections.forEach(enableSection)
+    });
+
+    fetch("/api/getAthlete")
+    .then(result => {
+      if(!result.ok) {
+        return Promise.reject(result.status)
+      }
+
+      result.json().then(response => {
+        var profileLink = document.getElementById("strava-profile-link")
+        profileLink.href="https://www.strava.com/athletes/" + response.id;
+        
+        var accountName = document.getElementById("strava-profile-name");
+        accountName.textContent = response.firstName + " " + response.lastName;
+        
+        var accountImage = document.getElementById("strava-profile-image");
+        accountImage.src = response.profileMediumUrl;
+
+        displayWhenStravaConnected.forEach(enableSection);
+      });
+    })
+    .catch(error => {
+      console.error("failed to get Strava athlete")
+      console.error(error)
+      displayWhenStravaDisconnected.forEach(enableSection);
     });
   </script>
 </body>
