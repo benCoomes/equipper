@@ -4,6 +4,7 @@ using domain = Coomes.Equipper;
 
 namespace Coomes.Equipper.StravaApi.Models
 {
+    // https://developers.strava.com/docs/reference/#api-models-DetailedAthlete
     public class DetailedAthlete : StravaModel<domain.Athlete>
     {
         public static DetailedAthlete FromJsonBytes(byte[] jsonBytes) {
