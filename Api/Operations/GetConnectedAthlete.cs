@@ -27,6 +27,7 @@ namespace Coomes.Equipper.Operations
             }
             
             var tokens = await TokenHelper.GetTokensByUser(_tokenStorage, _tokenProvider, user);
+            if(tokens == null) return null;
             return await _athleteClient.GetAthlete(tokens.AccessToken, tokens.AthleteID);
         }
     }

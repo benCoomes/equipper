@@ -36,6 +36,11 @@ namespace Coomes.Equipper.Operations
         public async Task Execute(long athleteID, long activityID)
         {
             var athleteTokens = await TokenHelper.GetTokensByAthleteID(_tokenStorage, _tokenProvider, athleteID);
+            if (athleteTokens == null)
+            {
+                throw new SetGearException($"No athlete with ID {athleteID} is registered.");
+            }
+
 
             if(await _activityStorage.ContainsResults(athleteID, activityID))
             {

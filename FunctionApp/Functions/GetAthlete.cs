@@ -25,7 +25,9 @@ namespace Coomes.Equipper.FunctionApp.Functions
             var athlete = await ExecuteGetAthlete(user, logger);
 
             logger.LogInformation("{function} {status} {cid} {userId}", "GetAthlete", "Success", correlationID.ToString(), user.UserId);
-            return new OkObjectResult(athlete);
+            
+            if(athlete != null) return new OkObjectResult(athlete);
+            else return new NotFoundResult();
         }
 
         private static Task<Athlete> ExecuteGetAthlete(EquipperUser user, ILogger logger)
