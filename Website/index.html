@@ -98,6 +98,14 @@
         </svg>
       </a>
     </section>
+
+    <section id="user-profile-section" class="section container">
+      <h2 id="user-profile" class="section__header">Linked Strava Account</h2>
+      <p>
+        <img id="strava-profile-image" alt="linked Strava account profile image" class="profileImage">
+        <a id="strava-profile-link" href="#"><span id="strava-profile-name"></span></a>
+      </p>
+    </section>
     
     <section id="unsubscribe-section" class="section container">
       <h2 id="unsubscribe" class="section__header">Unsubscribe</h2>
@@ -155,31 +163,20 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
   <script>
-    var authLink = document.getElementById("authLink");
-    var host = window.location.host;
-    var protocol = window.location.protocol;
-    authLink.setAttribute("href", `https://www.strava.com/oauth/authorize?client_id=12230&response_type=code&redirect_uri=${protocol}//${host}/auth&approval_prompt=force&scope=read,activity:read,activity:write`)    
-    fetch("/api/activityCount")
-    .then(result => {
-      if(result.ok) {
-        result.text().then(count => {
-          document.getElementById("activityCount").textContent = count;
-        });
-      }
-    });
-
-    function enableSection(sectionId) {
-      let section = document.getElementById(sectionId);
-      section.style.display = "block";
-    }
-
     const displayWhenAuthenticatedSections = [
       "user-info-section",
-      "strava-auth-section",
       "unsubscribe-section",
       "contact-section",
       "privacy-section"
     ];
+
+    const displayWhenStravaConnected = [
+      "user-profile-section",
+    ]
+    
+    const displayWhenStravaDisconnected = [
+      "strava-auth-section",
+    ]
 
     const displayWhenUnauthenticatedSections = [
       "about-section", 
@@ -189,28 +186,86 @@
       "privacy-section"
     ];
 
-    fetch("/.auth/me")
-    .then(result => {
-      if(!result.ok) {
-        return Promise.reject(result.status)
-      }
-      
-      result.json().then(response => {
-        var identity = response?.clientPrincipal;
-        if(!identity) {
-          displayWhenUnauthenticatedSections.forEach(enableSection)
-        } else {
-          var userNameDisplay = document.getElementById("usernameDisplay");
-          userNameDisplay.textContent = identity.userDetails;
-          displayWhenAuthenticatedSections.forEach(enableSection)
+    function enableSection(sectionId) {
+      let section = document.getElementById(sectionId);
+      section.style.display = "block";
+    }
+
+    function setAuthLink() {
+      var authLink = document.getElementById("authLink");
+      var host = window.location.host;
+      var protocol = window.location.protocol;
+      authLink.setAttribute("href", `https://www.strava.com/oauth/authorize?client_id=12230&response_type=code&redirect_uri=${protocol}//${host}/auth&approval_prompt=force&scope=read,activity:read,activity:write`)    
+    }
+
+    function loadActivityCount() {
+      fetch("/api/activityCount")
+      .then(result => {
+        if(result.ok) {
+          result.text().then(count => {
+            document.getElementById("activityCount").textContent = count;
+          });
         }
+      });
+    }
+
+    function loadStravaAccount() {
+      fetch("/api/getAthlete")
+      .then(result => {
+        if(!result.ok) {
+          return Promise.reject(result.status)
+        }
+
+        result.json().then(response => {
+          var profileLink = document.getElementById("strava-profile-link")
+          profileLink.href="https://www.strava.com/athletes/" + response.id;
+          
+          var accountName = document.getElementById("strava-profile-name");
+          accountName.textContent = response.firstName + " " + response.lastName;
+          
+          var accountImage = document.getElementById("strava-profile-image");
+          accountImage.src = response.profileMediumUrl;
+
+          displayWhenStravaConnected.forEach(enableSection);
+        });
       })
-    })
-    .catch(error => {
-      console.error("error when loading user")
-      console.error(error)
-      displayWhenUnauthenticatedSections.forEach(enableSection)
-    });
+      .catch(error => {
+        console.error("failed to get Strava athlete")
+        console.error(error)
+        displayWhenStravaDisconnected.forEach(enableSection);
+      });
+    }
+
+    function loadUser() {
+      fetch("/.auth/me")
+      .then(result => {
+        if(!result.ok) {
+          return Promise.reject(result.status)
+        }
+        
+        result.json().then(response => {
+          var identity = response?.clientPrincipal;
+          if(!identity) {
+            displayWhenUnauthenticatedSections.forEach(enableSection)
+          } else {
+            loadStravaAccount();
+
+            var userNameDisplay = document.getElementById("usernameDisplay");
+            userNameDisplay.textContent = identity.userDetails;
+            displayWhenAuthenticatedSections.forEach(enableSection)
+          }
+        })
+      })
+      .catch(error => {
+        console.error("error when loading user")
+        console.error(error)
+        displayWhenUnauthenticatedSections.forEach(enableSection)
+      });
+    }
+
+    setAuthLink();
+    loadActivityCount();
+    loadUser();
   </script>
 </body>
 </html>
