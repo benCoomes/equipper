@@ -95,8 +95,5 @@ namespace Coomes.Equipper.UnitTest
         await tryAnonUser.Should().ThrowAsync<UnauthorizedException>();
         await tryNullUser.Should().ThrowAsync<UnauthorizedException>();
       }
-
-      // todo - what if tokens exist but are no good - user has revoked equipper access? In this case
-      // the use _should_ be removed, but its always possible deletion failed.
     }
 }
