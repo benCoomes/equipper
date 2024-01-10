@@ -1,0 +1,25 @@
+name: Lighthouse
+
+on:
+  workflow_dispatch:
+    inputs:
+        site_url:
+          description: 'Log level'
+          required: true
+          default: 'https://equipper.bencoomes.com'
+          type: string
+
+jobs:
+  run-lighthouse-check-job:
+    runs-on: ubuntu-latest
+    name: Run Lighthouse Check
+    steps:
+      - name: Lighthouse Audit
+        uses: jakejarvis/lighthouse-action@master
+        with:
+          url: ${{inputs.site_url}}
+      - name: Upload Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: lighthouseReport
+          path: './report'
