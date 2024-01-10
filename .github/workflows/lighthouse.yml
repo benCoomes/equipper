@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
         site_url:
-          description: 'Log level'
+          description: 'Site URL'
           required: true
           default: 'https://equipper.bencoomes.com'
           type: string
@@ -15,7 +15,7 @@ jobs:
     name: Run Lighthouse Check
     steps:
       - name: Lighthouse Audit
-        uses: jakejarvis/lighthouse-action@master
+        uses: jakejarvis/lighthouse-action@a3bcc9973b3ce65beff316b3cac53b92e58dcc12
         with:
           url: ${{inputs.site_url}}
       - name: Upload Results
