@@ -35,7 +35,7 @@ namespace ActivityDownloader
 
             Console.WriteLine("Starting activity download...");
             
-            IStravaData stravaData = new StravaClient(default(StravaApiOptions));
+            IStravaData stravaData = new StravaClient();
             var activities = await stravaData.GetActivities(accessToken, limit: 200);
             
             Console.WriteLine($"Retrieved {activities.Count()} activities.");

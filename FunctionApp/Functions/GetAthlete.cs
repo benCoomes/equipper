@@ -38,7 +38,7 @@ namespace Coomes.Equipper.FunctionApp.Functions
                  ClientId = Settings.ClientId,
                  ClientSecret = Settings.ClientSecret
             };
-            var stravaData = new StravaClient(options, logger);
+            var stravaData = new StravaClient(logger);
             var tokenProvider = new TokenClient(options, logger);
             var tokenStorage = new TokenStorage(Settings.CosmosConnectionString);
             var getAthleteOp = new GetConnectedAthlete(stravaData, tokenStorage, tokenProvider, logger);

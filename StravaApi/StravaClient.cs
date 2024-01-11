@@ -10,35 +10,25 @@ using System.Linq;
 using System.Web;
 using Microsoft.Extensions.Logging;
 using System.Text;
-using Microsoft.Extensions.Options;
 
 namespace Coomes.Equipper.StravaApi
 {
     public class StravaClient : IStravaData
     {
+        private static string _stravaApiUrl = "https://www.strava.com/api/v3";
         private static HttpClient _httpClient = new HttpClient();
         private ILogger _logger;
-        private StravaApiOptions _options;
 
-        public StravaClient(IOptions<StravaApiOptions> options, ILogger logger = null) : this(options.Value, logger)
+        public StravaClient(ILogger logger = null)
         {
-        }
-        
-
-        public StravaClient(StravaApiOptions options, ILogger logger = null)
-        {
-            _options = options;
             _logger = logger;
         }
 
         public async Task<Athlete> GetAthlete(string accessToken, long athleteId)
         {
-            var uri = new Uri($"https://www.strava.com/api/v3/athlete");
-            using var request = new HttpRequestMessage(HttpMethod.Get, uri);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            using var response = await _httpClient.SendAsync(request);
-            await response.LogAndThrowIfNotSuccess(_logger, $"{nameof(StravaClient)}.{nameof(GetAthlete)}");
+            var uri = new Uri($"{_stravaApiUrl}/athlete");
+            using var request = BuildRequest(HttpMethod.Get, uri, accessToken);
+            using var response = await SendRequest(request, nameof(GetAthlete));
 
             var jsonBytes = await response.Content.ReadAsByteArrayAsync();
             var detailedAthlete = StravaModel.DetailedAthlete.FromJsonBytes(jsonBytes);
@@ -47,18 +37,14 @@ namespace Coomes.Equipper.StravaApi
 
         public async Task<IEnumerable<Activity>> GetActivities(string accessToken, int page = 1, int limit = 50)
         {
-            var uriBuilder = new UriBuilder("https://www.strava.com/api/v3/athlete/activities");
+            var uriBuilder = new UriBuilder("{_stravaApiUrl}/athlete/activities");
             var query = HttpUtility.ParseQueryString(uriBuilder.Query);
             query["page"] = page.ToString();
             query["per_page"] = limit.ToString();
             uriBuilder.Query = query.ToString();
 
-            using var request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.ToString());
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            using var response = await _httpClient.SendAsync(request);
-            
-            await response.LogAndThrowIfNotSuccess(_logger, $"{nameof(StravaClient)}.{nameof(GetActivities)}");
+            using var request = BuildRequest(HttpMethod.Get, uriBuilder.ToString(), accessToken);
+            using var response = await SendRequest(request, nameof(GetActivities));
             
             var jsonBytes = await response.Content.ReadAsByteArrayAsync();
             return ToActivityList(jsonBytes);
@@ -76,13 +62,11 @@ namespace Coomes.Equipper.StravaApi
             var updaterActivity = await GetActivityForUpdate(accessToken, activity);
             updaterActivity.gear_id = activity.GearId;
 
-            var uri = new Uri($"https://www.strava.com/api/v3/activities/{activity.Id}");
-            using var request = new HttpRequestMessage(HttpMethod.Put, uri);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var uri = new Uri($"{_stravaApiUrl}/activities/{activity.Id}");
+            using var request = BuildRequest(HttpMethod.Put, uri, accessToken);
             request.Content = new StringContent(JsonSerializer.Serialize(updaterActivity), Encoding.UTF8, "application/json");
             
-            var response = await _httpClient.SendAsync(request);
-            await response.LogAndThrowIfNotSuccess(_logger, $"{nameof(StravaClient)}.{nameof(UpdateGear)}");
+            using var response = await SendRequest(request, nameof(UpdateGear));
 
             var jsonBytes = await response.Content.ReadAsByteArrayAsync();
             var stravaModel = StravaModel.Activity.FromJsonBytes(jsonBytes);
@@ -91,14 +75,9 @@ namespace Coomes.Equipper.StravaApi
 
         public async Task<Gear> GetGear(string accessToken, string gearId)
         {
-            var uriBuilder = new UriBuilder($"https://www.strava.com/api/v3/gear/{gearId}");
-
-            using var request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.ToString());
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            using var response = await _httpClient.SendAsync(request);
-            
-            await response.LogAndThrowIfNotSuccess(_logger, $"{nameof(StravaClient)}.{nameof(GetGear)}");
+            var uri = new Uri($"{_stravaApiUrl}/gear/{gearId}");
+            using var request = BuildRequest(HttpMethod.Get, uri, accessToken);
+            using var response = await SendRequest(request, nameof(GetGear));
             
             var jsonBytes = await response.Content.ReadAsByteArrayAsync();
             var stravaModel = StravaModel.Gear.FromJsonBytes(jsonBytes);
@@ -107,12 +86,9 @@ namespace Coomes.Equipper.StravaApi
 
         private async Task<StravaModel.UpdatableActivity> GetActivityForUpdate(string accessToken, Activity activity)
         {
-            var uri = new Uri($"https://www.strava.com/api/v3/activities/{activity.Id}");
-            using var request = new HttpRequestMessage(HttpMethod.Get, uri);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            using var response = await _httpClient.SendAsync(request);
-            await response.LogAndThrowIfNotSuccess(_logger, $"{nameof(StravaClient)}.{nameof(GetActivityForUpdate)}");
+            var uri = new Uri($"{_stravaApiUrl}/activities/{activity.Id}");
+            using var request = BuildRequest(HttpMethod.Get, uri, accessToken);
+            using var response = await SendRequest(request, nameof(GetActivityForUpdate));
 
             var jsonBytes = await response.Content.ReadAsByteArrayAsync();
             return StravaModel.UpdatableActivity.FromJsonBytes(jsonBytes);
@@ -125,6 +101,27 @@ namespace Coomes.Equipper.StravaApi
             return stravaActivities
                 .Select(sa => sa.ToDomainModel())
                 .ToList();
+        }
+
+        private HttpRequestMessage BuildRequest(HttpMethod method, string uri, string accessToken)
+        {
+            var request = new HttpRequestMessage(method, uri);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            return request;
+        }
+
+        private HttpRequestMessage BuildRequest(HttpMethod method, Uri uri, string accessToken)
+        {
+            var request = new HttpRequestMessage(method, uri);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            return request;
+        }
+
+        private async Task<HttpResponseMessage> SendRequest(HttpRequestMessage request, string methodName) 
+        {
+            var response = await _httpClient.SendAsync(request);
+            await response.LogAndThrowIfNotSuccess(_logger, $"{nameof(StravaClient)}.{methodName}");
+            return response;
         }
     }
 }

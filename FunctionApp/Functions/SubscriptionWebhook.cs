@@ -115,7 +115,7 @@ namespace Coomes.Equipper.FunctionApp.Functions
             };
             var tokenProvider = new TokenClient(options, log);
             var tokenStorage = new TokenStorage(Settings.CosmosConnectionString);
-            var stravaData = new StravaClient(options, log);
+            var stravaData = new StravaClient(log);
             var activityStorage = new ActivityStorage(Settings.CosmosConnectionString);
             var setGearOperation = new SetGear(stravaData, activityStorage, tokenStorage, tokenProvider, log);
 
