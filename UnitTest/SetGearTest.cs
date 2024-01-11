@@ -17,6 +17,30 @@ namespace Coomes.Equipper.UnitTest
         private int _athleteId;
         private AthleteTokens _athleteTokens;
         private List<Activity> _mostRecentActivities;
+        private Dictionary<string, Gear> _athleteGear = new Dictionary<string, Gear>()
+        {
+            { "gear_1", new Gear()
+                {
+                    Id = "gear_1",
+                    Name = "My Best Bike",
+                    Retired = false
+                }
+            },
+            { "gear_2", new Gear()
+                {
+                    Id = "gear_2",
+                    Name = "My Second Best Bike",
+                    Retired = false
+                }
+            },
+            { "retired_gear", new Gear()
+                {
+                    Id = "retired_gear",
+                    Name = "My Old Bike",
+                    Retired = true
+                }
+            }
+        };
 
         private Mock<ITokenProvider> _tokenProviderMock;
         private Mock<ITokenStorage> _tokenStorageMock;
@@ -40,6 +64,23 @@ namespace Coomes.Equipper.UnitTest
             _stravaDataMock
                 .Setup(ad => ad.GetActivities(_athleteTokens.AccessToken, It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(_mostRecentActivities);
+            _stravaDataMock
+                .Setup(gd => gd.GetGear(It.IsAny<string>(), It.IsAny<string>()))
+                .ThrowsAsync(new UnauthorizedException());
+            _stravaDataMock
+                .Setup(gd => gd.GetGear(_athleteTokens.AccessToken, It.IsAny<string>()))
+                .ReturnsAsync((string _, string gearId) => {
+                    if (_athleteGear.TryGetValue(gearId, out var value))
+                    {
+                        return value;
+                    }
+                    else
+                    {
+                        // TODO: strava 404's if bike not found. Need to treat this same as retired gear (do not set).
+                        // Update real client to throw an error, and throw that same error here.
+                        throw new NotImplementedException("Gear dont not exist - test behavior not defined"); 
+                    }                    
+                });
 
             _activityStorageMock = new Mock<IActivityStorage>();
             _activityStorageMock
@@ -70,6 +111,23 @@ namespace Coomes.Equipper.UnitTest
             _stravaDataMock
                 .Setup(ad => ad.GetActivities(refreshedTokens.AccessToken, It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(_mostRecentActivities);
+            _stravaDataMock
+                .Setup(gd => gd.GetGear(It.IsAny<string>(), It.IsAny<string>()))
+                .ThrowsAsync(new UnauthorizedException());
+            _stravaDataMock
+                .Setup(gd => gd.GetGear(refreshedTokens.AccessToken, It.IsAny<string>()))
+                .ReturnsAsync((string _, string gearId) => {
+                    if (_athleteGear.TryGetValue(gearId, out var value))
+                    {
+                        return value;
+                    }
+                    else
+                    {
+                        // TODO: strava 404's if bike not found. Need to treat this same as retired gear (do not set).
+                        // Update real client to throw an error, and throw that same error here.
+                        throw new NotImplementedException("Gear dont not exist - test behavior not defined"); 
+                    }                    
+                });
 
             _activityStorageMock = new Mock<IActivityStorage>();
             _activityStorageMock
@@ -390,9 +448,63 @@ namespace Coomes.Equipper.UnitTest
         }
         
         [TestMethod]
-        public void SetGear_IgnoresRetiredGear() 
+        public async Task SetGear_IgnoresRetiredGear() 
         {
-            Assert.Inconclusive("Not implemented");
+            _triggerActivityId = 3;
+            _athleteId = 1000;
+            _athleteTokens = new AthleteTokens()
+            {
+                AccessToken = "validAccessToken",
+                AthleteID = _athleteId,
+                ExpiresAtUtc = DateTime.UtcNow.AddHours(1)
+            };
+            _mostRecentActivities = new List<Activity>()
+            {
+                new Activity()
+                {
+                    Id = 1,
+                    AthleteId = _athleteId,
+                    AverageSpeed = 10,
+                    GearId = "gear_1"
+                },
+                new Activity()
+                {
+                    Id = 2,
+                    AthleteId = _athleteId,
+                    AverageSpeed = 21,
+                    GearId = "retired_gear"
+                },
+                new Activity()
+                {
+                    Id = 3,
+                    AthleteId = _athleteId,
+                    AverageSpeed = 20,
+                    GearId = null
+                }
+            };
+
+            InitMocks();
+            var sut = new SetGear(
+                _stravaDataMock.Object,
+                _activityStorageMock.Object,
+                _tokenStorageMock.Object,
+                _tokenProviderMock.Object,
+                _loggerMock.Object);
+
+            // when
+            await sut.Execute(_athleteId, _triggerActivityId);
+
+            // then
+            // retired_gear is a better match, except that it is retired. So, expect gear_1
+            _stravaDataMock.Verify(
+                gd => gd.GetGear(It.IsAny<string>(), "gear_1"),
+                Times.Once);
+            _stravaDataMock.Verify(
+                gd => gd.GetGear(It.IsAny<string>(), "retired_gear"),
+                Times.Once);
+            _stravaDataMock.Verify(
+                ad => ad.UpdateGear(It.IsAny<string>(), It.Is<Activity>(a => a.GearId == "gear_1")),
+                Times.Once);
         }
 
         [TestMethod]
