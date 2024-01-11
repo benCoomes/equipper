@@ -20,7 +20,7 @@ namespace Coomes.Equipper.UnitTest
 
         private Mock<ITokenProvider> _tokenProviderMock;
         private Mock<ITokenStorage> _tokenStorageMock;
-        private Mock<IActivityData> _activityDataMock;
+        private Mock<IStravaData> _stravaDataMock;
         private Mock<IActivityStorage> _activityStorageMock;
         private Mock<ILogger> _loggerMock;
 
@@ -33,11 +33,11 @@ namespace Coomes.Equipper.UnitTest
 
             _tokenProviderMock = new Mock<ITokenProvider>();
             
-            _activityDataMock = new Mock<IActivityData>();
-            _activityDataMock
+            _stravaDataMock = new Mock<IStravaData>();
+            _stravaDataMock
                 .Setup(ad => ad.GetActivities(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
                 .ThrowsAsync(new UnauthorizedException());
-            _activityDataMock
+            _stravaDataMock
                 .Setup(ad => ad.GetActivities(_athleteTokens.AccessToken, It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(_mostRecentActivities);
 
@@ -63,11 +63,11 @@ namespace Coomes.Equipper.UnitTest
                 .Setup(tp => tp.RefreshToken(_athleteTokens))
                 .ReturnsAsync(refreshedTokens);
             
-            _activityDataMock = new Mock<IActivityData>();
-            _activityDataMock
+            _stravaDataMock = new Mock<IStravaData>();
+            _stravaDataMock
                 .Setup(ad => ad.GetActivities(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
                 .ThrowsAsync(new UnauthorizedException());
-            _activityDataMock
+            _stravaDataMock
                 .Setup(ad => ad.GetActivities(refreshedTokens.AccessToken, It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(_mostRecentActivities);
 
@@ -103,7 +103,7 @@ namespace Coomes.Equipper.UnitTest
 
             InitMocks();
             var sut = new SetGear(
-                _activityDataMock.Object, 
+                _stravaDataMock.Object, 
                 _activityStorageMock.Object,
                 _tokenStorageMock.Object,
                 _tokenProviderMock.Object,
@@ -140,7 +140,7 @@ namespace Coomes.Equipper.UnitTest
 
             InitMocks();
             var sut = new SetGear(
-                _activityDataMock.Object, 
+                _stravaDataMock.Object, 
                 _activityStorageMock.Object,
                 _tokenStorageMock.Object,
                 _tokenProviderMock.Object,
@@ -189,7 +189,7 @@ namespace Coomes.Equipper.UnitTest
 
             InitMocks();
             var sut = new SetGear(
-                _activityDataMock.Object, 
+                _stravaDataMock.Object, 
                 _activityStorageMock.Object,
                 _tokenStorageMock.Object,
                 _tokenProviderMock.Object,
@@ -247,7 +247,7 @@ namespace Coomes.Equipper.UnitTest
             }
 
             var sut = new SetGear(
-                _activityDataMock.Object, 
+                _stravaDataMock.Object, 
                 _activityStorageMock.Object,
                 _tokenStorageMock.Object,
                 _tokenProviderMock.Object,
@@ -257,10 +257,10 @@ namespace Coomes.Equipper.UnitTest
             await sut.Execute(_athleteId, _triggerActivityId);
 
             // then
-            _activityDataMock.Verify(
+            _stravaDataMock.Verify(
                 ad => ad.GetActivities(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()),
                 Times.Once);
-            _activityDataMock.Verify(
+            _stravaDataMock.Verify(
                 ad => ad.UpdateGear(It.IsAny<string>(), It.Is<Activity>(a => a.GearId == "gear_2")),
                 Times.Once);
         }
@@ -303,7 +303,7 @@ namespace Coomes.Equipper.UnitTest
 
             InitMocks();
             var sut = new SetGear(
-                _activityDataMock.Object,
+                _stravaDataMock.Object,
                 _activityStorageMock.Object,
                 _tokenStorageMock.Object,
                 _tokenProviderMock.Object,
@@ -365,7 +365,7 @@ namespace Coomes.Equipper.UnitTest
                 .Setup(ts => ts.AddOrUpdateTokens(It.IsAny<AthleteTokens>()))
                 .Callback<AthleteTokens>(tokens => storedTokens = tokens);
             var sut = new SetGear(
-                _activityDataMock.Object, 
+                _stravaDataMock.Object, 
                 _activityStorageMock.Object,
                 _tokenStorageMock.Object,
                 _tokenProviderMock.Object,
@@ -379,7 +379,7 @@ namespace Coomes.Equipper.UnitTest
                 tp => tp.RefreshToken(_athleteTokens), 
                 Times.Once);
 
-            _activityDataMock.Verify(
+            _stravaDataMock.Verify(
                 ad => ad.GetActivities(refreshedTokens.AccessToken, It.IsAny<int>(), It.IsAny<int>()),
                 Times.Once);
 
@@ -435,7 +435,7 @@ namespace Coomes.Equipper.UnitTest
                 .ReturnsAsync(true);
 
             var sut = new SetGear(
-                _activityDataMock.Object, 
+                _stravaDataMock.Object, 
                 _activityStorageMock.Object,
                 _tokenStorageMock.Object,
                 _tokenProviderMock.Object,
@@ -448,10 +448,10 @@ namespace Coomes.Equipper.UnitTest
             _activityStorageMock.Verify(
                 astore => astore.ContainsResults(It.IsAny<long>(), It.IsAny<long>()),
                 Times.Once);
-            _activityDataMock.Verify(
+            _stravaDataMock.Verify(
                 ad => ad.GetActivities(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()),
                 Times.Never);
-            _activityDataMock.Verify(
+            _stravaDataMock.Verify(
                 ad => ad.UpdateGear(It.IsAny<string>(), It.Is<Activity>(a => a.GearId == "gear_2")),
                 Times.Never);
         }
@@ -462,7 +462,7 @@ namespace Coomes.Equipper.UnitTest
             //given
             // todo: standard mock setup doesn't work when _athleteTokens is null.
             var tokenProviderMock = new Mock<ITokenProvider>();
-            var activityDataMock = new Mock<IActivityData>();
+            var stravaDataMock = new Mock<IStravaData>();
             var tokenStorageMock = new Mock<ITokenStorage>();
             var activityStorageMock = new Mock<IActivityStorage>();
             var loggerMock = new Mock<ILogger>();
@@ -470,7 +470,7 @@ namespace Coomes.Equipper.UnitTest
                 .Setup(ts => ts.GetTokens(_athleteId))
                 .ReturnsAsync(default(AthleteTokens)); // ITokenStorage returns null if no athlete
             var sut = new SetGear(
-                activityDataMock.Object, 
+                stravaDataMock.Object, 
                 activityStorageMock.Object,
                 tokenStorageMock.Object,
                 tokenProviderMock.Object,
@@ -482,7 +482,7 @@ namespace Coomes.Equipper.UnitTest
             // then
             await tryExecute.Should().ThrowAsync<SetGearException>();
 
-            activityDataMock.Verify(
+            stravaDataMock.Verify(
                 ad => ad.GetActivities(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()),
                 Times.Never
             );

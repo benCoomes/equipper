@@ -38,10 +38,10 @@ namespace Coomes.Equipper.FunctionApp.Functions
                  ClientId = Settings.ClientId,
                  ClientSecret = Settings.ClientSecret
             };
-            var athleteClient = new AthleteClient(options, logger);
+            var stravaData = new StravaClient(options, logger);
             var tokenProvider = new TokenClient(options, logger);
             var tokenStorage = new TokenStorage(Settings.CosmosConnectionString);
-            var getAthleteOp = new GetConnectedAthlete(athleteClient, tokenStorage, tokenProvider, logger);
+            var getAthleteOp = new GetConnectedAthlete(stravaData, tokenStorage, tokenProvider, logger);
             return getAthleteOp.Execute(user);
         }
     }

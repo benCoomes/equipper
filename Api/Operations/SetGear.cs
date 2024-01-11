@@ -10,7 +10,7 @@ namespace Coomes.Equipper.Operations
 {
     public class SetGear
     {
-        private IActivityData _activityData;
+        private IStravaData _stravaData;
         private IActivityStorage _activityStorage;
         private ITokenStorage _tokenStorage;
         private ITokenProvider _tokenProvider;
@@ -18,9 +18,9 @@ namespace Coomes.Equipper.Operations
         private NearestCentroidClassifier _matcher;
         private List<Classifier> _candidateMatchers;
 
-        public SetGear(IActivityData activityData, IActivityStorage activityStorage, ITokenStorage tokenStorage, ITokenProvider tokenProvider, ILogger logger)
+        public SetGear(IStravaData stravaData, IActivityStorage activityStorage, ITokenStorage tokenStorage, ITokenProvider tokenProvider, ILogger logger)
         {
-            _activityData = activityData;
+            _stravaData = stravaData;
             _activityStorage = activityStorage;
             _tokenStorage = tokenStorage;
             _tokenProvider = tokenProvider;
@@ -48,7 +48,7 @@ namespace Coomes.Equipper.Operations
                 return;
             }
             
-            var activities = await _activityData.GetActivities(athleteTokens.AccessToken);
+            var activities = await _stravaData.GetActivities(athleteTokens.AccessToken);
 
             var newActivity = activities.SingleOrDefault(a => a.Id == activityID);
             if (newActivity == null)
@@ -67,7 +67,7 @@ namespace Coomes.Equipper.Operations
             var bestMatchGearId = _matcher.Classify(newActivity, otherActivities); 
             newActivity.GearId = bestMatchGearId;
 
-            await _activityData.UpdateGear(athleteTokens.AccessToken, newActivity);
+            await _stravaData.UpdateGear(athleteTokens.AccessToken, newActivity);
         }
 
         private async Task RecordActivityClassification(Activity newActivity, IEnumerable<Activity> activities) 
