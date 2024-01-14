@@ -37,7 +37,7 @@ namespace Coomes.Equipper.StravaApi
 
         public async Task<IEnumerable<Activity>> GetActivities(string accessToken, int page = 1, int limit = 50)
         {
-            var uriBuilder = new UriBuilder("{_stravaApiUrl}/athlete/activities");
+            var uriBuilder = new UriBuilder($"{_stravaApiUrl}/athlete/activities");
             var query = HttpUtility.ParseQueryString(uriBuilder.Query);
             query["page"] = page.ToString();
             query["per_page"] = limit.ToString();
