@@ -508,6 +508,68 @@ namespace Coomes.Equipper.UnitTest
         }
 
         [TestMethod]
+        public async Task SetGear_IgnoresMissingGear() 
+        {
+            _triggerActivityId = 3;
+            _athleteId = 1000;
+            _athleteTokens = new AthleteTokens()
+            {
+                AccessToken = "validAccessToken",
+                AthleteID = _athleteId,
+                ExpiresAtUtc = DateTime.UtcNow.AddHours(1)
+            };
+            _mostRecentActivities = new List<Activity>()
+            {
+                new Activity()
+                {
+                    Id = 1,
+                    AthleteId = _athleteId,
+                    AverageSpeed = 10,
+                    GearId = "gear_1"
+                },
+                new Activity()
+                {
+                    Id = 2,
+                    AthleteId = _athleteId,
+                    AverageSpeed = 21,
+                    GearId = "missing_gear"
+                },
+                new Activity()
+                {
+                    Id = _triggerActivityId,
+                    AverageSpeed = 20,
+                    GearId = null
+                }
+            };
+
+            InitMocks();
+            _stravaDataMock
+                .Setup(sd => sd.GetGear(It.IsAny<string>(), "missing_gear"))
+                .ThrowsAsync(new NotFoundException());
+            var sut = new SetGear(
+                _stravaDataMock.Object,
+                _activityStorageMock.Object,
+                _tokenStorageMock.Object,
+                _tokenProviderMock.Object,
+                _loggerMock.Object);
+            
+            // when
+            await sut.Execute(_athleteId, _triggerActivityId);
+
+            // then
+            // missing_gear is a better match, except that it no longer exists. So, expect gear_1
+            _stravaDataMock.Verify(
+                gd => gd.GetGear(It.IsAny<string>(), "gear_1"),
+                Times.Once);
+            _stravaDataMock.Verify(
+                gd => gd.GetGear(It.IsAny<string>(), "missing_gear"),
+                Times.Once);
+            _stravaDataMock.Verify(
+                ad => ad.UpdateGear(It.IsAny<string>(), It.Is<Activity>(a => a.GearId == "gear_1")),
+                Times.Once);
+        }
+
+        [TestMethod]
         public async Task SetGear_IgnoresActivity_WhenAlreadyProcessed() 
         {
             _triggerActivityId = 3;

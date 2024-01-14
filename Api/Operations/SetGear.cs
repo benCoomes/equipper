@@ -58,7 +58,7 @@ namespace Coomes.Equipper.Operations
             
             
             var gear = await GetGear(athleteTokens, activities);
-            var validGearIds = gear.Where(g => !g.Retired).Select(g => g.Id);
+            var validGearIds = gear.Where(g => g != null && !g.Retired).Select(g => g.Id);
             var otherActivities = activities
                 .Where(a => a.Id != activityID)
                 .Where(a => validGearIds.Contains(a.GearId))
@@ -96,10 +96,20 @@ namespace Coomes.Equipper.Operations
             }
         }
 
+        // returns an array of Gear objects. Gear that does not exist will result in a null element.
         private Task<Gear[]> GetGear(AthleteTokens athleteTokens, IEnumerable<Activity> activities)
         {
             var gearIds = activities.Where(a => !string.IsNullOrWhiteSpace(a.GearId)).Select(a => a.GearId).Distinct();
-            return Task.WhenAll(gearIds.Select(id => _stravaData.GetGear(athleteTokens.AccessToken, id)));
+            return Task.WhenAll(gearIds.Select(async id => 
+            {
+                try 
+                {
+                    return await _stravaData.GetGear(athleteTokens.AccessToken, id);
+                }
+                catch (NotFoundException) {
+                    return default;
+                }
+            }));
         }
     }
 }
