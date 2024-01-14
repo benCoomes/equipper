@@ -6,14 +6,14 @@ namespace Coomes.Equipper.Operations
 {
     public class GetConnectedAthlete
     {
-        private IAthleteClient _athleteClient;
+        private IStravaData _stravaData;
         private ITokenStorage _tokenStorage;
         private ITokenProvider _tokenProvider;
         private ILogger _logger;
 
-        public GetConnectedAthlete(IAthleteClient athleteClient, ITokenStorage tokenStorage, ITokenProvider tokenProvider, ILogger logger) 
+        public GetConnectedAthlete(IStravaData stravaData, ITokenStorage tokenStorage, ITokenProvider tokenProvider, ILogger logger) 
         {
-            _athleteClient = athleteClient;
+            _stravaData = stravaData;
             _tokenStorage = tokenStorage;
             _tokenProvider = tokenProvider;
             _logger = logger;
@@ -28,7 +28,7 @@ namespace Coomes.Equipper.Operations
             
             var tokens = await TokenHelper.GetTokensByUser(_tokenStorage, _tokenProvider, user);
             if(tokens == null) return null;
-            return await _athleteClient.GetAthlete(tokens.AccessToken, tokens.AthleteID);
+            return await _stravaData.GetAthlete(tokens.AccessToken, tokens.AthleteID);
         }
     }
 }

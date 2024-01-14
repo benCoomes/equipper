@@ -39,6 +39,11 @@ namespace Coomes.Equipper.StravaApi
                     domainException = new UnauthorizedException();
                     return true;
                 }
+                case HttpStatusCode.NotFound:
+                {
+                    domainException = new NotFoundException();
+                    return true;
+                }
                 default:
                 {
                     domainException = null;

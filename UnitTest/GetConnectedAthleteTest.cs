@@ -35,13 +35,13 @@ namespace Coomes.Equipper.UnitTest
             .Setup(ts => ts.GetTokenForUser(user.UserId))
             .ReturnsAsync(tokens);
           
-          var athleteClientMock = new Mock<IAthleteClient>();
-          athleteClientMock
-            .Setup(ac => ac.GetAthlete(tokens.AccessToken, tokens.AthleteID))
+          var stravaDataMock = new Mock<IStravaData>();
+          stravaDataMock
+            .Setup(sd => sd.GetAthlete(tokens.AccessToken, tokens.AthleteID))
             .ReturnsAsync(expectedAthlete);
 
           var sut = new GetConnectedAthlete(
-            athleteClientMock.Object, 
+            stravaDataMock.Object, 
             tokenStorageMock.Object,
             Mock.Of<ITokenProvider>(),
             Mock.Of<ILogger>());
@@ -68,7 +68,7 @@ namespace Coomes.Equipper.UnitTest
             .ReturnsAsync(default(AthleteTokens));
           
           var sut = new GetConnectedAthlete(
-            Mock.Of<IAthleteClient>(), 
+            Mock.Of<IStravaData>(), 
             tokenStorageMock.Object,
             Mock.Of<ITokenProvider>(),
             Mock.Of<ILogger>());

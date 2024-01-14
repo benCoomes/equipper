@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
@@ -16,6 +15,7 @@ namespace Coomes.Equipper.StravaApi.Test
     {
         [DataTestMethod]
         [DataRow(HttpStatusCode.Unauthorized, typeof(UnauthorizedException))]
+        [DataRow(HttpStatusCode.NotFound, typeof(NotFoundException))]
         public async Task LogAndThrow_ThrowsExpectedExceptionForResponseCode(HttpStatusCode code, Type expectedExceptionType)
         {
             var mockLogger = new Mock<ILogger>();

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ -z "$STRAVA_ACCESS_TOKEN" ]; then
+    echo "STRAVA_ACCESS_TOKEN is not set"
+    exit 1
+fi
+
+if [ -z "$1" ]; then
+    echo "gear ID is not set"
+    exit 1
+fi
+
+curl -H "Authorization: Bearer $STRAVA_ACCESS_TOKEN" https://www.strava.com/api/v3/gear/$1 

@@ -10,7 +10,7 @@ namespace Coomes.Equipper.Operations
 {
     public class SetGear
     {
-        private IActivityData _activityData;
+        private IStravaData _stravaData;
         private IActivityStorage _activityStorage;
         private ITokenStorage _tokenStorage;
         private ITokenProvider _tokenProvider;
@@ -18,9 +18,9 @@ namespace Coomes.Equipper.Operations
         private NearestCentroidClassifier _matcher;
         private List<Classifier> _candidateMatchers;
 
-        public SetGear(IActivityData activityData, IActivityStorage activityStorage, ITokenStorage tokenStorage, ITokenProvider tokenProvider, ILogger logger)
+        public SetGear(IStravaData stravaData, IActivityStorage activityStorage, ITokenStorage tokenStorage, ITokenProvider tokenProvider, ILogger logger)
         {
-            _activityData = activityData;
+            _stravaData = stravaData;
             _activityStorage = activityStorage;
             _tokenStorage = tokenStorage;
             _tokenProvider = tokenProvider;
@@ -48,7 +48,7 @@ namespace Coomes.Equipper.Operations
                 return;
             }
             
-            var activities = await _activityData.GetActivities(athleteTokens.AccessToken);
+            var activities = await _stravaData.GetActivities(athleteTokens.AccessToken);
 
             var newActivity = activities.SingleOrDefault(a => a.Id == activityID);
             if (newActivity == null)
@@ -56,7 +56,13 @@ namespace Coomes.Equipper.Operations
                 throw new SetGearException("The triggering activity was not in the most recent activities");
             }
             
-            var otherActivities = activities.Where(a => a.Id != activityID && !string.IsNullOrWhiteSpace(a.GearId)).ToList();
+            
+            var gear = await GetGear(athleteTokens, activities);
+            var validGearIds = gear.Where(g => g != null && !g.Retired).Select(g => g.Id);
+            var otherActivities = activities
+                .Where(a => a.Id != activityID)
+                .Where(a => validGearIds.Contains(a.GearId))
+                .ToList();
             if(otherActivities.Count == 0) 
             {
                 throw new SetGearException("There are no historical activities on which to base a gear selection.");
@@ -67,7 +73,7 @@ namespace Coomes.Equipper.Operations
             var bestMatchGearId = _matcher.Classify(newActivity, otherActivities); 
             newActivity.GearId = bestMatchGearId;
 
-            await _activityData.UpdateGear(athleteTokens.AccessToken, newActivity);
+            await _stravaData.UpdateGear(athleteTokens.AccessToken, newActivity);
         }
 
         private async Task RecordActivityClassification(Activity newActivity, IEnumerable<Activity> activities) 
@@ -88,6 +94,22 @@ namespace Coomes.Equipper.Operations
             {
                 _logger.LogWarning(e, "Failed to store activity classifications.");
             }
+        }
+
+        // returns an array of Gear objects. Gear that does not exist will result in a null element.
+        private Task<Gear[]> GetGear(AthleteTokens athleteTokens, IEnumerable<Activity> activities)
+        {
+            var gearIds = activities.Where(a => !string.IsNullOrWhiteSpace(a.GearId)).Select(a => a.GearId).Distinct();
+            return Task.WhenAll(gearIds.Select(async id => 
+            {
+                try 
+                {
+                    return await _stravaData.GetGear(athleteTokens.AccessToken, id);
+                }
+                catch (NotFoundException) {
+                    return default;
+                }
+            }));
         }
     }
 }
