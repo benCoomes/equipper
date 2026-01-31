@@ -1,4 +1,7 @@
 {
+    "platform": {
+        "apiRuntime": "dotnet:8.0"
+    },
     "routes": [
         {
             "route": "/auth",
