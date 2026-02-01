@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -47,7 +48,8 @@ namespace Coomes.Equipper.FunctionApp.Functions
             var correlationID = Guid.NewGuid();
             logger.LogInformation("{function} {status} {cid}", "SubscriptionWebhook - ConfirmationSubscription", "Starting", correlationID.ToString());
 
-            var challenge = req.Query["hub.challenge"];
+            var query = HttpUtility.ParseQueryString(req.Url.Query);
+            var challenge = query["hub.challenge"];
             if(challenge == String.Empty)
             {
                 var errorResponse = req.CreateResponse(HttpStatusCode.BadRequest);
@@ -55,7 +57,7 @@ namespace Coomes.Equipper.FunctionApp.Functions
                 return errorResponse;
             }
 
-            var verifyToken = req.Query["hub.verify_token"];
+            var verifyToken = query["hub.verify_token"];
             if(verifyToken == String.Empty)
             {
                 var errorResponse = req.CreateResponse(HttpStatusCode.BadRequest);

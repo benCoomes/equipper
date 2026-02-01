@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -28,9 +29,10 @@ namespace Coomes.Equipper.FunctionApp
                 var user = StaticWebAppsAuth.ParseUser(req);
                 _logger.LogInformation("{function} {status} {cid} {userId}", "TokenExchange", "Starting", correlationID.ToString(), user.UserId);
 
-                string code = req.Query["_code"]; // see https://github.com/Azure/static-web-apps/issues/165 and auth.html
-                string scopeString = req.Query["scope"];
-                string error = req.Query["error"];
+                var query = HttpUtility.ParseQueryString(req.Url.Query);
+                string code = query["_code"]; // see https://github.com/Azure/static-web-apps/issues/165 and auth.html
+                string scopeString = query["scope"];
+                string error = query["error"];
 
                 _logger.LogInformation("Received auth code with scope '{scope}'", scopeString);
 

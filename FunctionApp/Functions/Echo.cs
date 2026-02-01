@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using System.Web;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -22,7 +23,8 @@ namespace Coomes.Equipper.FunctionApp.Functions
             var user = StaticWebAppsAuth.ParseUser(req);
             _logger.LogInformation("{function} {status} {cid} {userId}", "Echo", "Starting", correlationID.ToString(), user.UserId);
 
-            string value = req.Query["value"];
+            var query = HttpUtility.ParseQueryString(req.Url.Query);
+            string value = query["value"];
 
             string responseMessage = "";
             if(string.Equals("I'm an idiot", value, StringComparison.CurrentCultureIgnoreCase))
