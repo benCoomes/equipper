@@ -1,44 +1,48 @@
 using System;
+using System.Net;
 using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Coomes.Equipper.Operations;
-using Microsoft.AspNetCore.Mvc;
 using Coomes.Equipper.StravaApi.Models;
 using Coomes.Equipper.StravaApi;
 using Coomes.Equipper.CosmosStorage;
-using System.Net;
 
 namespace Coomes.Equipper.FunctionApp.Functions
 {
-    public static class SubscriptionWebhook
+    public class SubscriptionWebhook
     {
-        [FunctionName("__SubscriptionWebhookPlaceholder__")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
-            ILogger log)
+        private readonly ILogger _logger;
+
+        public SubscriptionWebhook(ILoggerFactory loggerFactory)
+        {
+            _logger = loggerFactory.CreateLogger<SubscriptionWebhook>();
+        }
+
+        [Function("__SubscriptionWebhookPlaceholder__")]
+        public async Task<HttpResponseData> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequestData req)
         {
             switch(req.Method)
             {
                 case "GET":
                 {
-                    return await ConfirmSubscription(req, log);
+                    return await ConfirmSubscription(req, _logger);
                 }
                 case "POST":
                 {
-                    return await ProcessEvent(req, log);
+                    return await ProcessEvent(req, _logger);
                 }
                 default:
                 {
-                    log.LogWarning($"The SubscriptionWebhook function was called with the unsupported HTTP method {req.Method}");
-                    return new StatusCodeResult((int)HttpStatusCode.MethodNotAllowed);
+                    _logger.LogWarning($"The SubscriptionWebhook function was called with the unsupported HTTP method {req.Method}");
+                    return req.CreateResponse(HttpStatusCode.MethodNotAllowed);
                 }
             }
         }
 
-        private static Task<IActionResult> ConfirmSubscription(HttpRequest req, ILogger logger)
+        private static async Task<HttpResponseData> ConfirmSubscription(HttpRequestData req, ILogger logger)
         {
             var correlationID = Guid.NewGuid();
             logger.LogInformation("{function} {status} {cid}", "SubscriptionWebhook - ConfirmationSubscription", "Starting", correlationID.ToString());
@@ -46,13 +50,17 @@ namespace Coomes.Equipper.FunctionApp.Functions
             var challenge = req.Query["hub.challenge"];
             if(challenge == String.Empty)
             {
-                return Task.FromResult<IActionResult>(new BadRequestObjectResult("Subscription confirmations must contain a 'hub.challenge' query parameter."));
+                var errorResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await errorResponse.WriteStringAsync("Subscription confirmations must contain a 'hub.challenge' query parameter.");
+                return errorResponse;
             }
 
             var verifyToken = req.Query["hub.verify_token"];
             if(verifyToken == String.Empty)
             {
-                return Task.FromResult<IActionResult>(new BadRequestObjectResult("Subscription confirmations must contain a 'hub.verify_token' query parameter."));
+                var errorResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await errorResponse.WriteStringAsync("Subscription confirmations must contain a 'hub.verify_token' query parameter.");
+                return errorResponse;
             }
 
             // todo: better way to build dependencies?
@@ -62,10 +70,13 @@ namespace Coomes.Equipper.FunctionApp.Functions
             var confirmation = getConfirmation.Execute(challenge, verifyToken, expectedToken);
 
             logger.LogInformation("{function} {status} {cid}", "SubscriptionWebhook  - ConfirmationSubscription", "Success", correlationID.ToString());
-            return Task.FromResult<IActionResult>(new OkObjectResult(confirmation));
+            
+            var response = req.CreateResponse(HttpStatusCode.OK);
+            await response.WriteAsJsonAsync(confirmation);
+            return response;
         }
 
-        private static async Task<IActionResult> ProcessEvent(HttpRequest req, ILogger log)
+        private static async Task<HttpResponseData> ProcessEvent(HttpRequestData req, ILogger log)
         {
             var correlationID = Guid.NewGuid();
             log.LogInformation("{function} {status} {cid}", "SubscriptionWebhook - ProcessEvent", "Starting", correlationID.ToString());
@@ -77,7 +88,8 @@ namespace Coomes.Equipper.FunctionApp.Functions
             await ExecuteEventAction(stravaEvent, log);
 
             log.LogInformation("{function} {status} {cid}", "SubscriptionWebhook  - ProcessEvent", "Success", correlationID.ToString());
-            return new OkResult();
+            
+            return req.CreateResponse(HttpStatusCode.OK);
         }
 
         private static async Task ExecuteEventAction(StravaEvent stravaEvent, ILogger log)

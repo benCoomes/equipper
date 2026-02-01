@@ -1,9 +1,8 @@
 using System;
+using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Coomes.Equipper.StravaApi;
 using Coomes.Equipper.Operations;
@@ -11,28 +10,36 @@ using Coomes.Equipper.CosmosStorage;
 
 namespace Coomes.Equipper.FunctionApp
 {
-    public static class TokenExchange
+    public class TokenExchange
     {
-        [FunctionName("TokenExchange")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
-            ILogger log)
+        private readonly ILogger _logger;
+
+        public TokenExchange(ILoggerFactory loggerFactory)
         {
-            return await ErrorHandler.RunWithErrorHandling(log, async () => {
+            _logger = loggerFactory.CreateLogger<TokenExchange>();
+        }
+
+        [Function("TokenExchange")]
+        public async Task<HttpResponseData> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestData req)
+        {
+            return await ErrorHandler.RunWithErrorHandling(_logger, req, async () => {
                 var correlationID = Guid.NewGuid();
                 var user = StaticWebAppsAuth.ParseUser(req);
-                log.LogInformation("{function} {status} {cid} {userId}", "TokenExchange", "Starting", correlationID.ToString(), user.UserId);
+                _logger.LogInformation("{function} {status} {cid} {userId}", "TokenExchange", "Starting", correlationID.ToString(), user.UserId);
 
                 string code = req.Query["_code"]; // see https://github.com/Azure/static-web-apps/issues/165 and auth.html
                 string scopeString = req.Query["scope"];
                 string error = req.Query["error"];
 
-                log.LogInformation("Received auth code with scope '{scope}'", scopeString);
+                _logger.LogInformation("Received auth code with scope '{scope}'", scopeString);
 
-                var token = await ExecuteTokenExchange(code, scopeString, user, error, log);
+                var token = await ExecuteTokenExchange(code, scopeString, user, error, _logger);
                 
-                log.LogInformation("{function} {status} {cid} {userId}", "TokenExchange", "Success", correlationID.ToString(), user.UserId);
-                return new OkResult();
+                _logger.LogInformation("{function} {status} {cid} {userId}", "TokenExchange", "Success", correlationID.ToString(), user.UserId);
+                
+                var response = req.CreateResponse(HttpStatusCode.OK);
+                return response;
             });
         }
 

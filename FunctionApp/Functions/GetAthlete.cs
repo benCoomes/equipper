@@ -1,33 +1,46 @@
 using System;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
+using System.Net;
+using System.Threading.Tasks;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Coomes.Equipper.CosmosStorage;
 using Coomes.Equipper.Operations;
-using System.Threading.Tasks;
 using Coomes.Equipper.StravaApi;
 
 namespace Coomes.Equipper.FunctionApp.Functions
 {
-    public static class GetAthlete
+    public class GetAthlete
     {
-        [FunctionName("GetAthlete")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
-            ILogger logger)
+        private readonly ILogger _logger;
+
+        public GetAthlete(ILoggerFactory loggerFactory)
+        {
+            _logger = loggerFactory.CreateLogger<GetAthlete>();
+        }
+
+        [Function("GetAthlete")]
+        public async Task<HttpResponseData> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestData req)
         {
             var correlationID = Guid.NewGuid();
             var user = StaticWebAppsAuth.ParseUser(req);
-            logger.LogInformation("{function} {status} {cid} {userId}", "GetAthlete", "Starting", correlationID.ToString(), user.UserId);
+            _logger.LogInformation("{function} {status} {cid} {userId}", "GetAthlete", "Starting", correlationID.ToString(), user.UserId);
 
-            var athlete = await ExecuteGetAthlete(user, logger);
+            var athlete = await ExecuteGetAthlete(user, _logger);
 
-            logger.LogInformation("{function} {status} {cid} {userId}", "GetAthlete", "Success", correlationID.ToString(), user.UserId);
+            _logger.LogInformation("{function} {status} {cid} {userId}", "GetAthlete", "Success", correlationID.ToString(), user.UserId);
             
-            if(athlete != null) return new OkObjectResult(athlete);
-            else return new NotFoundResult();
+            if(athlete != null) 
+            {
+                var response = req.CreateResponse(HttpStatusCode.OK);
+                await response.WriteAsJsonAsync(athlete);
+                return response;
+            }
+            else 
+            {
+                return req.CreateResponse(HttpStatusCode.NotFound);
+            }
         }
 
         private static Task<Athlete> ExecuteGetAthlete(EquipperUser user, ILogger logger)
