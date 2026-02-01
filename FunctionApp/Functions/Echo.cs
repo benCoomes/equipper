@@ -1,24 +1,30 @@
 using System;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
+using System.Net;
+using System.Web;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
 namespace Coomes.Equipper.FunctionApp.Functions
 {
-    public static class Echo
+    public class Echo
     {
-        [FunctionName("Echo")]
-        public static IActionResult Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
-            ILogger log)
+        private readonly ILogger _logger;
+
+        public Echo(ILoggerFactory loggerFactory)
+        {
+            _logger = loggerFactory.CreateLogger<Echo>();
+        }
+
+        [Function("Echo")]
+        public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestData req)
         {
             var correlationID = Guid.NewGuid();
             var user = StaticWebAppsAuth.ParseUser(req);
-            log.LogInformation("{function} {status} {cid} {userId}", "Echo", "Starting", correlationID.ToString(), user.UserId);
+            _logger.LogInformation("{function} {status} {cid} {userId}", "Echo", "Starting", correlationID.ToString(), user.UserId);
 
-            string value = req.Query["value"];
+            var query = HttpUtility.ParseQueryString(req.Url.Query);
+            string value = query["value"];
 
             string responseMessage = "";
             if(string.Equals("I'm an idiot", value, StringComparison.CurrentCultureIgnoreCase))
@@ -38,8 +44,11 @@ namespace Coomes.Equipper.FunctionApp.Functions
                 responseMessage = "Saying nothing, you hear only the silence of the void...";
             }
 
-            log.LogInformation("{function} {status} {cid} {userId}", "Echo", "Success", correlationID.ToString(), user.UserId);
-            return new OkObjectResult(responseMessage);
+            _logger.LogInformation("{function} {status} {cid} {userId}", "Echo", "Success", correlationID.ToString(), user.UserId);
+            
+            var response = req.CreateResponse(HttpStatusCode.OK);
+            response.WriteString(responseMessage);
+            return response;
         }
     }
 }
