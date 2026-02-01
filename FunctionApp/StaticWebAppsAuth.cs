@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Functions.Worker.Http;
 using Coomes.Equipper;
 
 // this class derived from https://learn.microsoft.com/en-us/azure/static-web-apps/user-information?tabs=csharp#api-functions
@@ -17,13 +17,13 @@ public static class StaticWebAppsAuth
       public IEnumerable<string> UserRoles { get; set; }
   }
 
-  public static EquipperUser ParseUser(HttpRequest req)
+  public static EquipperUser ParseUser(HttpRequestData req)
   {
       var principal = new ClientPrincipal();
 
-      if (req.Headers.TryGetValue("x-ms-client-principal", out var header))
+      if (req.Headers.TryGetValues("x-ms-client-principal", out var headerValues))
       {
-          var data = header[0];
+          var data = headerValues.First();
           var decoded = Convert.FromBase64String(data);
           var json = Encoding.UTF8.GetString(decoded);
           principal = JsonSerializer.Deserialize<ClientPrincipal>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });

@@ -1,13 +1,14 @@
 using System;
+using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
 namespace Coomes.Equipper.FunctionApp
 {
     public static class ErrorHandler
     {
-        public static async Task<ActionResult> RunWithErrorHandling(ILogger logger, Func<Task<ActionResult>> method)
+        public static async Task<HttpResponseData> RunWithErrorHandling(ILogger logger, HttpRequestData req, Func<Task<HttpResponseData>> method)
         {
             try 
             {
@@ -15,11 +16,14 @@ namespace Coomes.Equipper.FunctionApp
             }
             catch (BadRequestException bre) 
             {
-                return new BadRequestObjectResult(bre.Message);
+                var response = req.CreateResponse(HttpStatusCode.BadRequest);
+                await response.WriteStringAsync(bre.Message);
+                return response;
             }
             catch(UnauthorizedException)
             {
-                return new UnauthorizedResult();
+                var response = req.CreateResponse(HttpStatusCode.Unauthorized);
+                return response;
             }
         }
     }
